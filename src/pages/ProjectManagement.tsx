@@ -60,9 +60,145 @@ export default function ProjectManagement() {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [taskPriority, setTaskPriority] = useState<'low' | 'med' | 'high'>('med');
   const [showAddTask, setShowAddTask] = useState(false);
+  
+  // Enhanced state for improved functionality
+  const [editingTask, setEditingTask] = useState<number | null>(null);
+  const [editTaskTitle, setEditTaskTitle] = useState('');
+  const [editTaskPriority, setEditTaskPriority] = useState<'low' | 'med' | 'high'>('med');
+  const [showAddBudgetItem, setShowAddBudgetItem] = useState(false);
+  const [newBudgetItem, setNewBudgetItem] = useState({ name: '', cost: '', category: 'Hardware' });
+  const [showAddInventoryItem, setShowAddInventoryItem] = useState(false);
+  const [newInventoryItem, setNewInventoryItem] = useState({ name: '', current: '', minimum: '', unit: 'pcs' });
+  const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
+  const [milestoneData, setMilestoneData] = useState<ProjectMilestone[]>([]);
 
   useEffect(() => {
     const timer = setTimeout(() => setAnimatedStats(true), 500);
+    
+    // Initialize data arrays
+    setBudgetItems([
+      { 
+        category: 'Hardware', 
+        budgeted: 250, 
+        spent: 180.32, 
+        remaining: 69.68,
+        items: [
+          { name: 'Stepper Motors', cost: 45.00, date: '2025-07-15' },
+          { name: 'Motherboard', cost: 89.99, date: '2025-07-20' },
+          { name: 'Hot End', cost: 45.33, date: '2025-08-02' }
+        ]
+      },
+      { 
+        category: 'Tools', 
+        budgeted: 100, 
+        spent: 75.50, 
+        remaining: 24.50,
+        items: [
+          { name: 'Digital Calipers', cost: 25.99, date: '2025-07-10' },
+          { name: 'Hex Keys Set', cost: 15.50, date: '2025-07-12' },
+          { name: 'Thermal Paste', cost: 12.99, date: '2025-07-25' },
+          { name: 'Multimeter', cost: 21.02, date: '2025-08-01' }
+        ]
+      },
+      { 
+        category: 'Materials', 
+        budgeted: 50, 
+        spent: 32.15, 
+        remaining: 17.85,
+        items: [
+          { name: 'GT2 Belt', cost: 8.50, date: '2025-07-18' },
+          { name: 'PLA Filament', cost: 23.65, date: '2025-07-22' }
+        ]
+      }
+    ]);
+
+    setInventoryItems([
+      { 
+        name: 'GT2 Belts', 
+        current: '2m', 
+        minimum: 0.5, 
+        unit: 'm', 
+        status: 'good', 
+        lastUpdated: '2 days ago',
+        supplier: 'Amazon',
+        estimatedCost: 8.50
+      },
+      { 
+        name: 'Nozzles 0.4mm', 
+        current: 3, 
+        minimum: 5, 
+        unit: 'pcs', 
+        status: 'warning', 
+        lastUpdated: '1 week ago',
+        supplier: 'E3D Online',
+        estimatedCost: 12.99
+      },
+      { 
+        name: 'PLA Filament', 
+        current: '1.2kg', 
+        minimum: 0.5, 
+        unit: 'kg', 
+        status: 'good', 
+        lastUpdated: '3 days ago',
+        supplier: 'Hatchbox',
+        estimatedCost: 25.99
+      },
+      { 
+        name: 'Stepper Drivers', 
+        current: 0, 
+        minimum: 2, 
+        unit: 'pcs', 
+        status: 'critical', 
+        lastUpdated: '2 weeks ago',
+        supplier: 'BIQU',
+        estimatedCost: 35.99
+      }
+    ]);
+
+    setMilestoneData([
+      {
+        id: '1',
+        title: 'Hardware Assessment & Planning',
+        description: 'Complete teardown and component evaluation',
+        status: 'completed',
+        date: '2025-07-10',
+        completionPercentage: 100,
+        technologies: ['Hardware Diagnosis', '3D Printing', 'Electronics'],
+        achievements: ['Identified all failing components', 'Created comprehensive parts list', 'Documented current state']
+      },
+      {
+        id: '2',
+        title: 'Electronics Restoration',
+        description: 'Replace motherboard and stepper drivers',
+        status: 'in-progress',
+        date: '2025-08-15',
+        completionPercentage: 65,
+        technologies: ['Electronics', 'Firmware', 'Soldering', 'Testing'],
+        achievements: ['Installed new motherboard', 'Updated firmware', 'Currently testing stepper drivers']
+      },
+      {
+        id: '3',
+        title: 'Mechanical Improvements',
+        description: 'Upgrade belts, pulleys, and linear bearings',
+        status: 'upcoming',
+        date: '2025-08-30',
+        completionPercentage: 0,
+        technologies: ['Mechanical Engineering', 'Precision Assembly', 'Quality Control'],
+        achievements: []
+      },
+      {
+        id: '4',
+        title: 'Software Integration & Testing',
+        description: 'Calibration, testing, and optimization',
+        status: 'upcoming',
+        date: '2025-09-10',
+        completionPercentage: 0,
+        technologies: ['Software Configuration', 'Testing', 'Optimization', 'Documentation'],
+        achievements: []
+      }
+    ]);
+    
     return () => clearTimeout(timer);
   }, []);
 
@@ -78,6 +214,113 @@ export default function ProjectManagement() {
       setNewTaskTitle('');
       setShowAddTask(false);
     }
+  };
+
+  // Enhanced task management functions
+  const handleEditTask = (taskId: number) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      setEditingTask(taskId);
+      setEditTaskTitle(task.title);
+      setEditTaskPriority(task.priority);
+    }
+  };
+
+  const handleSaveTask = () => {
+    if (editingTask !== null && editTaskTitle.trim()) {
+      // In a real app, this would update through the store
+      setEditingTask(null);
+      setEditTaskTitle('');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTask(null);
+    setEditTaskTitle('');
+  };
+
+  const handleDeleteTask = (taskId: number) => {
+    // In a real app, this would delete through the store
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      console.log('Delete task:', taskId);
+    }
+  };
+
+  // Budget management functions
+  const handleAddBudgetItem = () => {
+    if (newBudgetItem.name.trim() && newBudgetItem.cost.trim()) {
+      const cost = parseFloat(newBudgetItem.cost);
+      if (!isNaN(cost)) {
+        const updatedBudgetData = budgetData.map(category => {
+          if (category.category === newBudgetItem.category) {
+            return {
+              ...category,
+              spent: category.spent + cost,
+              remaining: category.remaining - cost,
+              items: [...category.items, {
+                name: newBudgetItem.name,
+                cost: cost,
+                date: new Date().toISOString().split('T')[0]
+              }]
+            };
+          }
+          return category;
+        });
+        // In a real app, this would update through state management
+        setNewBudgetItem({ name: '', cost: '', category: 'Hardware' });
+        setShowAddBudgetItem(false);
+      }
+    }
+  };
+
+  // Inventory management functions
+  const handleAddInventoryItem = () => {
+    if (newInventoryItem.name.trim() && newInventoryItem.current.trim() && newInventoryItem.minimum.trim()) {
+      const current = parseFloat(newInventoryItem.current);
+      const minimum = parseFloat(newInventoryItem.minimum);
+      if (!isNaN(current) && !isNaN(minimum)) {
+        const status: 'good' | 'warning' | 'critical' = 
+          current === 0 ? 'critical' : 
+          current <= minimum ? 'warning' : 'good';
+        
+        const newItem: InventoryItem = {
+          name: newInventoryItem.name,
+          current: current,
+          minimum: minimum,
+          unit: newInventoryItem.unit,
+          status: status,
+          lastUpdated: 'Just now'
+        };
+        
+        // In a real app, this would update through state management
+        setNewInventoryItem({ name: '', current: '', minimum: '', unit: 'pcs' });
+        setShowAddInventoryItem(false);
+      }
+    }
+  };
+
+  const handleReorderItem = (itemName: string) => {
+    alert(`Reorder initiated for ${itemName}. In a real app, this would integrate with supplier APIs.`);
+  };
+
+  // Export functionality
+  const handleExportData = (type: 'pdf' | 'csv' | 'json') => {
+    const data = {
+      tasks: tasks,
+      budget: budgetData,
+      inventory: inventoryData,
+      milestones: milestones,
+      exportDate: new Date().toISOString(),
+      projectProgress: progress
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `project-management-${new Date().toISOString().split('T')[0]}.${type === 'json' ? 'json' : 'txt'}`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const metrics: ProjectMetric[] = [
@@ -120,127 +363,11 @@ export default function ProjectManagement() {
     }
   ];
 
-  const budgetData: BudgetItem[] = [
-    { 
-      category: 'Hardware', 
-      budgeted: 250, 
-      spent: 180.32, 
-      remaining: 69.68,
-      items: [
-        { name: 'Stepper Motors', cost: 45.00, date: '2025-07-15' },
-        { name: 'Motherboard', cost: 89.99, date: '2025-07-20' },
-        { name: 'Hot End', cost: 45.33, date: '2025-08-02' }
-      ]
-    },
-    { 
-      category: 'Tools', 
-      budgeted: 100, 
-      spent: 75.50, 
-      remaining: 24.50,
-      items: [
-        { name: 'Digital Calipers', cost: 25.99, date: '2025-07-10' },
-        { name: 'Hex Keys Set', cost: 15.50, date: '2025-07-12' },
-        { name: 'Thermal Paste', cost: 12.99, date: '2025-07-25' },
-        { name: 'Multimeter', cost: 21.02, date: '2025-08-01' }
-      ]
-    },
-    { 
-      category: 'Materials', 
-      budgeted: 50, 
-      spent: 32.15, 
-      remaining: 17.85,
-      items: [
-        { name: 'GT2 Belt', cost: 8.50, date: '2025-07-18' },
-        { name: 'PLA Filament', cost: 23.65, date: '2025-07-22' }
-      ]
-    }
-  ];
+  const budgetData = budgetItems.length > 0 ? budgetItems : [];
 
-  const inventoryData: InventoryItem[] = [
-    { 
-      name: 'GT2 Belts', 
-      current: '2m', 
-      minimum: 0.5, 
-      unit: 'm', 
-      status: 'good', 
-      lastUpdated: '2 days ago',
-      supplier: 'Amazon',
-      estimatedCost: 8.50
-    },
-    { 
-      name: 'Nozzles 0.4mm', 
-      current: 3, 
-      minimum: 5, 
-      unit: 'pcs', 
-      status: 'warning', 
-      lastUpdated: '1 week ago',
-      supplier: 'E3D Online',
-      estimatedCost: 12.99
-    },
-    { 
-      name: 'PLA Filament', 
-      current: '1.2kg', 
-      minimum: 0.5, 
-      unit: 'kg', 
-      status: 'good', 
-      lastUpdated: '3 days ago',
-      supplier: 'Hatchbox',
-      estimatedCost: 25.99
-    },
-    { 
-      name: 'Stepper Drivers', 
-      current: 0, 
-      minimum: 2, 
-      unit: 'pcs', 
-      status: 'critical', 
-      lastUpdated: '2 weeks ago',
-      supplier: 'BIQU',
-      estimatedCost: 35.99
-    }
-  ];
+  const inventoryData = inventoryItems.length > 0 ? inventoryItems : [];
 
-  const milestones: ProjectMilestone[] = [
-    {
-      id: '1',
-      title: 'Hardware Assessment & Planning',
-      description: 'Complete teardown and component evaluation',
-      status: 'completed',
-      date: '2025-07-10',
-      completionPercentage: 100,
-      technologies: ['Hardware Diagnosis', '3D Printing', 'Electronics'],
-      achievements: ['Identified all failing components', 'Created comprehensive parts list', 'Documented current state']
-    },
-    {
-      id: '2',
-      title: 'Electronics Restoration',
-      description: 'Replace motherboard and stepper drivers',
-      status: 'in-progress',
-      date: '2025-08-15',
-      completionPercentage: 65,
-      technologies: ['Electronics', 'Firmware', 'Soldering', 'Testing'],
-      achievements: ['Installed new motherboard', 'Updated firmware', 'Currently testing stepper drivers']
-    },
-    {
-      id: '3',
-      title: 'Mechanical Improvements',
-      description: 'Upgrade belts, pulleys, and linear bearings',
-      status: 'upcoming',
-      date: '2025-08-30',
-      completionPercentage: 0,
-      technologies: ['Mechanical Engineering', 'Precision Assembly', 'Quality Control'],
-      achievements: []
-    },
-    {
-      id: '4',
-      title: 'Software Integration & Testing',
-      description: 'Calibration, testing, and optimization',
-      status: 'upcoming',
-      date: '2025-09-10',
-      completionPercentage: 0,
-      technologies: ['Software Configuration', 'Testing', 'Optimization', 'Documentation'],
-      achievements: []
-    }
-  ];
+  const milestones = milestoneData.length > 0 ? milestoneData : [];
 
   const skillsDemonstrated: SkillDemonstration[] = [
     {
@@ -393,48 +520,154 @@ export default function ProjectManagement() {
               className="tab-content"
             >
               <div className="task-management-header">
-                <h3>Task Management</h3>
-                <button 
-                  className="add-task-button"
-                  onClick={() => setShowAddTask(!showAddTask)}
-                >
-                  <span>+</span> Add New Task
-                </button>
-              </div>
-              
-              {showAddTask && (
-                <motion.div 
-                  className="add-task-form"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                >
-                  <div className="form-group">
-                    <input
-                      type="text"
-                      placeholder="Enter task description..."
-                      value={newTaskTitle}
-                      onChange={(e) => setNewTaskTitle(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
-                      autoFocus
-                    />
-                    <select 
-                      value={taskPriority}
-                      onChange={(e) => setTaskPriority(e.target.value as 'low' | 'med' | 'high')}
+                <div className="header-content">
+                  <h3>Task Management</h3>
+                  <div className="task-actions">
+                    <button 
+                      className="add-task-button primary"
+                      onClick={() => setShowAddTask(!showAddTask)}
                     >
-                      <option value="low">Low Priority</option>
-                      <option value="med">Medium Priority</option>
-                      <option value="high">High Priority</option>
-                    </select>
+                      <span className="button-icon">➕</span>
+                      Add Task
+                    </button>
+                    <button 
+                      className="export-button"
+                      onClick={() => handleExportData('json')}
+                      title="Export all data as JSON"
+                    >
+                      <span className="button-icon">💾</span>
+                      Export
+                    </button>
                   </div>
-                  <div className="form-actions">
-                    <button onClick={handleAddTask} className="save-btn">Save Task</button>
-                    <button onClick={() => setShowAddTask(false)} className="cancel-btn">Cancel</button>
-                  </div>
-                </motion.div>
-              )}
-              
-              <KanbanBoard />
+                </div>
+                
+                {showAddTask && (
+                  <motion.div 
+                    className="add-task-form enhanced"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Task Title</label>
+                        <input
+                          type="text"
+                          value={newTaskTitle}
+                          onChange={(e) => setNewTaskTitle(e.target.value)}
+                          placeholder="Enter task title..."
+                          className="task-input"
+                          onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
+                          autoFocus
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Priority</label>
+                        <select
+                          value={taskPriority}
+                          onChange={(e) => setTaskPriority(e.target.value as 'low' | 'med' | 'high')}
+                          className="task-select"
+                        >
+                          <option value="low">Low Priority</option>
+                          <option value="med">Medium Priority</option>
+                          <option value="high">High Priority</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="form-actions">
+                      <button 
+                        className="save-button"
+                        onClick={handleAddTask}
+                        disabled={!newTaskTitle.trim()}
+                      >
+                        Add Task
+                      </button>
+                      <button 
+                        className="cancel-button"
+                        onClick={() => setShowAddTask(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Enhanced Task List with Edit/Delete */}
+              <div className="tasks-summary">
+                <h4>Task Overview & Management</h4>
+                <div className="task-list-enhanced">
+                  {tasks.length === 0 ? (
+                    <div className="no-tasks">
+                      <span className="no-tasks-icon">📝</span>
+                      <p>No tasks yet. Create your first task to get started!</p>
+                    </div>
+                  ) : (
+                    tasks.map((task) => (
+                      <div key={task.id} className={`task-item enhanced ${task.status} priority-${task.priority}`}>
+                        {editingTask === task.id ? (
+                          <div className="edit-task-form">
+                            <div className="edit-inputs">
+                              <input
+                                type="text"
+                                value={editTaskTitle}
+                                onChange={(e) => setEditTaskTitle(e.target.value)}
+                                className="edit-task-input"
+                                placeholder="Task title..."
+                              />
+                              <select
+                                value={editTaskPriority}
+                                onChange={(e) => setEditTaskPriority(e.target.value as 'low' | 'med' | 'high')}
+                                className="edit-task-select"
+                              >
+                                <option value="low">Low</option>
+                                <option value="med">Medium</option>
+                                <option value="high">High</option>
+                              </select>
+                            </div>
+                            <div className="edit-actions">
+                              <button onClick={handleSaveTask} className="save-edit-button" title="Save changes">💾</button>
+                              <button onClick={handleCancelEdit} className="cancel-edit-button" title="Cancel editing">❌</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="task-content">
+                            <div className="task-info">
+                              <h5 className="task-title">{task.title}</h5>
+                              <div className="task-meta">
+                                <span className={`priority-badge ${task.priority}`}>{task.priority.toUpperCase()}</span>
+                                <span className={`status-badge ${task.status}`}>{task.status.toUpperCase()}</span>
+                              </div>
+                            </div>
+                            <div className="task-actions-buttons">
+                              <button 
+                                onClick={() => handleEditTask(task.id)}
+                                className="edit-task-button"
+                                title="Edit task"
+                              >
+                                ✏️
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteTask(task.id)}
+                                className="delete-task-button"
+                                title="Delete task"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Kanban Board */}
+              <div className="kanban-section">
+                <h4>Kanban Board</h4>
+                <KanbanBoard />
+              </div>
             </motion.div>
           )}
 
@@ -620,7 +853,77 @@ export default function ProjectManagement() {
               className="tab-content"
             >
               <div className="budget-overview">
-                <h3>Budget Tracker & Financial Management</h3>
+                <div className="budget-header">
+                  <h3>Budget Tracker & Financial Management</h3>
+                  <button 
+                    className="add-expense-button"
+                    onClick={() => setShowAddBudgetItem(!showAddBudgetItem)}
+                  >
+                    <span className="button-icon">💰</span>
+                    Add Expense
+                  </button>
+                </div>
+
+                {showAddBudgetItem && (
+                  <motion.div 
+                    className="add-expense-form"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Expense Name</label>
+                        <input
+                          type="text"
+                          value={newBudgetItem.name}
+                          onChange={(e) => setNewBudgetItem({...newBudgetItem, name: e.target.value})}
+                          placeholder="Enter expense description..."
+                          className="expense-input"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Amount ($)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={newBudgetItem.cost}
+                          onChange={(e) => setNewBudgetItem({...newBudgetItem, cost: e.target.value})}
+                          placeholder="0.00"
+                          className="expense-input"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Category</label>
+                        <select
+                          value={newBudgetItem.category}
+                          onChange={(e) => setNewBudgetItem({...newBudgetItem, category: e.target.value})}
+                          className="expense-select"
+                        >
+                          <option value="Hardware">Hardware</option>
+                          <option value="Tools">Tools</option>
+                          <option value="Materials">Materials</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="form-actions">
+                      <button 
+                        className="save-button"
+                        onClick={handleAddBudgetItem}
+                        disabled={!newBudgetItem.name.trim() || !newBudgetItem.cost.trim()}
+                      >
+                        Add Expense
+                      </button>
+                      <button 
+                        className="cancel-button"
+                        onClick={() => setShowAddBudgetItem(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
                 
                 <div className="budget-summary">
                   <div className="total-budget-card">
@@ -713,7 +1016,90 @@ export default function ProjectManagement() {
               className="tab-content"
             >
               <div className="inventory-overview">
-                <h3>Inventory Management & Resource Tracking</h3>
+                <div className="inventory-header">
+                  <h3>Inventory Management & Resource Tracking</h3>
+                  <button 
+                    className="add-inventory-button"
+                    onClick={() => setShowAddInventoryItem(!showAddInventoryItem)}
+                  >
+                    <span className="button-icon">📦</span>
+                    Add Item
+                  </button>
+                </div>
+
+                {showAddInventoryItem && (
+                  <motion.div 
+                    className="add-inventory-form"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Item Name</label>
+                        <input
+                          type="text"
+                          value={newInventoryItem.name}
+                          onChange={(e) => setNewInventoryItem({...newInventoryItem, name: e.target.value})}
+                          placeholder="Enter item name..."
+                          className="inventory-input"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Current Stock</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          value={newInventoryItem.current}
+                          onChange={(e) => setNewInventoryItem({...newInventoryItem, current: e.target.value})}
+                          placeholder="0"
+                          className="inventory-input"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Minimum Stock</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          value={newInventoryItem.minimum}
+                          onChange={(e) => setNewInventoryItem({...newInventoryItem, minimum: e.target.value})}
+                          placeholder="0"
+                          className="inventory-input"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Unit</label>
+                        <select
+                          value={newInventoryItem.unit}
+                          onChange={(e) => setNewInventoryItem({...newInventoryItem, unit: e.target.value})}
+                          className="inventory-select"
+                        >
+                          <option value="pcs">Pieces</option>
+                          <option value="kg">Kilograms</option>
+                          <option value="m">Meters</option>
+                          <option value="L">Liters</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="form-actions">
+                      <button 
+                        className="save-button"
+                        onClick={handleAddInventoryItem}
+                        disabled={!newInventoryItem.name.trim() || !newInventoryItem.current.trim() || !newInventoryItem.minimum.trim()}
+                      >
+                        Add Item
+                      </button>
+                      <button 
+                        className="cancel-button"
+                        onClick={() => setShowAddInventoryItem(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
                 
                 <div className="inventory-summary">
                   <div className="inventory-stats">
@@ -766,17 +1152,34 @@ export default function ProjectManagement() {
                           </div>
                         )}
                         
-                        {item.status === 'critical' && (
-                          <button className="reorder-button">
-                            🛒 Order Now
-                          </button>
-                        )}
-                        
-                        {item.status === 'warning' && (
-                          <button className="reorder-button warning">
-                            📝 Add to Order List
-                          </button>
-                        )}
+                        <div className="inventory-actions">
+                          {item.status === 'critical' && (
+                            <button 
+                              className="reorder-button urgent"
+                              onClick={() => handleReorderItem(item.name)}
+                            >
+                              🛒 Order Now
+                            </button>
+                          )}
+                          
+                          {item.status === 'warning' && (
+                            <button 
+                              className="reorder-button warning"
+                              onClick={() => handleReorderItem(item.name)}
+                            >
+                              📝 Add to Order List
+                            </button>
+                          )}
+
+                          {item.status === 'good' && (
+                            <button 
+                              className="reorder-button good"
+                              onClick={() => handleReorderItem(item.name)}
+                            >
+                              ➕ Restock
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

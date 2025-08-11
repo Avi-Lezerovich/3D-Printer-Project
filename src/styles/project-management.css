@@ -1531,3 +1531,431 @@
     font-size: 0.8rem;
   }
 }
+
+/* Enhanced Task Management Styles */
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.task-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.task-actions .add-task-button.primary {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.task-actions .add-task-button.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+}
+
+.export-button {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.export-button:hover {
+  background: rgba(34, 197, 94, 0.2);
+  transform: translateY(-1px);
+}
+
+.add-task-form.enhanced {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 1.5rem 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.task-input, .task-select, .expense-input, .expense-select, .inventory-input, .inventory-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f1f5f9;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.task-input:focus, .task-select:focus, .expense-input:focus, .expense-select:focus, 
+.inventory-input:focus, .inventory-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Enhanced Task List */
+.tasks-summary {
+  margin: 2rem 0;
+}
+
+.task-list-enhanced {
+  display: grid;
+  gap: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.no-tasks {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+.no-tasks-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.task-item.enhanced {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.task-item.enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+.task-item.enhanced.priority-high {
+  border-left: 4px solid #ef4444;
+}
+
+.task-item.enhanced.priority-med {
+  border-left: 4px solid #f59e0b;
+}
+
+.task-item.enhanced.priority-low {
+  border-left: 4px solid #10b981;
+}
+
+.task-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-info h5 {
+  margin: 0 0 0.5rem 0;
+  color: #f1f5f9;
+  font-size: 1.1rem;
+}
+
+.task-meta {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.priority-badge, .status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.priority-badge.high { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+.priority-badge.med { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.priority-badge.low { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+
+.status-badge.todo { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+.status-badge.doing { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+.status-badge.done { background: rgba(34, 197, 94, 0.2); color: #86efac; }
+
+.task-actions-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-task-button, .delete-task-button {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.edit-task-button:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #3b82f6;
+}
+
+.delete-task-button:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+}
+
+/* Edit Task Form */
+.edit-task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.edit-inputs {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+}
+
+.edit-task-input, .edit-task-select {
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.save-edit-button, .cancel-edit-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.save-edit-button {
+  background: #22c55e;
+  color: white;
+}
+
+.cancel-edit-button {
+  background: #ef4444;
+  color: white;
+}
+
+/* Enhanced Budget Styles */
+.budget-header, .inventory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.add-expense-button, .add-inventory-button {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-expense-button:hover, .add-inventory-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+}
+
+.add-expense-form, .add-inventory-form {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Enhanced Inventory Styles */
+.inventory-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.reorder-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reorder-button.urgent {
+  background: #ef4444;
+  color: white;
+}
+
+.reorder-button.warning {
+  background: #f59e0b;
+  color: white;
+}
+
+.reorder-button.good {
+  background: #10b981;
+  color: white;
+}
+
+.reorder-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Kanban Section */
+.kanban-section {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.kanban-section h4 {
+  margin-bottom: 1.5rem;
+  color: #f1f5f9;
+  font-size: 1.25rem;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.save-button {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.4);
+}
+
+.save-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancel-button {
+  background: rgba(148, 163, 184, 0.1);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 0.75rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-button:hover {
+  background: rgba(148, 163, 184, 0.2);
+  color: #e2e8f0;
+}
+
+/* Mobile Responsive Enhancements */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .task-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .task-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .task-actions-buttons {
+    justify-content: flex-end;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .save-button, .cancel-button {
+    width: 100%;
+  }
+}
