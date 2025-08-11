@@ -1,0 +1,74 @@
+@layer reset, base, components, utilities;
+
+@layer reset {
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body,#root{height:100%}
+}
+
+@layer base{
+  :root{
+    /* dark theme (default) */
+    --bg:#0b1620; 
+    --panel:#0d1d2b; 
+    --muted:#7fb6e6; 
+    --accent:#00aef0; 
+    --accent-2:#004d7f; 
+    --good:#37d67a; 
+    --warn:#f5a623; 
+    --bad:#f44336;
+    --text:#e6f1ff;
+    --text-soft:#c9e3ff;
+    --border:#123a56;
+    --focus:#66ccff;
+    color-scheme: dark;
+  }
+  :root[data-theme='light']{
+    --bg:#f6fbff; 
+    --panel:#ffffff; 
+    --muted:#335a77; 
+    --accent:#006aa6; 
+    --accent-2:#003a5c; 
+    --good:#0a7d3b; 
+    --warn:#b57000; 
+    --bad:#b30000;
+    --text:#0b1620;
+    --text-soft:#163049;
+    --border:#cfe4f5;
+    --focus:#007acc;
+    color-scheme: light;
+  }
+  body{
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.5;
+  }
+  h1,h2,h3{color:var(--text-soft)}
+  a{color:var(--accent); text-underline-offset: 2px}
+  a:hover{color:var(--accent-2)}
+  :focus-visible{outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 6px}
+  ::selection{background: rgba(0,174,240,0.25)}
+
+  /* Shared surfaces */
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px}
+  input, select, textarea{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px}
+  label{color:var(--text-soft)}
+  button{cursor:pointer}
+  button:disabled{cursor:not-allowed}
+}
+
+@layer components{
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--text);transition:.2s box-shadow,.2s transform}
+  .btn:hover{box-shadow:0 2px 10px rgba(0,0,0,.15)}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--accent);border-color:var(--accent-2);color:white}
+  .btn-danger{background:var(--bad);border-color:#8e1f1f;color:white}
+  .btn-warn{background:var(--warn);border-color:#8a5a00;color:black}
+}
+
+@layer utilities{
+  .grid{display:grid;gap:16px}
+  .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  @media (max-width: 900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+}

@@ -1,0 +1,60 @@
+import { Router } from 'express';
+import { body, validationResult } from 'express-validator';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+const router = Router();
+// In-memory demo user store (replace with DB)
+const users = new Map();
+const demoEmail = 'demo@example.com';
+const demoPassword = 'Password123!';
+const demoHash = bcrypt.hashSync(demoPassword, 10);
+users.set(demoEmail, { email: demoEmail, passwordHash: demoHash, role: 'user' });
+router.post('/login', body('email').isEmail().normalizeEmail(), body('password').isString().isLength({ min: 8, max: 128 }), (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+        return res.status(400).json({ errors: errors.array() });
+    const { email, password } = req.body;
+    const user = users.get(email);
+    if (!user)
+        return res.status(401).json({ message: 'Invalid credentials' });
+    const ok = bcrypt.compareSync(password, user.passwordHash);
+    if (!ok)
+        return res.status(401).json({ message: 'Invalid credentials' });
+    const secret = process.env.JWT_SECRET || (process.env.NODE_ENV !== 'production' ? 'replace_me_dev_only' : '');
+    if (!secret)
+        return res.status(500).json({ message: 'Server configuration error' });
+    const expiresIn = (process.env.JWT_EXPIRES || '1h');
+    const opts = { expiresIn: expiresIn };
+    const token = jwt.sign({ sub: email, email, role: user.role }, secret, opts);
+    const SESSION_SECURE = String(process.env.SESSION_SECURE) === 'true';
+    const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN;
+    const cookieOptions = {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: SESSION_SECURE,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+    };
+    if (COOKIE_DOMAIN)
+        cookieOptions.domain = COOKIE_DOMAIN;
+    res.cookie('token', token, cookieOptions);
+    // For SPA convenience we also return token (use cookie by default)
+    res.json({ token, user: { email, role: user.role } });
+});
+router.post('/logout', (_req, res) => {
+    res.clearCookie('token');
+    res.status(204).end();
+});
+router.get('/me', (req, res) => {
+    // For demo: decode cookie if present
+    const token = req.cookies?.token;
+    if (!token)
+        return res.status(200).json({ user: null });
+    try {
+        const payload = jwt.decode(token);
+        return res.json({ user: payload });
+    }
+    catch {
+        return res.json({ user: null });
+    }
+});
+export default router;

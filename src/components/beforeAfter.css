@@ -1,0 +1,203 @@
+/* Professional Before/After Component Styles */
+.before-after {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 174, 240, 0.3);
+  background: #09121a;
+  cursor: col-resize;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.before-after:hover {
+  border-color: rgba(0, 174, 240, 0.5);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.before-after.dragging {
+  cursor: col-resize;
+  user-select: none;
+}
+
+.before-after .img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: cover;
+  transition: all 0.3s ease;
+}
+
+.before-after .clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.before-after .handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(to bottom, #00aef0, #37d67a);
+  transform: translateX(-2px);
+  cursor: col-resize;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.before-after .handle:hover {
+  width: 6px;
+  transform: translateX(-3px);
+  box-shadow: 0 0 20px rgba(0, 174, 240, 0.5);
+}
+
+.before-after .handle:focus {
+  outline: 2px solid #66ccff;
+  outline-offset: 2px;
+}
+
+.before-after .handle span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid #00aef0;
+  background: linear-gradient(135deg, #0d1d2b, #1a3b5c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00aef0;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.before-after .handle:hover span {
+  transform: translate(-50%, -50%) scale(1.1);
+  border-color: #37d67a;
+  color: #37d67a;
+  box-shadow: 0 6px 20px rgba(0, 174, 240, 0.4);
+}
+
+.handle-icon {
+  font-size: 16px;
+  color: inherit;
+}
+
+.handle-line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(to bottom, #00aef0, #37d67a);
+  transform: translateX(-50%);
+  z-index: -1;
+}
+
+/* Labels */
+.label {
+  position: absolute;
+  top: 20px;
+  padding: 8px 16px;
+  background: rgba(13, 29, 43, 0.9);
+  border: 1px solid rgba(0, 174, 240, 0.3);
+  border-radius: 20px;
+  color: #d6ecff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  z-index: 5;
+  transition: all 0.3s ease;
+}
+
+.label-before {
+  left: 20px;
+}
+
+.label-after {
+  right: 20px;
+}
+
+.label span {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Auto-slide hint */
+.auto-slide-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: rgba(13, 29, 43, 0.9);
+  border: 1px solid rgba(55, 214, 122, 0.3);
+  border-radius: 20px;
+  color: #37d67a;
+  font-size: 0.8rem;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  z-index: 5;
+  animation: fadeInOut 3s ease-in-out infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .before-after {
+    border-radius: 12px;
+  }
+  
+  .label {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+  
+  .label-before {
+    left: 15px;
+  }
+  
+  .label-after {
+    right: 15px;
+  }
+  
+  .before-after .handle span {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+  
+  .auto-slide-hint {
+    font-size: 0.7rem;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .label {
+    top: 10px;
+  }
+  
+  .label-before {
+    left: 10px;
+  }
+  
+  .label-after {
+    right: 10px;
+  }
+  
+  .auto-slide-hint {
+    bottom: 10px;
+  }
+}

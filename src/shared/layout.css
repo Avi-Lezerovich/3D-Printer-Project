@@ -1,0 +1,20 @@
+.app-shell{display:grid;grid-template-areas:'header header' 'aside main' 'footer footer';grid-template-columns:260px 1fr;grid-template-rows:64px 1fr 56px;min-height:100vh;background:var(--bg);color:var(--text)}
+.app-header{grid-area:header;display:flex;align-items:center;gap:12px;padding:0 16px;background:#0f2436;border-bottom:1px solid var(--border)}
+.menu-btn{display:none;background:transparent;border:1px solid #1e5a82;color:#a8d4ff;border-radius:8px;padding:8px 12px}
+.brand{font-weight:800;color:#a8d4ff;letter-spacing:.2px}
+.top-nav a{color:#b8dfff;margin:0 4px;text-decoration:none;padding:10px 12px;border-radius:8px}
+.top-nav a:hover{background:#143b59}
+.top-nav a.active{background:#143b59}
+.side-nav{grid-area:aside;border-right:1px solid var(--border);padding:16px;background:#0d1d2b}
+.side-nav.open{display:block}
+.side-section{margin-bottom:16px}
+.side-title{font-size:12px;color:#7fb6e6;text-transform:uppercase;margin-bottom:8px}
+.side-nav a{display:block;color:#b8dfff;text-decoration:none;padding:8px;border-radius:8px}
+.side-nav a:hover{background:#143b59}
+.app-main{grid-area:main;padding:20px}
+.app-footer{grid-area:footer;text-align:center;color:#7fb6e6;background:#0f2436;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+@media (max-width: 900px){
+  .app-shell{grid-template-areas:'header' 'main' 'footer';grid-template-columns:1fr}
+  .side-nav{display:none}
+  .menu-btn{display:inline-flex}
+}

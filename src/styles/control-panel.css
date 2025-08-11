@@ -1,0 +1,107 @@
+/* c:/Users/Avi Lezerov/website/src/styles/control-panel.css */
+
+.control-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.status-indicator.connected {
+  background: var(--good);
+}
+
+.status-indicator.disconnected {
+  background: var(--bad);
+}
+
+.status-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.temperature-display {
+  min-width: 120px;
+}
+
+.progress-bar-container {
+  min-width: 220px;
+}
+
+.progress-bar-label {
+  margin-bottom: 6px;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #123a56;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+}
+
+.temperature-controls {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.temperature-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.temperature-label {
+  min-width: 60px;
+}
+
+.temperature-value {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #123a56;
+  border-radius: 6px;
+  background: #0d1d2b;
+  color: #e6f1ff;
+}
+
+.temperature-value:disabled {
+  background: #1a2a3b;
+  color: #7fb6e6;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.print-queue {
+  list-style: none;
+  padding: 0;
+  margin-top: 12px;
+}
+
+.print-queue-item {
+  padding: 8px;
+  background: #0d1d2b;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}

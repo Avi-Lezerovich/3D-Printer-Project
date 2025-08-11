@@ -1,0 +1,79 @@
+/* c:/Users/Avi Lezerov/website/src/styles/project-management.css */
+
+.project-management-container {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.dashboard-header {
+  background-color: var(--panel-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.stat-card {
+  background-color: #0d1d2b;
+  padding: 1rem;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.widgets-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.widget-card {
+  background-color: var(--panel-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.widget-card h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.budget-info, .inventory-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.budget-bar {
+  height: 8px;
+  background: #123a56;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 0.75rem;
+}
+
+.budget-bar-fill {
+  height: 100%;
+  background: var(--warn);
+}
+
+.inventory-status {
+  display: grid;
+  gap: 0.5rem;
+}
