@@ -55,6 +55,8 @@ interface SkillDemonstration {
 export default function ProjectManagement() {
   const tasks = useAppStore((s) => s.tasks);
   const addTask = useAppStore((s) => s.addTask);
+  const editTask = useAppStore((s) => s.editTask);
+  const deleteTask = useAppStore((s) => s.deleteTask);
   const [activeTab, setActiveTab] = useState<'overview' | 'budget' | 'inventory' | 'timeline' | 'portfolio' | 'analytics'>('overview');
   const [animatedStats, setAnimatedStats] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -228,7 +230,7 @@ export default function ProjectManagement() {
 
   const handleSaveTask = () => {
     if (editingTask !== null && editTaskTitle.trim()) {
-      // In a real app, this would update through the store
+      editTask(editingTask, editTaskTitle.trim(), editTaskPriority);
       setEditingTask(null);
       setEditTaskTitle('');
     }
@@ -240,9 +242,9 @@ export default function ProjectManagement() {
   };
 
   const handleDeleteTask = (taskId: number) => {
-    // In a real app, this would delete through the store
-    if (window.confirm('Are you sure you want to delete this task?')) {
-      console.log('Delete task:', taskId);
+    const taskToDelete = tasks.find(t => t.id === taskId);
+    if (taskToDelete && window.confirm(`Are you sure you want to delete "${taskToDelete.title}"?`)) {
+      deleteTask(taskId);
     }
   };
 
@@ -251,22 +253,24 @@ export default function ProjectManagement() {
     if (newBudgetItem.name.trim() && newBudgetItem.cost.trim()) {
       const cost = parseFloat(newBudgetItem.cost);
       if (!isNaN(cost)) {
-        const updatedBudgetData = budgetData.map(category => {
-          if (category.category === newBudgetItem.category) {
-            return {
-              ...category,
-              spent: category.spent + cost,
-              remaining: category.remaining - cost,
-              items: [...category.items, {
-                name: newBudgetItem.name,
-                cost: cost,
-                date: new Date().toISOString().split('T')[0]
-              }]
-            };
-          }
-          return category;
-        });
         // In a real app, this would update through state management
+        setBudgetItems(prevItems => 
+          prevItems.map(category => {
+            if (category.category === newBudgetItem.category) {
+              return {
+                ...category,
+                spent: category.spent + cost,
+                remaining: category.remaining - cost,
+                items: [...category.items, {
+                  name: newBudgetItem.name,
+                  cost: cost,
+                  date: new Date().toISOString().split('T')[0]
+                }]
+              };
+            }
+            return category;
+          })
+        );
         setNewBudgetItem({ name: '', cost: '', category: 'Hardware' });
         setShowAddBudgetItem(false);
       }
@@ -283,16 +287,16 @@ export default function ProjectManagement() {
           current === 0 ? 'critical' : 
           current <= minimum ? 'warning' : 'good';
         
-        const newItem: InventoryItem = {
+        // In a real app, this would update through state management
+        setInventoryItems(prevItems => [...prevItems, {
           name: newInventoryItem.name,
           current: current,
           minimum: minimum,
           unit: newInventoryItem.unit,
           status: status,
           lastUpdated: 'Just now'
-        };
+        }]);
         
-        // In a real app, this would update through state management
         setNewInventoryItem({ name: '', current: '', minimum: '', unit: 'pcs' });
         setShowAddInventoryItem(false);
       }
@@ -300,7 +304,18 @@ export default function ProjectManagement() {
   };
 
   const handleReorderItem = (itemName: string) => {
-    alert(`Reorder initiated for ${itemName}. In a real app, this would integrate with supplier APIs.`);
+    // In a real app, this would integrate with supplier APIs
+    const confirmOrder = window.confirm(`Initiate reorder for ${itemName}?\n\nThis would normally integrate with supplier APIs to place an actual order.`);
+    if (confirmOrder) {
+      // Update item status to show order in progress
+      setInventoryItems(prevItems => 
+        prevItems.map(item => 
+          item.name === itemName 
+            ? { ...item, lastUpdated: 'Order placed just now' }
+            : item
+        )
+      );
+    }
   };
 
   // Export functionality
@@ -781,7 +796,7 @@ export default function ProjectManagement() {
               <div className="timeline-overview">
                 <h3>Project Milestones & Timeline</h3>
                 <div className="milestones-container">
-                  {milestones.map((milestone, index) => (
+                  {milestones.map((milestone) => (
                     <div key={milestone.id} className={`milestone-card ${milestone.status}`}>
                       <div className="milestone-header">
                         <div className="milestone-info">

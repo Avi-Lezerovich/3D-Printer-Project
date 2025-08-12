@@ -20,6 +20,8 @@ type AppState = {
   updateJob: (id:string, patch: Partial<Job>)=>void
   moveTask: (taskId:number, newStatus:'todo'|'doing'|'done')=>void
   addTask: (title:string, priority:'low'|'med'|'high')=>void
+  editTask: (taskId:number, title:string, priority:'low'|'med'|'high')=>void
+  deleteTask: (taskId:number)=>void
 }
 
 const STORAGE_KEY = 'printer-app-state-v1'
@@ -49,6 +51,12 @@ export const useAppStore = create<AppState>((set) => ({
   })),
   addTask: (title, priority) => set((st)=>({ 
     tasks: [...st.tasks, {id: Date.now(), title, status: 'todo' as const, priority}] 
+  })),
+  editTask: (taskId, title, priority) => set((st)=>({
+    tasks: st.tasks.map(t=> t.id===taskId ? {...t, title, priority} : t)
+  })),
+  deleteTask: (taskId) => set((st)=>({
+    tasks: st.tasks.filter(t=> t.id !== taskId)
   }))
 }))
 
