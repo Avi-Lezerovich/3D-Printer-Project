@@ -27,7 +27,7 @@ export async function apiFetch(input: RequestInfo | URL, init: RequestInit = {})
 }
 
 export async function login(email: string, password: string) {
-  const res = await apiFetch('/api/auth/login', {
+  const res = await apiFetch('/api/v1/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   })
@@ -37,19 +37,19 @@ export async function login(email: string, password: string) {
 
 // Projects API
 export async function listProjects() {
-  const res = await apiFetch('/api/projects')
+  const res = await apiFetch('/api/v1/projects')
   if (!res.ok) throw new Error('Failed to list projects')
   return res.json() as Promise<{ projects: any[] }>
 }
 
 export async function createProject(input: { name: string; status?: 'todo' | 'in_progress' | 'done' }) {
-  const res = await apiFetch('/api/projects', { method: 'POST', body: JSON.stringify(input) })
+  const res = await apiFetch('/api/v1/projects', { method: 'POST', body: JSON.stringify(input) })
   if (!res.ok) throw new Error('Failed to create project')
   return res.json() as Promise<{ project: any }>
 }
 
 export async function updateProject(id: string, input: Partial<{ name: string; status: 'todo' | 'in_progress' | 'done' }>) {
-  const res = await apiFetch(`/api/projects/${id}`, { method: 'PUT', body: JSON.stringify(input) })
+  const res = await apiFetch(`/api/v1/projects/${id}`, { method: 'PUT', body: JSON.stringify(input) })
   if (!res.ok) throw new Error('Failed to update project')
   return res.json() as Promise<{ project: any }>
 }

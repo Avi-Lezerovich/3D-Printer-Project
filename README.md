@@ -58,6 +58,12 @@ npm test
 - Code-splitting configured in `vite.config.ts` for major libraries.
 - Consider serving static assets via a CDN with caching headers in production.
 
+## Back-end standards
+- RESTful routes with JSON responses and consistent errors.
+- API versioning: primary mount at `/api/v1/*` (legacy mounts kept for migration).
+- Central error handler with clear status codes; 404 and 405 coverage.
+- Simple response caching middleware available (`setCache(seconds)` for GET endpoints).
+
 ## Git workflow
 - Use short-lived feature branches (GitHub Flow). Example: `fe-standards-performance`.
 - Open pull requests early; keep changes focused and small; squash-merge when ready.

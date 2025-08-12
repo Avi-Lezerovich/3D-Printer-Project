@@ -4,7 +4,7 @@ export function authenticateJWT(req, res, next) {
         const authHeader = req.headers.authorization;
         const token = authHeader?.startsWith('Bearer ')
             ? authHeader.slice(7)
-            : req.cookies?.token;
+            : (req.cookies?.token || req.cookies?.['__Host-token']);
         if (!token) {
             res.setHeader('WWW-Authenticate', 'Bearer');
             return res.status(401).json({ message: 'Unauthorized: missing token' });

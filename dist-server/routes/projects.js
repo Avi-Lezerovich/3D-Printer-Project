@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import crypto from 'node:crypto';
 import { body, param, validationResult } from 'express-validator';
+import { setCache } from '../middleware/cacheMiddleware.js';
 const projects = new Map();
 const router = Router();
-router.get('/', (_req, res) => {
+router.get('/', setCache(10), (_req, res) => {
     res.json({ projects: Array.from(projects.values()) });
 });
-router.get('/:id', param('id').isString(), (req, res) => {
+router.get('/:id', param('id').isString(), setCache(10), (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty())
         return res.status(400).json({ errors: errors.array() });
@@ -52,4 +53,7 @@ router.delete('/:id', param('id').isString(), (req, res) => {
     projects.delete(id);
     res.status(204).end();
 });
+// 405 for unsupported methods on collection and item
+router.all('/', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }));
+router.all('/:id', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }));
 export default router;

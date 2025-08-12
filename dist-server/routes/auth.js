@@ -61,4 +61,8 @@ router.get('/me', (req, res) => {
         return res.json({ user: null });
     }
 });
+// 405 for unsupported methods
+router.all('/login', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }));
+router.all('/logout', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }));
+router.all('/me', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }));
 export default router;
