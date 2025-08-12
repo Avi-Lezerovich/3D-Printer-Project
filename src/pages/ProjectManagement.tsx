@@ -48,7 +48,6 @@ export default function ProjectManagement() {
   const deleteTask = useAppStore((s) => s.deleteTask);
   const [activeTab, setActiveTab] = useState<'overview' | 'budget' | 'inventory' | 'analytics'>('overview');
   const [animatedStats, setAnimatedStats] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [taskPriority, setTaskPriority] = useState<'low' | 'med' | 'high'>('med');
   const [showAddTask, setShowAddTask] = useState(false);
@@ -356,48 +355,13 @@ export default function ProjectManagement() {
 
   return (
     <div className="project-management-container">
-      {/* VS Code Style Sidebar */}
-      <div className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <div className="sidebar-header">
-          <button 
-            className="sidebar-toggle"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {sidebarCollapsed ? '☰' : '←'}
-          </button>
-          {!sidebarCollapsed && <span className="sidebar-title">Project Tools</span>}
-        </div>
-        
-        <div className="sidebar-navigation">
-          {[
-            { key: 'overview', label: 'Task Management', icon: '📋' },
-            { key: 'budget', label: 'Budget Tracker', icon: '💰' },
-            { key: 'inventory', label: 'Inventory', icon: '📦' },
-            { key: 'analytics', label: 'Analytics', icon: '📊' }
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              className={`sidebar-item ${activeTab === tab.key ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab.key as typeof activeTab)}
-              title={tab.label}
-            >
-              <span className="sidebar-icon">{tab.icon}</span>
-              {!sidebarCollapsed && <span className="sidebar-label">{tab.label}</span>}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      <div className={`main-content ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-        {/* Hero Header */}
-        <motion.section 
-          className="project-hero"
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
+      {/* Hero Header */}
+      <motion.section 
+        className="project-hero"
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
         <div className="hero-content">
           <div className="hero-text">
             <motion.h1 
@@ -475,15 +439,33 @@ export default function ProjectManagement() {
         </div>
       </motion.section>
 
-        {/* Content Sections - controlled by sidebar */}
-        <motion.section 
-          className="content-section"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-        >
-          <AnimatePresence mode="wait">
-            {activeTab === 'overview' && (
+      {/* Local Project Management Tab Navigation */}
+      <motion.section 
+        className="project-tabs-section"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.6 }}
+      >
+        <div className="project-tab-navigation">
+          {[
+            { key: 'overview', label: 'Task Management', icon: '📋' },
+            { key: 'budget', label: 'Budget Tracker', icon: '💰' },
+            { key: 'inventory', label: 'Inventory', icon: '📦' },
+            { key: 'analytics', label: 'Analytics', icon: '📊' }
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              className={`project-tab-button ${activeTab === tab.key ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab.key as typeof activeTab)}
+            >
+              <span className="tab-icon">{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait">
+          {activeTab === 'overview' && (
             <motion.div
               key="overview"
               initial={{ opacity: 0, y: 20 }}
@@ -1307,8 +1289,7 @@ export default function ProjectManagement() {
             </motion.div>
           )}
         </AnimatePresence>
-        </motion.section>
-      </div>
+      </motion.section>
     </div>
   );
 }

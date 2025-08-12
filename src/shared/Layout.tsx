@@ -5,90 +5,172 @@ import ThemeToggle from '../components/ThemeToggle'
 import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function Layout() {
-  const [open, setOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const location = useLocation()
 
-  // Close sidebar when route changes (mobile)
+  // Auto-collapse on mobile
   useEffect(() => {
-    setOpen(false)
-  }, [location])
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setSidebarCollapsed(true)
+      }
+    }
+    
+    handleResize() // Check on mount
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const navigationItems = [
+    { 
+      key: 'portfolio', 
+      label: 'Portfolio', 
+      icon: '🏠', 
+      path: '/',
+      description: 'Project showcase & overview'
+    },
+    { 
+      key: 'control', 
+      label: 'Control Panel', 
+      icon: '🎛️', 
+      path: '/control',
+      description: '3D printer monitoring'
+    },
+    { 
+      key: 'management', 
+      label: 'Project Management', 
+      icon: '📋', 
+      path: '/management',
+      description: 'Tasks & project tracking'
+    },
+    { 
+      key: 'settings', 
+      label: 'Settings', 
+      icon: '⚙️', 
+      path: '/settings',
+      description: 'App configuration'
+    },
+    { 
+      key: 'help', 
+      label: 'Help', 
+      icon: '❓', 
+      path: '/help',
+      description: 'Documentation & support'
+    }
+  ]
+
+  const resourceItems = [
+    {
+      key: 'report',
+      label: 'Technical Report',
+      icon: '📄',
+      path: '/docs/restoration_report.pdf',
+      external: true,
+      description: 'Project documentation'
+    },
+    {
+      key: 'resume',
+      label: 'Resume',
+      icon: '👤',
+      path: '/docs/resume.pdf',
+      external: true,
+      description: 'Professional resume'
+    }
+  ]
 
   return (
     <div className="app-shell">
-      <header className="app-header">
-        <button 
-          className="menu-btn btn" 
-          onClick={() => setOpen(!open)} 
-          aria-label="Toggle menu"
-          aria-expanded={open}
-        >
-          ☰
-        </button>
-        <div className="brand" aria-label="Site title">3D Printer Project System</div>
-        <nav className="top-nav" aria-label="Primary">
-          <NavLink to="/" end>Portfolio</NavLink>
-          <NavLink to="/control">Control Panel</NavLink>
-          <NavLink to="/management">Project Management</NavLink>
-          <NavLink to="/settings">Settings</NavLink>
-          <NavLink to="/help">Help</NavLink>
-        </nav>
-        <div style={{marginLeft:'auto'}}>
-          <ThemeToggle />
+      {/* VS Code Style Global Sidebar */}
+      <aside className={`global-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        <div className="sidebar-header">
+          <button 
+            className="sidebar-toggle"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {sidebarCollapsed ? '☰' : '←'}
+          </button>
+          {!sidebarCollapsed && (
+            <div className="sidebar-brand">
+              <span className="brand-text">3D Printer Project</span>
+            </div>
+          )}
         </div>
-      </header>
-      
-      <aside className={"side-nav " + (open ? 'open' : '')} aria-label="Sidebar">
-        <div className="side-section">
-          <div className="side-title">Quick Access</div>
-          <NavLink to="/" onClick={() => setOpen(false)}>
-            <span className="nav-icon">🏠</span>
-            Portfolio Home
-          </NavLink>
-          <NavLink to="/control" onClick={() => setOpen(false)}>
-            <span className="nav-icon">🎛️</span>
-            Control Dashboard
-          </NavLink>
-          <NavLink to="/management" onClick={() => setOpen(false)}>
-            <span className="nav-icon">📋</span>
-            Project Tasks
-          </NavLink>
+
+        <div className="sidebar-content">
+          <div className="sidebar-section">
+            {!sidebarCollapsed && <div className="sidebar-section-title">Navigation</div>}
+            {navigationItems.map((item) => (
+              <NavLink
+                key={item.key}
+                to={item.path}
+                className={({ isActive }) => 
+                  `sidebar-item ${isActive ? 'active' : ''}`
+                }
+                title={item.description}
+              >
+                <span className="sidebar-icon">{item.icon}</span>
+                {!sidebarCollapsed && (
+                  <div className="sidebar-item-content">
+                    <span className="sidebar-label">{item.label}</span>
+                    <span className="sidebar-description">{item.description}</span>
+                  </div>
+                )}
+              </NavLink>
+            ))}
+          </div>
+
+          <div className="sidebar-section">
+            {!sidebarCollapsed && <div className="sidebar-section-title">Resources</div>}
+            {resourceItems.map((item) => (
+              <a
+                key={item.key}
+                href={item.path}
+                target="_blank"
+                rel="noreferrer"
+                className="sidebar-item external"
+                title={item.description}
+              >
+                <span className="sidebar-icon">{item.icon}</span>
+                {!sidebarCollapsed && (
+                  <div className="sidebar-item-content">
+                    <span className="sidebar-label">{item.label}</span>
+                    <span className="sidebar-description">{item.description}</span>
+                  </div>
+                )}
+              </a>
+            ))}
+          </div>
         </div>
-        
-        <div className="side-section">
-          <div className="side-title">Tools</div>
-          <NavLink to="/settings" onClick={() => setOpen(false)}>
-            <span className="nav-icon">⚙️</span>
-            Settings
-          </NavLink>
-          <NavLink to="/help" onClick={() => setOpen(false)}>
-            <span className="nav-icon">❓</span>
-            Help & Docs
-          </NavLink>
-        </div>
-        
-        <div className="side-section">
-          <div className="side-title">Project Info</div>
-          <a href="/docs/restoration_report.pdf" target="_blank" rel="noreferrer">
-            <span className="nav-icon">📄</span>
-            Technical Report
-          </a>
-          <a href="/docs/resume.pdf" target="_blank" rel="noreferrer">
-            <span className="nav-icon">👤</span>
-            Resume
-          </a>
+
+        <div className="sidebar-footer">
+          <div className="sidebar-item">
+            <span className="sidebar-icon">🎨</span>
+            {!sidebarCollapsed && (
+              <div className="sidebar-item-content">
+                <ThemeToggle />
+              </div>
+            )}
+          </div>
         </div>
       </aside>
-      
-      <main className="app-main" role="main">
-        <div style={{marginBottom:12}}>
-          <Breadcrumbs />
-        </div>
-        <Outlet />
-      </main>
-      
-      <footer className="app-footer">
-        © {new Date().getFullYear()} 3D Printer Project • Built with React + Vite
-      </footer>
+
+      {/* Main Content Area */}
+      <div className={`main-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+        <header className="app-header">
+          <div className="header-content">
+            <Breadcrumbs />
+          </div>
+        </header>
+        
+        <main className="app-main" role="main">
+          <Outlet />
+        </main>
+        
+        <footer className="app-footer">
+          © {new Date().getFullYear()} 3D Printer Project • Built with React + Vite
+        </footer>
+      </div>
     </div>
   )
 }
