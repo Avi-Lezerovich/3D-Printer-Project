@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import { TaskManagement, BudgetTracker, Inventory, Analytics, ActiveTab } from './project-management';
 import '../styles/project-management.css';
@@ -16,6 +16,13 @@ export default function ProjectManagement() {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
   const [isLoading, setIsLoading] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  const tabRefs = useRef<Record<ActiveTab, HTMLButtonElement | null>>({
+    overview: null,
+    budget: null,
+    inventory: null,
+    analytics: null,
+  });
 
   // Handle URL tab parameter
   useEffect(() => {
@@ -67,36 +74,75 @@ export default function ProjectManagement() {
   };
 
   const currentTab = tabs.find(tab => tab.id === activeTab);
+  const tabListId = 'pm-tablist';
 
   return (
     <div className="project-management-container">
+      <a href="#pm-main" className="skip-link">Skip to main content</a>
       {/* Modern Tab Navigation */}
       <motion.nav 
         className="project-management-nav"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={prefersReducedMotion ? false : { opacity: 0, y: -10 }}
+        animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
         <div className="nav-container">
-          <div className="nav-tabs">
+          <div
+            className="nav-tabs"
+            role="tablist"
+            aria-label="Project Management Sections"
+            id={tabListId}
+          >
             {tabs.map((tab, index) => (
               <motion.button
                 key={tab.id}
                 className={`nav-tab ${activeTab === tab.id ? 'active' : ''}`}
                 onClick={() => handleTabChange(tab.id)}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                ref={(el) => (tabRefs.current[tab.id] = el)}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+                animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 + (index * 0.1), duration: 0.4 }}
                 whileHover={{ 
-                  scale: 1.02,
+                  scale: prefersReducedMotion ? 1 : 1.02,
                   transition: { duration: 0.2 }
                 }}
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ scale: prefersReducedMotion ? 1 : 0.98 }}
                 style={{
                   '--tab-color': tab.color
                 } as React.CSSProperties}
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                aria-controls={`panel-${tab.id}`}
+                id={`tab-${tab.id}`}
+                tabIndex={activeTab === tab.id ? 0 : -1}
+                onKeyDown={(e) => {
+                  const order: ActiveTab[] = ['overview', 'budget', 'inventory', 'analytics'];
+                  const currentIndex = order.indexOf(activeTab);
+                  if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    const next = order[(currentIndex + 1) % order.length];
+                    tabRefs.current[next]?.focus();
+                    setActiveTab(next);
+                  } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    const prev = order[(currentIndex - 1 + order.length) % order.length];
+                    tabRefs.current[prev]?.focus();
+                    setActiveTab(prev);
+                  } else if (e.key === 'Home') {
+                    e.preventDefault();
+                    tabRefs.current.overview?.focus();
+                    setActiveTab('overview');
+                  } else if (e.key === 'End') {
+                    e.preventDefault();
+                    tabRefs.current.analytics?.focus();
+                    setActiveTab('analytics');
+                  } else if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleTabChange(tab.id);
+                  }
+                }}
               >
-                <span className="tab-icon">{tab.icon}</span>
+                <span className="tab-icon" aria-hidden>{tab.icon}</span>
                 <span className="tab-label">{tab.label}</span>
               </motion.button>
             ))}
@@ -105,14 +151,17 @@ export default function ProjectManagement() {
       </motion.nav>
 
       {/* Content Section with Enhanced Transitions */}
-      <div className="project-content-section">
+      <div className="project-content-section" id="pm-main" role="main" aria-describedby="pm-desc">
+        <p id="pm-desc" className="visually-hidden">Use left and right arrow keys to switch between tabs.</p>
         {/* Tab Content */}
         <div className="tab-content-wrapper">
           {isLoading ? (
             <motion.div 
               className="loading-state"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              role="status"
+              aria-live="polite"
+              initial={prefersReducedMotion ? false : { opacity: 0 }}
+              animate={prefersReducedMotion ? undefined : { opacity: 1 }}
               exit={{ opacity: 0 }}
             >
               <div className="loading-spinner"></div>
@@ -122,9 +171,12 @@ export default function ProjectManagement() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                role="tabpanel"
+                id={`panel-${activeTab}`}
+                aria-labelledby={`tab-${activeTab}`}
+                initial={prefersReducedMotion ? false : { opacity: 0, x: 20 }}
+                animate={prefersReducedMotion ? undefined : { opacity: 1, x: 0 }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
                 {activeTab === 'overview' && <TaskManagement />}

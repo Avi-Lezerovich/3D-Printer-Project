@@ -1,5 +1,10 @@
 /* Enhanced Project Management Styles */
 
+/* Utilities for accessibility */
+.skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+.skip-link:focus{left:16px;top:16px;width:auto;height:auto;z-index:10000;background:var(--accent,#3b82f6);color:#fff;padding:8px 12px;border-radius:8px}
+.visually-hidden{position:absolute!important;clip:rect(1px,1px,1px,1px);clip-path:inset(50%);height:1px;width:1px;overflow:hidden;white-space:nowrap;border:0;padding:0;margin:-1px}
+
 .project-management-container {
   min-height: 100vh;
   background: linear-gradient(135deg, 
@@ -165,6 +170,7 @@
   position: relative;
   min-width: fit-content;
 }
+.nav-tab:focus-visible{outline:2px solid var(--focus,#66ccff);outline-offset:2px;border-radius:8px}
 
 .nav-tab::before {
   content: '';
