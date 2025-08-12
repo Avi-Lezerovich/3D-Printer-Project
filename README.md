@@ -49,6 +49,7 @@ npm test
 - CSRF protection is enabled via cookie + header for state-changing requests.
 - Helmet sets common security headers; adjust CSP if embedding remote assets.
 - Rate limiting is enabled on `/api/*`.
+ - See `SECURITY.md` for a full overview of OWASP Top 10 coverage and headers.
 
 ## Docker
 

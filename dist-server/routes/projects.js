@@ -6,7 +6,10 @@ const router = Router();
 router.get('/', (_req, res) => {
     res.json({ projects: Array.from(projects.values()) });
 });
-router.get('/:id', (req, res) => {
+router.get('/:id', param('id').isString(), (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+        return res.status(400).json({ errors: errors.array() });
     const id = req.params.id;
     const proj = projects.get(id);
     if (!proj)

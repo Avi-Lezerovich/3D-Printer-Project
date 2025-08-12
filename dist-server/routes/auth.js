@@ -33,15 +33,19 @@ router.post('/login', body('email').isEmail().normalizeEmail(), body('password')
         sameSite: 'lax',
         secure: SESSION_SECURE,
         maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/',
     };
     if (COOKIE_DOMAIN)
         cookieOptions.domain = COOKIE_DOMAIN;
-    res.cookie('token', token, cookieOptions);
+    const cookieName = SESSION_SECURE && !COOKIE_DOMAIN ? '__Host-token' : 'token';
+    res.cookie(cookieName, token, cookieOptions);
     // For SPA convenience we also return token (use cookie by default)
     res.json({ token, user: { email, role: user.role } });
 });
 router.post('/logout', (_req, res) => {
-    res.clearCookie('token');
+    // Clear both potential names
+    res.clearCookie('token', { path: '/' });
+    res.clearCookie('__Host-token', { path: '/' });
     res.status(204).end();
 });
 router.get('/me', (req, res) => {
