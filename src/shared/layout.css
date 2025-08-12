@@ -191,6 +191,63 @@
   margin-left: auto;
 }
 
+/* Submenu Styles */
+.sidebar-item-with-submenu {
+  position: relative;
+}
+
+.submenu-arrow {
+  margin-left: auto;
+  font-size: 0.7rem;
+  transition: transform 0.2s ease;
+  color: #64748b;
+}
+
+.submenu-arrow.open {
+  transform: rotate(90deg);
+  color: #60a5fa;
+}
+
+.sidebar-submenu {
+  padding-left: 1rem;
+  border-left: 2px solid rgba(59, 130, 246, 0.2);
+  margin-left: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-subitem {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  color: #64748b;
+  text-decoration: none;
+  border-radius: 6px;
+  margin-bottom: 0.25rem;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+}
+
+.sidebar-subitem:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: #94a3b8;
+}
+
+.sidebar-subitem.active {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-left: 2px solid #3b82f6;
+}
+
+.sidebar-subitem .sidebar-icon {
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+  min-width: 16px;
+}
+
+.sidebar-subitem .sidebar-label {
+  font-size: 0.8rem;
+}
+
 .sidebar-footer {
   border-top: 1px solid rgba(148, 163, 184, 0.1);
   padding: 1rem 0;

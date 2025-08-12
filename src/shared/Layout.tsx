@@ -2,10 +2,10 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import './layout.css'
 import ThemeToggle from '../components/ThemeToggle'
-import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function Layout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [projectSubMenuOpen, setProjectSubMenuOpen] = useState(false)
   const location = useLocation()
 
   // Auto-collapse on mobile
@@ -41,7 +41,14 @@ export default function Layout() {
       label: 'Project Management', 
       icon: '📋', 
       path: '/management',
-      description: 'Tasks & project tracking'
+      description: 'Tasks & project tracking',
+      hasSubMenu: true,
+      subItems: [
+        { key: 'overview', label: 'Task Management', icon: '📋', path: '/management?tab=overview' },
+        { key: 'budget', label: 'Budget Tracker', icon: '💰', path: '/management?tab=budget' },
+        { key: 'inventory', label: 'Inventory', icon: '📦', path: '/management?tab=inventory' },
+        { key: 'analytics', label: 'Analytics', icon: '📊', path: '/management?tab=analytics' },
+      ]
     },
     { 
       key: 'settings', 
@@ -101,22 +108,66 @@ export default function Layout() {
           <div className="sidebar-section">
             {!sidebarCollapsed && <div className="sidebar-section-title">Navigation</div>}
             {navigationItems.map((item) => (
-              <NavLink
-                key={item.key}
-                to={item.path}
-                className={({ isActive }) => 
-                  `sidebar-item ${isActive ? 'active' : ''}`
-                }
-                title={item.description}
-              >
-                <span className="sidebar-icon">{item.icon}</span>
-                {!sidebarCollapsed && (
-                  <div className="sidebar-item-content">
-                    <span className="sidebar-label">{item.label}</span>
-                    <span className="sidebar-description">{item.description}</span>
+              <div key={item.key}>
+                {item.hasSubMenu ? (
+                  <div className="sidebar-item-with-submenu">
+                    <div
+                      className={`sidebar-item ${location.pathname === item.path ? 'active' : ''}`}
+                      onClick={() => {
+                        if (!sidebarCollapsed) {
+                          setProjectSubMenuOpen(!projectSubMenuOpen)
+                        }
+                      }}
+                      title={item.description}
+                    >
+                      <span className="sidebar-icon">{item.icon}</span>
+                      {!sidebarCollapsed && (
+                        <div className="sidebar-item-content">
+                          <span className="sidebar-label">{item.label}</span>
+                          <span className="sidebar-description">{item.description}</span>
+                        </div>
+                      )}
+                      {!sidebarCollapsed && (
+                        <span className={`submenu-arrow ${projectSubMenuOpen ? 'open' : ''}`}>
+                          ▶
+                        </span>
+                      )}
+                    </div>
+                    {!sidebarCollapsed && projectSubMenuOpen && (
+                      <div className="sidebar-submenu">
+                        {item.subItems?.map((subItem) => (
+                          <a
+                            key={subItem.key}
+                            href={subItem.path}
+                            className={`sidebar-subitem ${location.search.includes(`tab=${subItem.key}`) ? 'active' : ''}`}
+                            title={subItem.label}
+                          >
+                            <span className="sidebar-icon">{subItem.icon}</span>
+                            <span className="sidebar-label">{subItem.label}</span>
+                          </a>
+                        ))}
+                      </div>
+                    )}
                   </div>
+                ) : (
+                  <NavLink
+                    key={item.key}
+                    to={item.path}
+                    className={({ isActive }) => 
+                      `sidebar-item ${isActive ? 'active' : ''}`
+                    }
+                    title={item.description}
+                  >
+                    <span className="sidebar-icon">{item.icon}</span>
+                    {!sidebarCollapsed && (
+                      <div className="sidebar-item-content">
+                        <span className="sidebar-label">{item.label}</span>
+                        <span className="sidebar-description">{item.description}</span>
+                      </div>
+                    )}
+                  </NavLink>
                 )}
-              </NavLink>
+              </div>
             ))}
           </div>
 
@@ -156,13 +207,7 @@ export default function Layout() {
       </aside>
 
       {/* Main Content Area */}
-      <div className={`main-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-        <header className="app-header">
-          <div className="header-content">
-            <Breadcrumbs />
-          </div>
-        </header>
-        
+      <div className={`main-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>        
         <main className="app-main" role="main">
           <Outlet />
         </main>
