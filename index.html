@@ -18,11 +18,14 @@
     Referrer-Policy: no-referrer
     Permissions-Policy: camera=(), microphone=(), geolocation=()
     -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <!-- Optional performance hints -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   </head>
   <body>
     <div id="root"></div>
   <noscript>This site requires JavaScript to function properly.</noscript>
-    <script type="module" src="/src/main.tsx"></script>
+  <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
   </body>
 </html>

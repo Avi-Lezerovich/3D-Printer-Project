@@ -87,8 +87,8 @@ export default function Layout() {
 
   return (
     <div className="app-shell">
-      {/* VS Code Style Global Sidebar */}
-      <aside className={`global-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+  {/* VS Code Style Global Sidebar */}
+  <aside className={`global-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`} aria-label="Primary">
         <div className="sidebar-header">
           <button 
             className="sidebar-toggle"
@@ -104,7 +104,7 @@ export default function Layout() {
           )}
         </div>
 
-        <div className="sidebar-content">
+  <div className="sidebar-content" role="navigation" aria-label="Main">
           <div className="sidebar-section">
             {!sidebarCollapsed && <div className="sidebar-section-title">Navigation</div>}
             {navigationItems.map((item) => (
@@ -208,7 +208,7 @@ export default function Layout() {
 
       {/* Main Content Area */}
       <div className={`main-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>        
-        <main className="app-main" role="main">
+        <main className="app-main" role="main" id="content">
           <Outlet />
         </main>
         
