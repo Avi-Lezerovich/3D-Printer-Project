@@ -64,4 +64,8 @@ router.delete('/:id', param('id').isString(), (req, res) => {
 	res.status(204).end()
 })
 
+// 405 for unsupported methods on collection and item
+router.all('/', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }))
+router.all('/:id', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }))
+
 export default router

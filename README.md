@@ -49,6 +49,11 @@ npm test
 - CSRF protection is enabled via cookie + header for state-changing requests.
 - Helmet sets common security headers; adjust CSP if embedding remote assets.
 - Rate limiting is enabled on `/api/*`.
+## Back-end standards
+- RESTful routes with JSON responses and consistent errors.
+- API versioning: primary mount at `/api/v1/*` (legacy mounts kept for migration).
+- Central error handler with clear status codes; 404 and 405 coverage.
+- Simple response caching middleware available (`setCache(seconds)` for GET endpoints).
 
 ## Docker
 

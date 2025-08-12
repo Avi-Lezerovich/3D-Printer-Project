@@ -114,7 +114,10 @@ app.use((req, res, next) => {
 app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', env: NODE_ENV, uptime: process.uptime() });
 });
-// Routes
+// Routes (versioned)
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/projects', authenticateJWT, projectsRouter);
+// Back-compat temporary mounts (to be removed after clients migrate)
 app.use('/api/auth', authRouter);
 app.use('/api/projects', authenticateJWT, projectsRouter);
 // 404 + error handlers
