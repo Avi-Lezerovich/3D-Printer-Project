@@ -19,9 +19,21 @@ const PORT = Number(process.env.PORT || 8080);
 const HOST = process.env.HOST || '0.0.0.0';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || CLIENT_URL)
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
 const LOG_LEVEL = process.env.LOG_LEVEL || 'dev';
 const TRUST_PROXY = Number(process.env.TRUST_PROXY || '1');
 app.set('trust proxy', TRUST_PROXY);
+app.disable('x-powered-by');
+// Fail-fast checks for critical production configuration
+if (process.env.NODE_ENV === 'production') {
+    if (!process.env.JWT_SECRET) {
+        console.error('FATAL: JWT_SECRET is not set in production');
+        process.exit(1);
+    }
+}
 // Socket.IO is optional; guard require to avoid top-level import side effects in tests
 let io;
 (async () => {
@@ -45,9 +57,9 @@ app.use(helmet({
         useDefaults: true,
         directives: {
             "default-src": ["'self'"],
-            "connect-src": ["'self'", CLIENT_URL],
+            "connect-src": ["'self'", ...ALLOWED_ORIGINS],
             "img-src": ["'self'", 'data:', 'blob:'],
-            "script-src": ["'self'", "'unsafe-inline'"],
+            "script-src": ["'self'"],
             "style-src": ["'self'", "'unsafe-inline'"],
             "font-src": ["'self'", 'data:'],
             "object-src": ["'none'"],
@@ -60,6 +72,11 @@ app.use(helmet({
     frameguard: { action: 'sameorigin' },
     hsts: NODE_ENV === 'production' ? { maxAge: 15552000, includeSubDomains: true, preload: true } : false,
 }));
+// Add explicit Permissions-Policy restrictions
+app.use((_req, res, next) => {
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    next();
+});
 // Logging
 if (NODE_ENV !== 'test') {
     app.use(morgan(LOG_LEVEL));
@@ -69,8 +86,7 @@ app.use(cors({
     origin: function (origin, callback) {
         if (!origin)
             return callback(null, true);
-        const allowed = [CLIENT_URL];
-        if (allowed.includes(origin))
+        if (ALLOWED_ORIGINS.includes(origin))
             return callback(null, true);
         return callback(new Error('Not allowed by CORS'));
     },
@@ -90,10 +106,20 @@ const limiter = rateLimit({
     legacyHeaders: false,
 });
 app.use('/api/', limiter);
+// Additional rate limit for auth to mitigate brute-force/credential stuffing
+const authLimiter = rateLimit({
+    windowMs: 10 * 60 * 1000,
+    max: 20,
+    message: { message: 'Too many attempts, please try again later.' },
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+});
+app.use('/api/auth/login', authLimiter);
 // CSRF setup (cookie-based)
-const CSRF_COOKIE_NAME = process.env.CSRF_COOKIE_NAME || 'csrf_token';
 const SESSION_SECURE = String(process.env.SESSION_SECURE) === 'true';
-const csrfProtection = csrf({ cookie: { key: CSRF_COOKIE_NAME, httpOnly: true, sameSite: 'lax', secure: SESSION_SECURE } });
+const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN;
+const CSRF_COOKIE_NAME = SESSION_SECURE && !COOKIE_DOMAIN ? '__Host-csrf' : (process.env.CSRF_COOKIE_NAME || 'csrf_token');
+const csrfProtection = csrf({ cookie: { key: CSRF_COOKIE_NAME, httpOnly: true, sameSite: 'lax', secure: SESSION_SECURE, path: '/' } });
 // CSRF token route for clients to fetch token from cookie and echo header back
 app.get('/api/csrf-token', csrfProtection, (req, res) => {
     // csurf will set the cookie; we also send the token for convenience

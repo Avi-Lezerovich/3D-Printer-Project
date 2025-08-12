@@ -3,6 +3,7 @@ export function notFoundHandler(_req, res) {
     res.status(404).json({ message: 'Not Found' });
 }
 // Central error handler
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function errorHandler(err, _req, res, _next) {
     const status = err?.status || 500;
     const isProd = process.env.NODE_ENV === 'production';
