@@ -50,6 +50,17 @@ npm test
 - Helmet sets common security headers; adjust CSP if embedding remote assets.
 - Rate limiting is enabled on `/api/*`.
 
+## Front-end standards & performance
+- Component-based architecture with lazy-loaded routes (React Suspense).
+- Mobile-first, responsive CSS with utility classes and media queries.
+- Images default to lazy loading via a shared `Image` component.
+- Code-splitting configured in `vite.config.ts` for major libraries.
+- Consider serving static assets via a CDN with caching headers in production.
+
+## Git workflow
+- Use short-lived feature branches (GitHub Flow). Example: `fe-standards-performance`.
+- Open pull requests early; keep changes focused and small; squash-merge when ready.
+
 ## Docker
 
 Build and run the API container locally:

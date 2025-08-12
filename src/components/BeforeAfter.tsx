@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
+import Image from './Image'
 import './beforeAfter.css'
 
 type Props = { 
@@ -95,9 +96,9 @@ export default function BeforeAfter({
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      <img className="img after" src={after} alt={altAfter} />
+  <Image className="img after fluid-img" src={after} alt={altAfter} />
       <div className="clip" style={{width: `${pos}%`}}>
-        <img className="img before" src={before} alt={altBefore} />
+  <Image className="img before fluid-img" src={before} alt={altBefore} />
       </div>
       
       {showLabels && (
