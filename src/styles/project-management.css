@@ -117,14 +117,17 @@
 
 /* Enhanced Navigation */
 .project-management-nav {
-  background: rgba(15, 23, 42, 0.95);
+  background: rgba(15, 23, 42, 0.98);
   border-bottom: 1px solid rgba(148, 163, 184, 0.2);
   backdrop-filter: blur(20px);
   padding: 0;
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 50;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  left: 280px; /* Align with expanded sidebar */
+  right: 0;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
 }
 
 .nav-container {
@@ -249,6 +252,7 @@
 .project-content-section {
   position: relative;
   z-index: 1;
+  padding-top: 70px; /* Add space for fixed nav */
 }
 
 .tab-content-wrapper {
