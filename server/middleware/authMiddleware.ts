@@ -18,7 +18,7 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
 		const authHeader = req.headers.authorization
 		const token = authHeader?.startsWith('Bearer ')
 			? authHeader.slice(7)
-			: req.cookies?.token
+	: (req.cookies?.token || req.cookies?.['__Host-token'])
 
 		if (!token) {
 			res.setHeader('WWW-Authenticate', 'Bearer')
