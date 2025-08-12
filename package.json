@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"npm:dev:client\" \"npm:dev:server\"",
     "dev:client": "vite",
-    "dev:server": "nodemon --watch server --ext ts --exec \"node --enable-source-maps --loader ts-node/esm server/index.ts\"",
+    "dev:server": "nodemon --watch server --ext ts --exec \"npm run build:server && node dist-server/index.js\"",
     "build": "npm run build:server && vite build",
     "build:server": "tsc -p server/tsconfig.json",
     "preview": "vite preview",

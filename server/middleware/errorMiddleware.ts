@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 
 // 404 handler
 export function notFoundHandler(_req: Request, res: Response) {
@@ -6,7 +6,7 @@ export function notFoundHandler(_req: Request, res: Response) {
 }
 
 // Central error handler
-export function errorHandler(err: unknown, _req: Request, res: Response) {
+export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
 	const status = (err as any)?.status || 500
 	const isProd = process.env.NODE_ENV === 'production'
 
