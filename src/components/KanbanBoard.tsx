@@ -9,12 +9,39 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  useDroppable,
 } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import {
   SortableItem,
 } from './SortableItem'
 import { useAppStore } from '../shared/store'
+
+interface DroppableColumnProps {
+  id: string
+  title: string
+  children: React.ReactNode
+}
+
+function DroppableColumn({ id, title, children }: DroppableColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({ id })
+  
+  return (
+    <div 
+      ref={setNodeRef}
+      className="panel" 
+      style={{
+        minHeight: 400,
+        backgroundColor: isOver ? 'rgba(18, 58, 86, 0.5)' : undefined,
+        border: isOver ? '2px dashed #37d67a' : '1px solid rgba(18, 58, 86, 0.3)',
+        transition: 'all 0.2s ease'
+      }}
+    >
+      <h2 style={{marginBottom: 16, color: isOver ? '#37d67a' : undefined}}>{title}</h2>
+      {children}
+    </div>
+  )
+}
 
 // type Task = { id: string; title: string; }
 
@@ -52,8 +79,11 @@ export default function KanbanBoard() {
     const taskId = parseInt(active.id as string)
     const overContainer = over.id as string
     
+    console.log('Drag end:', { taskId, overContainer }) // Debug log
+    
     // If dropped on a column, move task to that column
     if (columns.some(col => col.id === overContainer)) {
+      console.log('Moving task:', taskId, 'to', overContainer) // Debug log
       moveTask(taskId, overContainer as 'todo'|'doing'|'done')
     }
   }, [moveTask, columns])
@@ -80,11 +110,9 @@ export default function KanbanBoard() {
           const columnTasks = tasks.filter(task => task.status === column.id)
           
           return (
-            <div key={column.id} className="panel" style={{minHeight: 400}}>
-              <h2 style={{marginBottom: 16}}>{column.title}</h2>
-              
+            <DroppableColumn key={column.id} id={column.id} title={column.title}>
               <SortableContext items={columnTasks.map(t => t.id.toString())} strategy={verticalListSortingStrategy}>
-                <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
+                <div style={{display: 'flex', flexDirection: 'column', gap: 8, minHeight: 200}}>
                   {columnTasks.map(task => (
                     <SortableItem key={task.id} id={task.id.toString()} task={task} />
                   ))}
@@ -117,7 +145,7 @@ export default function KanbanBoard() {
                   </button>
                 </form>
               )}
-            </div>
+            </DroppableColumn>
           )
         })}
         

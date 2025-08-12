@@ -34,17 +34,6 @@ interface InventoryItem {
   estimatedCost?: number;
 }
 
-interface ProjectMilestone {
-  id: string;
-  title: string;
-  description: string;
-  status: 'completed' | 'in-progress' | 'upcoming';
-  date: string;
-  completionPercentage: number;
-  technologies: string[];
-  achievements: string[];
-}
-
 interface SkillDemonstration {
   category: string;
   skills: string[];
@@ -57,7 +46,7 @@ export default function ProjectManagement() {
   const addTask = useAppStore((s) => s.addTask);
   const editTask = useAppStore((s) => s.editTask);
   const deleteTask = useAppStore((s) => s.deleteTask);
-  const [activeTab, setActiveTab] = useState<'overview' | 'budget' | 'inventory' | 'timeline' | 'portfolio' | 'analytics'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'budget' | 'inventory' | 'analytics'>('overview');
   const [animatedStats, setAnimatedStats] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [taskPriority, setTaskPriority] = useState<'low' | 'med' | 'high'>('med');
@@ -73,7 +62,6 @@ export default function ProjectManagement() {
   const [newInventoryItem, setNewInventoryItem] = useState({ name: '', current: '', minimum: '', unit: 'pcs' });
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
-  const [milestoneData, setMilestoneData] = useState<ProjectMilestone[]>([]);
 
   useEffect(() => {
     const timer = setTimeout(() => setAnimatedStats(true), 500);
@@ -155,49 +143,6 @@ export default function ProjectManagement() {
         lastUpdated: '2 weeks ago',
         supplier: 'BIQU',
         estimatedCost: 35.99
-      }
-    ]);
-
-    setMilestoneData([
-      {
-        id: '1',
-        title: 'Hardware Assessment & Planning',
-        description: 'Complete teardown and component evaluation',
-        status: 'completed',
-        date: '2025-07-10',
-        completionPercentage: 100,
-        technologies: ['Hardware Diagnosis', '3D Printing', 'Electronics'],
-        achievements: ['Identified all failing components', 'Created comprehensive parts list', 'Documented current state']
-      },
-      {
-        id: '2',
-        title: 'Electronics Restoration',
-        description: 'Replace motherboard and stepper drivers',
-        status: 'in-progress',
-        date: '2025-08-15',
-        completionPercentage: 65,
-        technologies: ['Electronics', 'Firmware', 'Soldering', 'Testing'],
-        achievements: ['Installed new motherboard', 'Updated firmware', 'Currently testing stepper drivers']
-      },
-      {
-        id: '3',
-        title: 'Mechanical Improvements',
-        description: 'Upgrade belts, pulleys, and linear bearings',
-        status: 'upcoming',
-        date: '2025-08-30',
-        completionPercentage: 0,
-        technologies: ['Mechanical Engineering', 'Precision Assembly', 'Quality Control'],
-        achievements: []
-      },
-      {
-        id: '4',
-        title: 'Software Integration & Testing',
-        description: 'Calibration, testing, and optimization',
-        status: 'upcoming',
-        date: '2025-09-10',
-        completionPercentage: 0,
-        technologies: ['Software Configuration', 'Testing', 'Optimization', 'Documentation'],
-        achievements: []
       }
     ]);
     
@@ -324,7 +269,6 @@ export default function ProjectManagement() {
       tasks: tasks,
       budget: budgetData,
       inventory: inventoryData,
-      milestones: milestones,
       exportDate: new Date().toISOString(),
       projectProgress: progress
     };
@@ -381,8 +325,6 @@ export default function ProjectManagement() {
   const budgetData = budgetItems.length > 0 ? budgetItems : [];
 
   const inventoryData = inventoryItems.length > 0 ? inventoryItems : [];
-
-  const milestones = milestoneData.length > 0 ? milestoneData : [];
 
   const skillsDemonstrated: SkillDemonstration[] = [
     {
@@ -507,11 +449,9 @@ export default function ProjectManagement() {
         <div className="tab-navigation">
           {[
             { key: 'overview', label: 'Task Management', icon: '📋' },
-            { key: 'portfolio', label: 'Project Showcase', icon: '🎯' },
-            { key: 'timeline', label: 'Milestones', icon: '�' },
             { key: 'budget', label: 'Budget Tracker', icon: '💰' },
             { key: 'inventory', label: 'Inventory', icon: '📦' },
-            { key: 'analytics', label: 'Analytics', icon: '�' }
+            { key: 'analytics', label: 'Analytics', icon: '📊' }
           ].map((tab) => (
             <button
               key={tab.key}
@@ -686,17 +626,26 @@ export default function ProjectManagement() {
             </motion.div>
           )}
 
-          {activeTab === 'portfolio' && (
+          {activeTab === 'budget' && (
             <motion.div
-              key="portfolio"
+              key="budget"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
               className="tab-content"
             >
-              <div className="portfolio-showcase">
-                <h3>Project Showcase - 3D Printer Restoration</h3>
+              <div className="budget-overview">
+                <div className="budget-header">
+                  <h3>Budget Tracker & Financial Management</h3>
+                  <button 
+                    className="add-expense-button"
+                    onClick={() => setShowAddBudgetItem(!showAddBudgetItem)}
+                  >
+                    <span className="button-icon">💰</span>
+                    Add Expense
+                  </button>
+                </div>
                 
                 <div className="showcase-grid">
                   <div className="project-overview-card">
@@ -784,7 +733,7 @@ export default function ProjectManagement() {
             </motion.div>
           )}
 
-          {activeTab === 'timeline' && (
+          {activeTab === 'inventory' && (
             <motion.div
               key="timeline"
               initial={{ opacity: 0, y: 20 }}
