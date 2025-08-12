@@ -12,6 +12,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorMiddleware.js';
 import { authenticateJWT } from './middleware/authMiddleware.js';
 import authRouter from './routes/auth.js';
 import projectsRouter from './routes/projects.js';
+import { setCache } from './middleware/cacheMiddleware.js';
 const app = express();
 const server = http.createServer(app);
 // Config
@@ -111,7 +112,7 @@ app.use((req, res, next) => {
     return csrfProtection(req, res, next);
 });
 // Healthcheck
-app.get('/api/health', (_req, res) => {
+app.get('/api/health', setCache(5), (_req, res) => {
     res.json({ status: 'ok', env: NODE_ENV, uptime: process.uptime() });
 });
 // Routes (versioned)

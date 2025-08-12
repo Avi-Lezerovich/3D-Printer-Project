@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import crypto from 'node:crypto';
 import { body, param, validationResult } from 'express-validator';
+import { setCache } from '../middleware/cacheMiddleware.js';
 const projects = new Map();
 const router = Router();
-router.get('/', (_req, res) => {
+router.get('/', setCache(10), (_req, res) => {
     res.json({ projects: Array.from(projects.values()) });
 });
-router.get('/:id', (req, res) => {
+router.get('/:id', setCache(10), (req, res) => {
     const id = req.params.id;
     const proj = projects.get(id);
     if (!proj)

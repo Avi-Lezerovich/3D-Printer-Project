@@ -1,17 +1,18 @@
 import { Router } from 'express'
 import crypto from 'node:crypto'
 import { body, param, validationResult } from 'express-validator'
+import { setCache } from '../middleware/cacheMiddleware.js'
 
 type Project = { id: string; name: string; status: 'todo' | 'in_progress' | 'done'; createdAt: string }
 const projects = new Map<string, Project>()
 
 const router = Router()
 
-router.get('/', (_req, res) => {
+router.get('/', setCache(10), (_req, res) => {
 	res.json({ projects: Array.from(projects.values()) })
 })
 
-router.get('/:id', (req, res) => {
+router.get('/:id', setCache(10), (req, res) => {
 	const id = (req.params as any).id as string
 	const proj = projects.get(id)
 	if (!proj) return res.status(404).json({ message: 'Project not found' })
