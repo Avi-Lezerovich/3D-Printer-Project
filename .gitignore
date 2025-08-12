@@ -11,6 +11,22 @@ node_modules/
 # Build output
 dist/
 .vite/
+dist-server/__tests__/
+
+# Test coverage
+coverage/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Lint/formatter caches
+.eslintcache
+.prettier-cache
 
 # Editor
 .vscode/

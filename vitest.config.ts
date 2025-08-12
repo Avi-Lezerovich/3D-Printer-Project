@@ -8,5 +8,21 @@ export default defineConfig({
 		setupFiles: ['src/test/setup.ts'],
 		globals: true,
 		include: ['src/**/*.{test,spec}.tsx', 'server/**/*.{test,spec}.ts'],
+		coverage: {
+			provider: 'v8',
+			reporter: ['text', 'lcov'],
+			include: ['server/**/*.ts', 'src/**/*.{ts,tsx}'],
+			exclude: [
+				'**/*.d.ts',
+				'**/*.{test,spec}.*',
+				'node_modules/**',
+				'dist/**',
+				'dist-server/**',
+				'public/**',
+				'vite.config.*',
+				'vitest.config.*',
+				'tsconfig.*',
+			],
+		},
 	},
 })

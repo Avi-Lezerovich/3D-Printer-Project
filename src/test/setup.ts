@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom/vitest'
 // JSDOM setup for React tests
 // Polyfill ResizeObserver for components relying on it
 if (typeof (globalThis as any).ResizeObserver === 'undefined') {
