@@ -75,7 +75,7 @@ export default function BeforeAfter({
     if (isDragging) {
       document.addEventListener('mousemove', handleGlobalMove);
       document.addEventListener('mouseup', handleGlobalEnd);
-      document.addEventListener('touchmove', handleGlobalMove);
+      document.addEventListener('touchmove', handleGlobalMove, { passive: true });
       document.addEventListener('touchend', handleGlobalEnd);
     }
 
@@ -86,6 +86,26 @@ export default function BeforeAfter({
       document.removeEventListener('touchend', handleGlobalEnd);
     };
   }, [isDragging]);
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const step = e.shiftKey ? 10 : 5;
+    if (e.key === 'ArrowLeft' || e.key === 'Left') {
+      e.preventDefault();
+      setPos(p => Math.max(5, p - step));
+    }
+    if (e.key === 'ArrowRight' || e.key === 'Right') {
+      e.preventDefault();
+      setPos(p => Math.min(95, p + step));
+    }
+    if (e.key === 'Home') {
+      e.preventDefault();
+      setPos(5);
+    }
+    if (e.key === 'End') {
+      e.preventDefault();
+      setPos(95);
+    }
+  }
 
   return (
     <div 
@@ -103,10 +123,10 @@ export default function BeforeAfter({
       
       {showLabels && (
         <>
-          <div className="label label-before">
+          <div className="label label-before" aria-hidden>
             <span>{altBefore}</span>
           </div>
-          <div className="label label-after">
+          <div className="label label-after" aria-hidden>
             <span>{altAfter}</span>
           </div>
         </>
@@ -123,13 +143,14 @@ export default function BeforeAfter({
         aria-valuemax={100}
         aria-label="Drag to compare before and after"
         tabIndex={0}
+        onKeyDown={onKeyDown}
       >
         <span className="handle-icon">⟷</span>
         <div className="handle-line" />
       </div>
       
       {!isDragging && !isHovering && autoSlide && (
-        <div className="auto-slide-hint">
+        <div className="auto-slide-hint" aria-live="polite">
           <span>Drag to compare • Auto-demo active</span>
         </div>
       )}

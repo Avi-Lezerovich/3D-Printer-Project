@@ -58,6 +58,10 @@
   outline: 2px solid #66ccff;
   outline-offset: 2px;
 }
+.before-after .handle:focus-visible{
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
 
 .before-after .handle span {
   position: absolute;
