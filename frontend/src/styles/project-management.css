@@ -6,35 +6,9 @@
 .visually-hidden{position:absolute!important;clip:rect(1px,1px,1px,1px);clip-path:inset(50%);height:1px;width:1px;overflow:hidden;white-space:nowrap;border:0;padding:0;margin:-1px}
 
 .project-management-container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, 
-    rgba(16, 22, 39, 0.98) 0%,
-    rgba(30, 41, 59, 0.98) 25%,
-    rgba(51, 65, 85, 0.98) 50%,
-    rgba(30, 41, 59, 0.98) 75%,
-    rgba(16, 22, 39, 0.98) 100%);
-  color: #f8fafc;
-  padding: 0;
-  overflow-x: hidden;
-  position: relative;
+  padding-top: 80px;
 }
 
-.project-management-container::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 40% 60%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Enhanced Hero Section */
 .project-hero {
   position: relative;
   padding: 3rem 2rem 2rem;

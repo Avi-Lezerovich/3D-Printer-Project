@@ -109,6 +109,26 @@
   .submenu-arrow.open {
     transform: rotate(90deg);
   }
+
+  .submenu-toggle {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    margin-left: auto;
+    padding: 4px;
+    transition: transform 0.2s;
+    font-size: 12px;
+  }
+
+  .submenu-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+
+  .submenu-toggle.open {
+    transform: rotate(90deg);
+  }
   
   .sidebar-submenu {
     padding-left: 35px;

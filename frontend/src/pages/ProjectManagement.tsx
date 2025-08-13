@@ -1,16 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
-import { TaskManagement, BudgetTracker, Inventory, Analytics, ActiveTab } from './project-management';
+import { TaskManagement, BudgetTracker, Inventory, Analytics, ActiveTab, TabInfo } from './project-management';
 import '../styles/project-management.css';
-
-interface TabInfo {
-  id: ActiveTab;
-  label: string;
-  icon: string;
-  description: string;
-  color: string;
-}
 
 export default function ProjectManagement() {
   const [searchParams] = useSearchParams();
@@ -79,6 +71,7 @@ export default function ProjectManagement() {
   return (
     <div className="project-management-container">
       <a href="#pm-main" className="skip-link">Skip to main content</a>
+
       {/* Modern Tab Navigation */}
       <motion.nav 
         className="project-management-nav"

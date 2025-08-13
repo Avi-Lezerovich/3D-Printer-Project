@@ -4,7 +4,7 @@ type PrinterStatus = 'idle' | 'printing' | 'paused' | 'error'
 
 type Job = { id: string; name: string; progress: number; status: 'queued'|'running'|'done'|'failed' }
 
-type Task = { id:number; title:string; status:'todo'|'doing'|'done'; priority:'low'|'med'|'high' }
+export type Task = { id:number; title:string; status:'todo'|'doing'|'done'; priority:'low'|'med'|'high' }
 
 interface AppState {
   status: PrinterStatus

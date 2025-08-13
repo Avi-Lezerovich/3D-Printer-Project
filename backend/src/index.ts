@@ -13,6 +13,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorMiddleware.js'
 import { authenticateJWT } from './middleware/authMiddleware.js'
 import authRouter from './routes/auth.js'
 import projectsRouter from './routes/projects.js'
+import projectManagementRouter from './routes/project-management.js'
 import { setCache } from './middleware/cacheMiddleware.js'
 
 const app = express()
@@ -161,6 +162,7 @@ app.get('/api/health', setCache(5), (_req, res) => {
 // Routes (versioned)
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/projects', authenticateJWT, projectsRouter)
+app.use('/api/v1/project-management', authenticateJWT, projectManagementRouter)
 // Back-compat temporary mounts (to be removed after clients migrate)
 app.use('/api/auth', authRouter)
 app.use('/api/projects', authenticateJWT, projectsRouter)

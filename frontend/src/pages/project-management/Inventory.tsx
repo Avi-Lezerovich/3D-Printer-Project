@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { InventoryItem } from './types';
+import { motion, AnimatePresence } from 'framer-motion';
+import { InventoryItem as InventoryItemType } from './types';
+import AddInventoryItemForm from './components/AddInventoryItemForm';
+import InventoryItem from './components/InventoryItem';
 
 export default function Inventory() {
   const [showAddInventoryItem, setShowAddInventoryItem] = useState(false);
-  const [newInventoryItem, setNewInventoryItem] = useState({ 
-    name: '', 
-    current: '', 
-    minimum: '', 
-    unit: 'pcs' 
-  });
-  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
+  const [inventoryItems, setInventoryItems] = useState<InventoryItemType[]>([]);
 
   useEffect(() => {
     // Initialize inventory data
@@ -23,7 +19,7 @@ export default function Inventory() {
         status: 'good',
         lastUpdated: '2025-08-10',
         supplier: 'Amazon',
-        estimatedCost: 45.00
+        estimatedCost: 45.0,
       },
       {
         name: 'PLA Filament',
@@ -33,7 +29,7 @@ export default function Inventory() {
         status: 'warning',
         lastUpdated: '2025-08-12',
         supplier: 'Hatchbox',
-        estimatedCost: 25.99
+        estimatedCost: 25.99,
       },
       {
         name: 'Nozzles (0.4mm)',
@@ -43,7 +39,7 @@ export default function Inventory() {
         status: 'critical',
         lastUpdated: '2025-08-11',
         supplier: 'E3D',
-        estimatedCost: 8.50
+        estimatedCost: 8.5,
       },
       {
         name: 'Thermal Paste',
@@ -53,7 +49,7 @@ export default function Inventory() {
         status: 'good',
         lastUpdated: '2025-08-09',
         supplier: 'Arctic',
-        estimatedCost: 12.99
+        estimatedCost: 12.99,
       },
       {
         name: 'Belts (GT2)',
@@ -63,57 +59,31 @@ export default function Inventory() {
         status: 'good',
         lastUpdated: '2025-08-08',
         supplier: 'Gates',
-        estimatedCost: 15.00
-      }
+        estimatedCost: 15.0,
+      },
     ]);
   }, []);
 
-  const handleAddInventoryItem = () => {
-    if (newInventoryItem.name.trim() && newInventoryItem.current.trim() && newInventoryItem.minimum.trim()) {
-      const current = parseFloat(newInventoryItem.current);
-      const minimum = parseFloat(newInventoryItem.minimum);
-      
-      if (!isNaN(current) && !isNaN(minimum)) {
-        const status: 'good' | 'warning' | 'critical' = 
-          current <= minimum * 0.5 ? 'critical' :
-          current <= minimum ? 'warning' : 'good';
+  const handleAddInventoryItem = (newItem: Omit<InventoryItemType, 'status' | 'lastUpdated'>) => {
+    const status: 'good' | 'warning' | 'critical' =
+      (newItem.current as number) <= (newItem.minimum as number) * 0.5
+        ? 'critical'
+        : (newItem.current as number) <= (newItem.minimum as number)
+        ? 'warning'
+        : 'good';
 
-        const newItem: InventoryItem = {
-          name: newInventoryItem.name,
-          current,
-          minimum,
-          unit: newInventoryItem.unit,
-          status,
-          lastUpdated: new Date().toISOString().split('T')[0]
-        };
+    const itemToAdd: InventoryItemType = {
+      ...newItem,
+      status,
+      lastUpdated: new Date().toISOString().split('T')[0],
+    };
 
-        setInventoryItems(prev => [...prev, newItem]);
-        setNewInventoryItem({ name: '', current: '', minimum: '', unit: 'pcs' });
-        setShowAddInventoryItem(false);
-      }
-    }
+    setInventoryItems((prev) => [...prev, itemToAdd]);
+    setShowAddInventoryItem(false);
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'good': return '✅';
-      case 'warning': return '⚠️';
-      case 'critical': return '🔴';
-      default: return '❓';
-    }
-  };
-
-  const getStatusClass = (status: string) => {
-    switch (status) {
-      case 'good': return 'status-good';
-      case 'warning': return 'status-warning';
-      case 'critical': return 'status-critical';
-      default: return 'status-unknown';
-    }
-  };
-
-  const criticalItems = inventoryItems.filter(item => item.status === 'critical');
-  const warningItems = inventoryItems.filter(item => item.status === 'warning');
+  const criticalItems = inventoryItems.filter((item) => item.status === 'critical');
+  const warningItems = inventoryItems.filter((item) => item.status === 'warning');
 
   return (
     <motion.div
@@ -126,10 +96,7 @@ export default function Inventory() {
     >
       <div className="inventory-header">
         <h3>Inventory Management</h3>
-        <button 
-          className="add-inventory-btn"
-          onClick={() => setShowAddInventoryItem(true)}
-        >
+        <button className="add-inventory-btn" onClick={() => setShowAddInventoryItem(true)}>
           <span className="btn-icon">📦</span>
           Add Item
         </button>
@@ -141,7 +108,8 @@ export default function Inventory() {
             <div className="alert critical">
               <span className="alert-icon">🔴</span>
               <span className="alert-text">
-                {criticalItems.length} item(s) critically low: {criticalItems.map(item => item.name).join(', ')}
+                {criticalItems.length} item(s) critically low:{' '}
+                {criticalItems.map((item) => item.name).join(', ')}
               </span>
             </div>
           )}
@@ -149,127 +117,43 @@ export default function Inventory() {
             <div className="alert warning">
               <span className="alert-icon">⚠️</span>
               <span className="alert-text">
-                {warningItems.length} item(s) running low: {warningItems.map(item => item.name).join(', ')}
+                {warningItems.length} item(s) running low:{' '}
+                {warningItems.map((item) => item.name).join(', ')}
               </span>
             </div>
           )}
         </div>
       )}
 
-      <div className="inventory-grid">
-        {inventoryItems.map((item, index) => (
-          <motion.div 
-            key={item.name}
-            className={`inventory-card ${getStatusClass(item.status)}`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-          >
-            <div className="card-header">
-              <h4>{item.name}</h4>
-              <span className="status-indicator">
-                {getStatusIcon(item.status)}
-              </span>
-            </div>
-            
-            <div className="card-content">
-              <div className="quantity-info">
-                <div className="current-stock">
-                  <span className="label">Current:</span>
-                  <span className="value">{item.current} {item.unit}</span>
-                </div>
-                <div className="minimum-stock">
-                  <span className="label">Minimum:</span>
-                  <span className="value">{item.minimum} {item.unit}</span>
-                </div>
-              </div>
-              
-              <div className="item-details">
-                <div className="detail-row">
-                  <span className="label">Last Updated:</span>
-                  <span className="value">{item.lastUpdated}</span>
-                </div>
-                {item.supplier && (
-                  <div className="detail-row">
-                    <span className="label">Supplier:</span>
-                    <span className="value">{item.supplier}</span>
-                  </div>
-                )}
-                {item.estimatedCost && (
-                  <div className="detail-row">
-                    <span className="label">Est. Cost:</span>
-                    <span className="value">${item.estimatedCost.toFixed(2)}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        ))}
+      <div className="inventory-table-container">
+        <table className="inventory-table">
+          <thead>
+            <tr>
+              <th>Item Name</th>
+              <th>Current Stock</th>
+              <th>Minimum Stock</th>
+              <th>Status</th>
+              <th>Last Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            <AnimatePresence>
+              {inventoryItems.map((item) => (
+                <InventoryItem key={item.name} item={item} />
+              ))}
+            </AnimatePresence>
+          </tbody>
+        </table>
       </div>
 
-      {showAddInventoryItem && (
-        <motion.div 
-          className="add-inventory-modal"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-        >
-          <div className="modal-content">
-            <h4>Add Inventory Item</h4>
-            <div className="form-group">
-              <label>Item Name</label>
-              <input
-                type="text"
-                value={newInventoryItem.name}
-                onChange={(e) => setNewInventoryItem({ ...newInventoryItem, name: e.target.value })}
-                placeholder="Enter item name..."
-              />
-            </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Current Stock</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={newInventoryItem.current}
-                  onChange={(e) => setNewInventoryItem({ ...newInventoryItem, current: e.target.value })}
-                  placeholder="0"
-                />
-              </div>
-              <div className="form-group">
-                <label>Minimum Stock</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={newInventoryItem.minimum}
-                  onChange={(e) => setNewInventoryItem({ ...newInventoryItem, minimum: e.target.value })}
-                  placeholder="0"
-                />
-              </div>
-            </div>
-            <div className="form-group">
-              <label>Unit</label>
-              <select 
-                value={newInventoryItem.unit}
-                onChange={(e) => setNewInventoryItem({ ...newInventoryItem, unit: e.target.value })}
-              >
-                <option value="pcs">Pieces</option>
-                <option value="kg">Kilograms</option>
-                <option value="g">Grams</option>
-                <option value="m">Meters</option>
-                <option value="cm">Centimeters</option>
-                <option value="L">Liters</option>
-                <option value="ml">Milliliters</option>
-                <option value="%">Percentage</option>
-              </select>
-            </div>
-            <div className="modal-actions">
-              <button onClick={handleAddInventoryItem} className="primary-btn">Add Item</button>
-              <button onClick={() => setShowAddInventoryItem(false)} className="secondary-btn">Cancel</button>
-            </div>
-          </div>
-        </motion.div>
-      )}
+      <AnimatePresence>
+        {showAddInventoryItem && (
+          <AddInventoryItemForm
+            onAdd={handleAddInventoryItem}
+            onClose={() => setShowAddInventoryItem(false)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

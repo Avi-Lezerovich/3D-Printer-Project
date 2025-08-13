@@ -1,12 +1,11 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useAppStore } from '../../shared/store';
 import ThemeToggle from '../ThemeToggle';
 import './sidebar.css';
 
 const Sidebar = () => {
   const { sidebarCollapsed, toggleSidebar } = useAppStore();
-  const location = useLocation();
   const [projectSubMenuOpen, setProjectSubMenuOpen] = React.useState(false);
 
 
@@ -100,13 +99,11 @@ const Sidebar = () => {
             <div key={item.key}>
               {item.hasSubMenu ? (
                 <div className="sidebar-item-with-submenu">
-                  <div
-                    className={`sidebar-item ${location.pathname === item.path ? 'active' : ''}`}
-                    onClick={() => {
-                      if (!sidebarCollapsed) {
-                        setProjectSubMenuOpen(!projectSubMenuOpen);
-                      }
-                    }}
+                  <NavLink
+                    to={item.path}
+                    className={({ isActive }) => 
+                      `sidebar-item ${isActive ? 'active' : ''}`
+                    }
                     title={item.description}
                   >
                     <span className="sidebar-icon">{item.icon}</span>
@@ -117,23 +114,33 @@ const Sidebar = () => {
                       </div>
                     )}
                     {!sidebarCollapsed && (
-                      <span className={`submenu-arrow ${projectSubMenuOpen ? 'open' : ''}`}>
+                      <button
+                        className={`submenu-toggle ${projectSubMenuOpen ? 'open' : ''}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setProjectSubMenuOpen(!projectSubMenuOpen);
+                        }}
+                        aria-label="Toggle submenu"
+                      >
                         ▶
-                      </span>
+                      </button>
                     )}
-                  </div>
+                  </NavLink>
                   {!sidebarCollapsed && projectSubMenuOpen && (
                     <div className="sidebar-submenu">
                       {item.subItems?.map((subItem) => (
-                        <a
+                        <NavLink
                           key={subItem.key}
-                          href={subItem.path}
-                          className={`sidebar-subitem ${location.search.includes(`tab=${subItem.key}`) ? 'active' : ''}`}
+                          to={subItem.path}
+                          className={({ isActive }) => 
+                            `sidebar-subitem ${isActive ? 'active' : ''}`
+                          }
                           title={subItem.label}
                         >
                           <span className="sidebar-icon">{subItem.icon}</span>
                           <span className="sidebar-label">{subItem.label}</span>
-                        </a>
+                        </NavLink>
                       ))}
                     </div>
                   )}

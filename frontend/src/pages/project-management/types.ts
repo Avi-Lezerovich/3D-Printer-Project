@@ -38,3 +38,11 @@ export interface SkillDemonstration {
 }
 
 export type ActiveTab = 'overview' | 'budget' | 'inventory' | 'analytics';
+
+export interface TabInfo {
+  id: ActiveTab;
+  label: string;
+  icon: string;
+  description: string;
+  color: string;
+}
