@@ -1,79 +1,164 @@
-# 3D Printer Project System
+# 3D Printer Project
 
-Three-part React + Vite TypeScript app:
-- Portfolio (public-facing showcase)
-- Control Panel (printer management UI)
-- Project Management (internal tracking)
+A full-stack 3D printer management system with React frontend, Express backend, and comprehensive project management features.
 
-## Quick start
+## 📁 Project Structure
 
-1) Copy env and install dependencies
-
-```powershell
-Copy-Item .env.example .env
-npm install
+```
+3D-Printer-Project/
+│
+├── 📁 frontend/                    # React frontend application
+│   ├── src/                       # React components, pages, services
+│   ├── public/                    # Static assets
+│   ├── package.json              # Frontend dependencies
+│   └── vite.config.ts            # Vite configuration
+│
+├── 📁 backend/                     # Express.js API server
+│   ├── src/                      # Server routes, middleware, types
+│   ├── dist/                     # Compiled TypeScript output
+│   ├── package.json              # Backend dependencies
+│   └── tsconfig.json             # Backend TypeScript config
+│
+├── 📁 deployment/                  # Infrastructure & deployment
+│   ├── docker/                   # Docker configurations
+│   ├── scripts/                  # Deployment scripts
+│   └── config/                   # Environment configurations
+│
+├── 📁 docs/                       # Project documentation
+├── package.json                   # Root workspace configuration
+└── README.md
 ```
 
-2) Run client + server in dev
+## 🚀 Quick Start
 
-```powershell
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd 3D-Printer-Project
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm run install:all
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp deployment/config/.env.example deployment/config/.env
+   # Edit the .env file with your configuration
+   ```
+
+### Development
+
+**Start both frontend and backend in development mode:**
+```bash
 npm run dev
 ```
 
-- Client: http://localhost:5173
-- API: http://localhost:8080 (health: /api/health)
+**Or run individually:**
+```bash
+# Frontend only (http://localhost:3000)
+npm run dev:frontend
 
-3) Run tests
-
-```powershell
-npm test
+# Backend only (http://localhost:8080)
+npm run dev:backend
 ```
 
-## Structure
-- `src/pages/Portfolio.tsx` — portfolio site sections
-- `src/pages/ControlPanel.tsx` — printer dashboard & controls
-- `src/pages/ProjectManagement.tsx` — tasks, inventory, budget
-- `src/shared/Layout.tsx` — shared shell + navigation
-- `src/shared/store.ts` — shared app state (Zustand)
-- `src/services/socket.ts` — placeholder for realtime events
+### Building
 
-## Next steps
-- Flesh out portfolio sections with real content, images, and downloads
-- Hook Control Panel to your printer backend (OctoPrint/Klipper/Marlin via server)
-- Add persistent storage (localStorage or backend API)
-- Implement auth and shared settings
-- Integrate camera feed and charts
-
-## Security & configuration
-- Secrets live in environment variables. Copy `.env.example` to `.env` and set real values for production.
-- CSRF protection is enabled via cookie + header for state-changing requests.
-- Helmet sets common security headers; adjust CSP if embedding remote assets.
-- Rate limiting is enabled on `/api/*`.
- - See `SECURITY.md` for a full overview of OWASP Top 10 coverage and headers.
-
-## Front-end standards & performance
-- Component-based architecture with lazy-loaded routes (React Suspense).
-- Mobile-first, responsive CSS with utility classes and media queries.
-- Images default to lazy loading via a shared `Image` component.
-- Code-splitting configured in `vite.config.ts` for major libraries.
-- Consider serving static assets via a CDN with caching headers in production.
-
-## Back-end standards
-- RESTful routes with JSON responses and consistent errors.
-- API versioning: primary mount at `/api/v1/*` (legacy mounts kept for migration).
-- Central error handler with clear status codes; 404 and 405 coverage.
-- Simple response caching middleware available (`setCache(seconds)` for GET endpoints).
-
-## Git workflow
-- Use short-lived feature branches (GitHub Flow). Example: `fe-standards-performance`.
-- Open pull requests early; keep changes focused and small; squash-merge when ready.
-
-## Docker
-
-Build and run the API container locally:
-
-```powershell
-docker compose up --build
+**Build both applications:**
+```bash
+npm run build
 ```
 
-Then open http://localhost:8080/api/health
+**Build individually:**
+```bash
+npm run build:frontend
+npm run build:backend
+```
+
+## 🐳 Docker Deployment
+
+**Quick deployment with Docker Compose:**
+```bash
+./deployment/scripts/deploy.sh
+```
+
+**Manual Docker commands:**
+```bash
+cd deployment/docker
+docker-compose up -d
+```
+
+## 🧪 Testing
+
+**Run all tests:**
+```bash
+npm run test
+```
+
+**Run with coverage:**
+```bash
+npm run test:coverage
+```
+
+## 🛠️ Development Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start both frontend and backend in dev mode |
+| `npm run build` | Build both applications for production |
+| `npm run test` | Run all tests |
+| `npm run lint` | Run ESLint on both applications |
+| `npm run format` | Format code with Prettier |
+
+## 📚 Features
+
+### Frontend (React + TypeScript)
+- 🎨 Modern React with TypeScript
+- 🎭 Framer Motion animations
+- 🎯 3D visualization with Three.js
+- 📊 Interactive charts with Recharts
+- 🎨 Responsive design
+- 🧪 Component testing with Vitest
+
+### Backend (Express + TypeScript)  
+- 🔒 JWT authentication
+- 🛡️ Security middleware (Helmet, CORS, Rate limiting)
+- 📝 Request validation
+- 🧪 API testing with Supertest
+- 📊 Real-time updates with Socket.io
+
+### Infrastructure
+- 🐳 Docker containerization
+- 🔄 Hot reload for development
+- 📦 Optimized production builds
+- 🚀 Easy deployment scripts
+
+## 🏗️ Architecture
+
+This project follows a **monorepo** structure with clear separation of concerns:
+
+- **Frontend**: Handles all user interface and client-side logic
+- **Backend**: Provides REST APIs and business logic  
+- **Deployment**: Contains infrastructure and deployment configurations
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests (`npm run test`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
