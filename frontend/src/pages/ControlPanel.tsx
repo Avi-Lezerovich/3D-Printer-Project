@@ -56,12 +56,12 @@ export default function ControlPanel() {
 
   return (
     <div className="grid grid-3">
-      <section className="panel" style={{ gridColumn: '1/-1' }}>
+      <section className="panel">
         <ControlPanelHeader
           connected={connected}
           onToggleConnection={handleToggleConnection}
         />
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+        <div className="control-panel-header-container">
           <StatusDisplay status={status} statusColor={statusColor} />
           <TemperatureDisplay label="Hotend" temperature={hotend} />
           <TemperatureDisplay label="Bed" temperature={bed} />
@@ -90,7 +90,7 @@ export default function ControlPanel() {
 
       <section className="panel">
         <h2>Live Temperature Chart</h2>
-        <div style={{ height: 200, marginTop: 12 }}>
+        <div className="temperature-chart-container">
           <TemperatureChart />
         </div>
       </section>

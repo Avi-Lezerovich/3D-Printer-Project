@@ -1,0 +1,27 @@
+.skip-to-content {
+    position: absolute;
+    left: -9999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    z-index: -999;
+  }
+  
+  .skip-to-content:focus,
+  .skip-to-content:active {
+    color: #fff;
+    background-color: #000;
+    left: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+    overflow: auto;
+    margin: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 2px solid yellow;
+    text-align: center;
+    z-index: 99999;
+  }
+  

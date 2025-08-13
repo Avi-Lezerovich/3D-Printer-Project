@@ -6,13 +6,15 @@ type Job = { id: string; name: string; progress: number; status: 'queued'|'runni
 
 type Task = { id:number; title:string; status:'todo'|'doing'|'done'; priority:'low'|'med'|'high' }
 
-type AppState = {
+interface AppState {
   status: PrinterStatus
   hotend: number
   bed: number
   queue: Job[]
   tasks: Task[]
   connected: boolean
+  theme: 'light' | 'dark';
+  sidebarCollapsed: boolean;
   setTemps: (hotend:number, bed:number)=>void
   setStatus: (s:PrinterStatus)=>void
   setConnected: (c:boolean)=>void
@@ -22,6 +24,9 @@ type AppState = {
   addTask: (title:string, priority:'low'|'med'|'high')=>void
   editTask: (taskId:number, title:string, priority:'low'|'med'|'high')=>void
   deleteTask: (taskId:number)=>void
+  toggleTheme: () => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  toggleSidebar: () => void;
 }
 
 const STORAGE_KEY = 'printer-app-state-v1'
@@ -41,6 +46,8 @@ export const useAppStore = create<AppState>((set) => ({
     {id:2,title:'Design fan shroud in CAD',status:'doing',priority:'med'},
     {id:3,title:'Calibrate PID',status:'done',priority:'med'},
   ],
+  theme: 'light',
+  sidebarCollapsed: false,
   setTemps: (hotend, bed) => set({ hotend, bed }),
   setStatus: (s) => set({ status: s }),
   setConnected: (c) => set({ connected: c }),
@@ -57,7 +64,10 @@ export const useAppStore = create<AppState>((set) => ({
   })),
   deleteTask: (taskId) => set((st)=>({
     tasks: st.tasks.filter(t=> t.id !== taskId)
-  }))
+  })),
+  toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
+  setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+  toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
 }))
 
 // hydrate from localStorage

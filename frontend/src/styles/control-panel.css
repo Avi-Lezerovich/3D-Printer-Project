@@ -105,3 +105,18 @@
   border-radius: 6px;
   margin-bottom: 8px;
 }
+
+.grid-3 .panel:first-child {
+  grid-column: 1/-1;
+}
+
+.control-panel-header-container {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.temperature-chart-container {
+  height: 200px;
+  margin-top: 12px;
+}

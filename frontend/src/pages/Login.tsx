@@ -3,18 +3,34 @@ import { login } from '../services/api';
 import '../styles/login.css';
 
 export default function Login() {
-  const [email, setEmail] = React.useState('demo@example.com');
-  const [password, setPassword] = React.useState('Password123!');
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [showPassword, setShowPassword] = React.useState(false);
   const [status, setStatus] = React.useState<'idle' | 'loading' | 'error' | 'success'>('idle');
+  const [error, setError] = React.useState<string | null>(null);
+
+  const validateEmail = (email: string) => {
+    const re = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    return re.test(email);
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('loading');
+    setError(null);
+
+    if (!validateEmail(email)) {
+      setStatus('error');
+      setError('Invalid email format.');
+      return;
+    }
+
     try {
       await login(email, password);
       setStatus('success');
     } catch {
       setStatus('error');
+      setError('Invalid email or password.');
     }
   };
 
@@ -28,15 +44,29 @@ export default function Login() {
         </label>
         <label>
           Password
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <div className="password-wrapper">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
         </label>
         <button className="btn btn-primary" disabled={status === 'loading'}>
           {status === 'loading' ? 'Logging in…' : 'Login'}
         </button>
       </form>
-      {status === 'error' && (
+      {status === 'error' && error && (
         <p role="alert" className="status-message error">
-          Login failed
+          {error}
         </p>
       )}
       {status === 'success' && (

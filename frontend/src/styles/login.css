@@ -36,6 +36,21 @@
   transition: border-color 0.2s;
 }
 
+.login-form .password-wrapper {
+  position: relative;
+}
+
+.login-form .password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
 .login-form input:focus {
   outline: none;
   border-color: var(--accent);
