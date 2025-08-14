@@ -4,6 +4,7 @@ import SkipToContent from '../components/SkipToContent';
 import Sidebar from '../components/layout/Sidebar';
 import MainContent from '../components/layout/MainContent';
 import './layout.css';
+import Toasts from '../components/Toasts';
 
 export default function Layout() {
   const { setSidebarCollapsed } = useAppStore();
@@ -25,6 +26,7 @@ export default function Layout() {
       <SkipToContent />
       <Sidebar />
       <MainContent />
+  <Toasts />
     </div>
   );
 }

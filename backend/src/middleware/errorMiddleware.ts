@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
+import { AppError } from '../errors/AppError.js'
+import { logger } from '../utils/logger.js'
 
 // 404 handler
 export function notFoundHandler(_req: Request, res: Response) {
@@ -7,23 +9,24 @@ export function notFoundHandler(_req: Request, res: Response) {
 
 // Central error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
+export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction) {
 	const status = (err as any)?.status || 500
 	const isProd = process.env.NODE_ENV === 'production'
+	const code = (err as any)?.code || (status === 500 ? 'INTERNAL_ERROR' : undefined)
+	const message = status === 500 ? 'Internal Server Error' : (err as any)?.message || 'Error'
+	const requestId = (req as any).id || (req as any).reqId
 
-	// Basic logging to console; in prod use proper logger
-	if (!isProd) {
-		console.error(err)
-	}
+		const isVitest = !!process.env.VITEST_WORKER_ID
+		const shouldLog = status >= 500 || (!isVitest && status >= 400)
+		if (shouldLog) {
+			logger[status >= 500 ? 'error' : 'warn']({ err, status, code, requestId }, 'request failed')
+		}
 
-		const message =
-			status === 500
-				? 'Internal Server Error'
-				: typeof err === 'object' && err && 'message' in err
-				? String((err as any).message)
-				: 'Error'
-		const payload: Record<string, unknown> = { message }
-		if (!isProd && (err as any)?.stack) payload.stack = (err as any).stack
+	const errorBody: Record<string, unknown> = { code, message }
+	if (!isProd && (err as any)?.stack) errorBody.stack = (err as any).stack
+	if ((err as AppError).details && !isProd) errorBody.details = (err as AppError).details
+	if (requestId) errorBody.requestId = requestId
 
-	res.status(status).json(payload)
+		// Backwards compatibility: also surface top-level message until tests updated
+		res.status(status).json({ message, error: errorBody })
 }

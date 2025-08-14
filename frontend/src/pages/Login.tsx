@@ -1,5 +1,6 @@
 import React from 'react';
 import { login } from '../services/api';
+import { validators } from '../services/project-management-api';
 import '../styles/login.css';
 
 export default function Login() {
@@ -26,7 +27,8 @@ export default function Login() {
     }
 
     try {
-      await login(email, password);
+      const cleanEmail = validators.sanitizeInput(email).toLowerCase();
+      await login(cleanEmail, password);
       setStatus('success');
     } catch {
       setStatus('error');

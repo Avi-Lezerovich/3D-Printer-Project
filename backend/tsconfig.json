@@ -14,11 +14,13 @@
     "types": ["node", "vitest/globals"]
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+  "dist",
+  "src/repositories/prismaRepositories.ts"
   ],
   "ts-node": {
     "esm": true

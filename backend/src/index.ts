@@ -1,8 +1,9 @@
 import 'dotenv/config'
 import express, { Request, Response, NextFunction } from 'express'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import http from 'http'
 import helmet from 'helmet'
-import morgan from 'morgan'
 import cors from 'cors'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
@@ -15,32 +16,34 @@ import authRouter from './routes/auth.js'
 import projectsRouter from './routes/projects.js'
 import projectManagementRouter from './routes/project-management.js'
 import { setCache } from './middleware/cacheMiddleware.js'
+import { env, allowedOrigins, serverConfig, isProd } from './config/index.js'
+import { httpLogger, logger } from './utils/logger.js'
+import { openapiSpec } from './openapi.js'
+import swaggerUi from 'swagger-ui-express'
+import { createInMemoryRepositories } from './repositories/memoryRepositories.js'
+import { setRepositories as setAuthRepos } from './services/authService.js'
+import { setRepositories as setProjectRepos } from './services/projectService.js'
+// Simple in-memory metrics (initialized after app instantiation below)
+const metrics = { reqTotal: 0, reqActive: 0 }
 
 const app = express()
 const server = http.createServer(app)
 
-// Config
-const PORT = Number(process.env.PORT || 8080)
-const HOST = process.env.HOST || '0.0.0.0'
-const NODE_ENV = process.env.NODE_ENV || 'development'
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173'
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || CLIENT_URL)
-	.split(',')
-	.map((s) => s.trim())
-	.filter(Boolean)
-const LOG_LEVEL = process.env.LOG_LEVEL || 'dev'
-const TRUST_PROXY = Number(process.env.TRUST_PROXY || '1')
+// Resolve dirname for ESM (needed for static file serving)
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-app.set('trust proxy', TRUST_PROXY)
+// Config
+const PORT = serverConfig.port
+const HOST = serverConfig.host
+const NODE_ENV = env.NODE_ENV
+const CLIENT_URL = env.CLIENT_URL
+
+app.set('trust proxy', serverConfig.trustProxy)
 app.disable('x-powered-by')
 
 // Fail-fast checks for critical production configuration
-if (process.env.NODE_ENV === 'production') {
-	if (!process.env.JWT_SECRET) {
-		console.error('FATAL: JWT_SECRET is not set in production')
-		process.exit(1)
-	}
-}
+// env validation already performed in config/index.ts
 
 // Socket.IO is optional; guard require to avoid top-level import side effects in tests
 let io: any | undefined
@@ -58,6 +61,35 @@ let io: any | undefined
 	} catch {}
 })()
 
+// Initialize repositories (currently memory only; Prisma integration WIP)
+const useMemory = true
+try {
+	const repos = createInMemoryRepositories()
+	setAuthRepos(repos)
+	setProjectRepos(repos)
+	if (env.NODE_ENV !== 'test') {
+		logger.info({ msg: 'Repositories initialized', driver: useMemory ? 'memory' : 'prisma' })
+	}
+} catch (e) {
+	logger.error({ err: e }, 'Failed to initialize repositories, falling back to memory')
+	const repos = createInMemoryRepositories()
+	setAuthRepos(repos)
+	setProjectRepos(repos)
+}
+
+// Metrics middleware (after app created)
+app.use((req, res, next) => {
+	metrics.reqTotal++
+	metrics.reqActive++
+	const start = process.hrtime.bigint()
+	res.on('finish', () => {
+		metrics.reqActive--
+		const durNs = Number(process.hrtime.bigint() - start)
+		;(res as any).locals = { ...(res as any).locals, durationNs: durNs }
+	})
+	next()
+})
+
 // Security headers
 app.use(
 	helmet({
@@ -65,7 +97,7 @@ app.use(
 			useDefaults: true,
 			directives: {
 				"default-src": ["'self'"],
-				"connect-src": ["'self'", ...ALLOWED_ORIGINS],
+				"connect-src": ["'self'", ...allowedOrigins],
 				"img-src": ["'self'", 'data:', 'blob:'],
 				"script-src": ["'self'"],
 				"style-src": ["'self'", "'unsafe-inline'"],
@@ -88,9 +120,9 @@ app.use((_req, res, next) => {
 	next()
 })
 
-// Logging
+// Structured HTTP logging (skipped in tests)
 if (NODE_ENV !== 'test') {
-	app.use(morgan(LOG_LEVEL as any))
+	app.use(httpLogger)
 }
 
 // CORS
@@ -98,7 +130,7 @@ app.use(
 	cors({
 		origin: function (origin, callback) {
 			if (!origin) return callback(null, true)
-			if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true)
+			if (allowedOrigins.includes(origin)) return callback(null, true)
 			return callback(new Error('Not allowed by CORS'))
 		},
 		credentials: true,
@@ -156,8 +188,52 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // Healthcheck
 app.get('/api/health', setCache(5), (_req, res) => {
-	res.json({ status: 'ok', env: NODE_ENV, uptime: process.uptime() })
+	res.json({
+		status: 'ok',
+		env: NODE_ENV,
+		uptime: process.uptime(),
+		memory: process.memoryUsage().rss,
+		commit: process.env.COMMIT_SHA || null,
+		version: process.env.npm_package_version || null,
+	})
 })
+
+// API discovery root
+app.get('/api', (_req, res) => {
+	res.json({ versions: ['v1'], docs: '/api/v1/spec', health: '/api/health' })
+})
+
+// Expose OpenAPI spec (dev only for now)
+if (NODE_ENV !== 'production') {
+	app.get('/api/v1/spec', (_req, res) => res.json(openapiSpec))
+	app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec))
+}
+
+app.get('/api/metrics', (_req, res) => {
+	res.json({ ...metrics, memoryRss: process.memoryUsage().rss })
+})
+
+// Helpful root route (avoids 404 when opening backend port in browser)
+app.get('/', (_req, res) => {
+	res.json({
+		message: 'Backend running',
+		api: '/api',
+		docs: '/api/v1/docs',
+		health: '/api/health',
+		note: 'Frontend dev server runs separately on Vite (default http://localhost:5173). In production set SERVE_FRONTEND=true to serve built assets.'
+	})
+})
+
+// Optional static frontend serving (production) when env SERVE_FRONTEND=true
+if (process.env.SERVE_FRONTEND === 'true') {
+	const distDir = path.resolve(__dirname, '../../frontend/dist')
+	app.use(express.static(distDir))
+	// SPA fallback
+	app.get('*', (req, res, next) => {
+		if (req.path.startsWith('/api/')) return next()
+		res.sendFile(path.join(distDir, 'index.html'), err => { if (err) next(err) })
+	})
+}
 
 // Routes (versioned)
 app.use('/api/v1/auth', authRouter)
@@ -171,10 +247,11 @@ app.use('/api/projects', authenticateJWT, projectsRouter)
 app.use(notFoundHandler)
 app.use(errorHandler)
 
-// Start server if run directly
-if (process.argv[1] && process.argv[1].includes('server/index.ts')) {
+// Start server (skip only in test or when explicitly disabled)
+if (env.NODE_ENV !== 'test' && !process.env.NO_LISTEN) {
 	server.listen(PORT, HOST, () => {
-		console.info(`API listening on http://${HOST}:${PORT}`)
+		logger.info({ msg: 'API listening', url: `http://${HOST}:${PORT}`, env: NODE_ENV })
+		if (!isProd) logger.debug({ allowedOrigins })
 	})
 }
 
