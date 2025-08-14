@@ -32,3 +32,6 @@ coverage/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Local dev database (do not commit SQLite files)
+backend/prisma/dev.db

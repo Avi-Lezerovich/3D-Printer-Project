@@ -27,12 +27,29 @@ interface AppState {
   toggleTheme: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
   toggleSidebar: () => void;
+  // notifications
+  toasts: Toast[];
+  pushToast: (t: Omit<Toast,'id'|'createdAt'> & { id?: string }) => string; 
+  dismissToast: (id: string) => void;
 }
 
+export type ToastVariant = 'info' | 'success' | 'error' | 'warning'
+export interface Toast { id: string; title?: string; message: string; variant: ToastVariant; createdAt: number; timeoutMs?: number }
+
 const STORAGE_KEY = 'printer-app-state-v1'
+const STORAGE_SCHEMA_VERSION_KEY = 'printer-app-schema-version'
+const CURRENT_SCHEMA_VERSION = 1
 
 function loadInitial(){
-  try{ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return null; return JSON.parse(raw) as Partial<AppState> }catch{ return null }
+  try{ 
+    const verRaw = localStorage.getItem(STORAGE_SCHEMA_VERSION_KEY)
+    if(verRaw && parseInt(verRaw,10) !== CURRENT_SCHEMA_VERSION){
+      localStorage.removeItem(STORAGE_KEY)
+      localStorage.setItem(STORAGE_SCHEMA_VERSION_KEY, String(CURRENT_SCHEMA_VERSION))
+      return null
+    }
+    const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return null; return JSON.parse(raw) as Partial<AppState>
+  }catch{ return null }
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -68,6 +85,19 @@ export const useAppStore = create<AppState>((set) => ({
   toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
   setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
   toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+  toasts: [],
+  pushToast: (t) => {
+    const id = t.id || Math.random().toString(36).slice(2)
+    const toast: Toast = { id, createdAt: Date.now(), ...t }
+    set(st => ({ toasts: [...st.toasts, toast] }))
+    if(toast.timeoutMs){
+      setTimeout(()=>{
+        useAppStore.getState().dismissToast(id)
+      }, toast.timeoutMs)
+    }
+    return id
+  },
+  dismissToast: (id) => set(st => ({ toasts: st.toasts.filter(t=> t.id!==id) })),
 }))
 
 // hydrate from localStorage
@@ -81,6 +111,8 @@ if(initial){
     queue: initial.queue ?? [],
     tasks: initial.tasks ?? [],
   })
+} else {
+  try { localStorage.setItem(STORAGE_SCHEMA_VERSION_KEY, String(CURRENT_SCHEMA_VERSION)) } catch {}
 }
 
 // persist changes

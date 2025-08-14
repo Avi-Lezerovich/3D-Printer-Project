@@ -1,0 +1,78 @@
+// Prisma schema for 3D Printer Project
+// Using SQLite for dev; switch provider & DATABASE_URL env for Postgres later.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // Change to "postgresql" and update DATABASE_URL in production
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  email        String   @id
+  passwordHash String
+  role         String
+  createdAt    DateTime @default(now())
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  name      String
+  status    String
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  status        String
+  priority      String
+  assignee      String?
+  dueDate       DateTime?
+  estimatedHours Float?
+  tags          String?  // comma separated
+  projectId     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model InventoryItem {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  currentQuantity Int
+  minimumQuantity Int
+  unit            String
+  unitCost        Float?
+  currency        String?
+  supplier        String?
+  sku             String?
+  status          String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model BudgetCategory {
+  id            String   @id @default(cuid())
+  name          String
+  budgetedAmount Int
+  currency      String
+  description   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model BudgetExpense {
+  id          String   @id @default(cuid())
+  categoryId  String
+  description String
+  amount      Int
+  currency    String
+  date        DateTime
+  vendor      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
