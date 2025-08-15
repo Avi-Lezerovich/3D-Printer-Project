@@ -1,5 +1,6 @@
 import crypto from 'node:crypto'
 import { Repositories } from '../repositories/types.js'
+import { withCache } from '../cache/cacheService.js'
 
 export type ProjectStatus = 'todo' | 'in_progress' | 'done'
 export interface Project { id: string; name: string; status: ProjectStatus; createdAt: string }
@@ -11,8 +12,11 @@ export function setRepositories(repos: Repositories) { repositories = repos }
 const memoryProjects = new Map<string, Project>()
 
 export async function listProjects() {
-  if (repositories) return (await repositories.projects.list()) as any as Project[]
-  return Array.from(memoryProjects.values())
+  // Cache list for short TTL to smooth bursts
+  return withCache<Project[]>("projects:all", 5, async () => {
+    if (repositories) return (await repositories.projects.list()) as any as Project[]
+    return Array.from(memoryProjects.values())
+  })
 }
 export async function getProject(id: string) {
   if (repositories) return await repositories.projects.get(id) as any as Project | null

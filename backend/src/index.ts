@@ -26,6 +26,8 @@ import swaggerUi from 'swagger-ui-express'
 import { setRepositories as setAuthRepos } from './services/authService.js'
 import { setRepositories as setProjectRepos } from './services/projectService.js'
 import { initializeRepositories } from './repositories/factory.js'
+import { initCache, cacheStats } from './cache/cacheService.js'
+import { redisSlidingWindowLimiter } from './middleware/rateLimiter.js'
 // Simple in-memory metrics (initialized after app instantiation below)
 const metrics = { reqTotal: 0, reqActive: 0 }
 
@@ -75,6 +77,9 @@ let io: any | undefined
 		logger.error({ err: e }, 'Repository initialization failed; memory fallback already applied')
 	}
 })()
+
+// Initialize cache (Redis or memory fallback)
+;(async () => { await initCache() })()
 
 // Prometheus metrics setup
 const promRegistry = new client.Registry()
@@ -182,6 +187,8 @@ const authLimiter = rateLimit({
 	legacyHeaders: false,
 })
 app.use('/api/auth/login', authLimiter)
+// Distributed limiter (best-effort) for login if Redis available
+app.use('/api/v1/auth/login', redisSlidingWindowLimiter({ windowMs: 10*60*1000, max: 50 }))
 
 // CSRF setup (cookie-based)
 const SESSION_SECURE = String(process.env.SESSION_SECURE) === 'true'
@@ -226,7 +233,8 @@ app.get('/healthz', (_req, res) => res.json({ ok: true }))
 
 // Readiness probe (extend with DB/Redis checks when present)
 app.get('/ready', async (_req, res) => {
-	res.json({ ready: true })
+  const cache = cacheStats()
+  res.json({ ready: true, cache })
 })
 
 // API discovery root
@@ -241,7 +249,7 @@ if (NODE_ENV !== 'production') {
 }
 
 app.get('/api/metrics', (_req, res) => {
-	res.json({ ...metrics, memoryRss: process.memoryUsage().rss })
+  res.json({ ...metrics, memoryRss: process.memoryUsage().rss, cache: cacheStats() })
 })
 
 app.get('/metrics', async (_req, res) => {
