@@ -9,6 +9,7 @@ const envSchema = z.object({
   REPO_DRIVER: z.enum(['memory','prisma']).default('memory').optional(),
   JWT_SECRET: z.string().min(10, 'JWT_SECRET too short').optional(),
   JWT_EXPIRES: z.string().default('1h'),
+  REFRESH_TOKEN_EXPIRES: z.string().default('7d'),
   LOG_LEVEL: z.string().default('info'),
   TRUST_PROXY: z.string().default('1'),
   SESSION_SECURE: z.string().optional(),
@@ -47,6 +48,7 @@ export const securityConfig = {
   jwt: {
     secret: env.JWT_SECRET || (!isProd ? 'replace_me_dev_only' : ''),
     expiresIn: env.JWT_EXPIRES,
+  refreshExpires: env.REFRESH_TOKEN_EXPIRES || '7d'
   },
   sessionSecure: String(env.SESSION_SECURE) === 'true',
   cookieDomain: env.COOKIE_DOMAIN,

@@ -70,6 +70,13 @@ export interface BudgetExpenseRecord {
 export interface UserRepository {
   findByEmail(email: string): Promise<UserRecord | null>
   create(data: Pick<UserRecord, 'email' | 'passwordHash' | 'role'>): Promise<UserRecord>
+  storeRefreshToken(userEmail: string, tokenHash: string, expiresAt: Date, replacedById?: string): Promise<void>
+  rotateRefreshToken(oldHash: string, newHash: string, newExpires: Date): Promise<void>
+  revokeRefreshToken(hash: string): Promise<void>
+  cleanupExpiredRefreshTokens(): Promise<number>
+  getValidRefreshToken(hash: string): Promise<{ userEmail: string } | null>
+  recordFailedLogin(email: string): Promise<{ attempts: number; lockedUntil?: Date | null }>
+  resetFailedLogins(email: string): Promise<void>
 }
 
 export interface ProjectRepository {

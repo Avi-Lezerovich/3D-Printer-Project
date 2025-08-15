@@ -1,6 +1,6 @@
 import { Router, Request, Response, type CookieOptions } from 'express'
 import jwt from 'jsonwebtoken'
-import { issueToken, verifyCredentials } from '../services/authService.js'
+import { issueToken, verifyCredentials, issueAuthPair, rotateRefreshToken, revokeRefreshToken, validatePasswordPolicy, hashRefreshToken } from '../services/authService.js'
 import { securityConfig } from '../config/index.js'
 import { z } from 'zod'
 import { validateBody } from '../middleware/validate.js'
@@ -18,7 +18,7 @@ router.post('/login', validateBody(loginSchema), async (req: Request, res: Respo
 	const { email, password } = (req as any).validatedBody as z.infer<typeof loginSchema>
 	const user = await verifyCredentials(email, password) as { email: string; role: string } | null
 	if (!user) return res.status(401).json({ message: 'Invalid credentials' })
-	const token = issueToken(user)
+	const pair = await issueAuthPair(user)
 	const SESSION_SECURE = String(process.env.SESSION_SECURE) === 'true'
 	const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN
 	const cookieOptions: CookieOptions = {
@@ -30,13 +30,30 @@ router.post('/login', validateBody(loginSchema), async (req: Request, res: Respo
 	}
 	if (COOKIE_DOMAIN) cookieOptions.domain = COOKIE_DOMAIN
 	const cookieName = SESSION_SECURE && !COOKIE_DOMAIN ? '__Host-token' : 'token'
-	res.cookie(cookieName, token, cookieOptions)
-	res.json({ token, user: { email, role: user.role } })
+	res.cookie(cookieName, pair.access, cookieOptions)
+	res.json({ token: pair.access, refreshToken: pair.refresh, user: { email, role: user.role } })
 })
 
 router.post('/logout', (_req, res) => {
 	res.clearCookie('token', { path: '/' })
 	res.clearCookie('__Host-token', { path: '/' })
+	res.status(204).end()
+})
+
+// Refresh token rotation endpoint
+router.post('/refresh', async (req, res) => {
+	const { refreshToken } = req.body || {}
+	if (!refreshToken || typeof refreshToken !== 'string') return res.status(400).json({ message: 'refreshToken required' })
+	const rotated = await rotateRefreshToken(refreshToken)
+	if (!rotated) return res.status(401).json({ message: 'Invalid refresh token' })
+	const access = issueToken({ email: rotated.userEmail, role: 'user' }) // role fetch could be optimized
+	res.json({ token: access, refreshToken: rotated.refresh })
+})
+
+router.post('/revoke', async (req, res) => {
+	const { refreshToken } = req.body || {}
+	if (!refreshToken) return res.status(400).json({ message: 'refreshToken required' })
+	await revokeRefreshToken(refreshToken)
 	res.status(204).end()
 })
 
@@ -61,5 +78,7 @@ router.get('/admin/ping', authenticateJWT, requireRole('admin'), (_req, res) => 
 router.all('/login', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }))
 router.all('/logout', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }))
 router.all('/me', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }))
+router.all('/refresh', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }))
+router.all('/revoke', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }))
 
 export default router

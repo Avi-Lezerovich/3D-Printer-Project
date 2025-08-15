@@ -15,6 +15,7 @@ model User {
   passwordHash String
   role         String
   createdAt    DateTime @default(now())
+  refreshTokens RefreshToken[]
 }
 
 model Project {
@@ -22,6 +23,17 @@ model Project {
   name      String
   status    String
   createdAt DateTime @default(now())
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userEmail String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+  revoked   Boolean  @default(false)
+  replacedById String? // for rotation chains
 }
 
 model Task {
