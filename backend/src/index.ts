@@ -28,6 +28,7 @@ import { setRepositories as setProjectRepos } from './services/projectService.js
 import { initializeRepositories } from './repositories/factory.js'
 import { initCache, cacheStats } from './cache/cacheService.js'
 import { redisSlidingWindowLimiter } from './middleware/rateLimiter.js'
+import { listFlags } from './config/flags.js'
 // Simple in-memory metrics (initialized after app instantiation below)
 const metrics = { reqTotal: 0, reqActive: 0 }
 
@@ -281,11 +282,26 @@ if (process.env.SERVE_FRONTEND === 'true') {
 
 // Routes (versioned)
 app.use('/api/v1/auth', authRouter)
-app.use('/api/v1/projects', authenticateJWT, projectsRouter)
+app.use('/api/v1/projects', authenticateJWT, (req, res, next) => {
+  // Wrap res.json to add weak ETag for project list responses
+  const originalJson = res.json.bind(res)
+  res.json = (body: any) => {
+    if (req.method === 'GET' && req.path === '/' && body && body.projects) {
+      const etag = 'W/"' + Buffer.from(JSON.stringify(body.projects)).toString('base64url').slice(0,32) + '"'
+      res.setHeader('ETag', etag)
+      res.setHeader('Last-Modified', new Date().toUTCString())
+      const ifNoneMatch = req.headers['if-none-match']
+      if (ifNoneMatch && ifNoneMatch === etag) return res.status(304).end()
+    }
+    return originalJson(body)
+  }
+  next()
+}, projectsRouter)
 app.use('/api/v1/project-management', authenticateJWT, projectManagementRouter)
 // Back-compat temporary mounts (to be removed after clients migrate)
 app.use('/api/auth', authRouter)
 app.use('/api/projects', authenticateJWT, projectsRouter)
+app.get('/api/v1/flags', (_req, res) => { res.json({ flags: listFlags() }) })
 
 // 404 + error handlers
 app.use(notFoundHandler)
