@@ -33,6 +33,7 @@ import jwt from 'jsonwebtoken'
 import { securityConfig } from './config/index.js'
 // @ts-ignore - TypeScript will resolve to .ts source; runtime uses .js
 import { eventBus } from './realtime/eventBus.js'
+import { startBackgroundJobs, setBackgroundRepositories, getCleanupStats } from './background/jobs.js'
 // Simple in-memory metrics (initialized after app instantiation below)
 const metrics = { reqTotal: 0, reqActive: 0 }
 
@@ -62,6 +63,16 @@ let io: any | undefined
 	try {
 		const { Server } = await import('socket.io') as any
 		io = new Server(server, { cors: { origin: NODE_ENV === 'production' ? CLIENT_URL : true, credentials: true } })
+		if (flagEnabled('REALTIME_CLUSTER') && process.env.REDIS_URL) {
+			try {
+				const { createAdapter } = await import('@socket.io/redis-adapter') as any
+				const { createClient } = await import('redis') as any
+				const pub = createClient({ url: process.env.REDIS_URL }); const sub = pub.duplicate()
+				await pub.connect(); await sub.connect()
+				io.adapter(createAdapter(pub, sub))
+				logger.info('Socket.IO Redis adapter enabled')
+			} catch (e) { logger.warn({ err: e }, 'Redis adapter setup failed') }
+		}
 		// Auth middleware for sockets
 		io.use((socket: any, next: any) => {
 			try {
@@ -98,7 +109,9 @@ let io: any | undefined
 		const { repos, driver } = await initializeRepositories()
 		setAuthRepos(repos)
 		setProjectRepos(repos)
+		setBackgroundRepositories(repos)
 		if (env.NODE_ENV !== 'test') logger.info({ msg: 'Repositories initialized', driver })
+		startBackgroundJobs()
 	} catch (e) {
 		logger.error({ err: e }, 'Repository initialization failed; memory fallback already applied')
 	}
@@ -275,7 +288,7 @@ if (NODE_ENV !== 'production') {
 }
 
 app.get('/api/metrics', (_req, res) => {
-  res.json({ ...metrics, memoryRss: process.memoryUsage().rss, cache: cacheStats() })
+	res.json({ ...metrics, memoryRss: process.memoryUsage().rss, cache: cacheStats(), cleanup: getCleanupStats() })
 })
 
 app.get('/metrics', async (_req, res) => {
