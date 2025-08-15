@@ -78,10 +78,10 @@ let io: any | undefined
 			const hb = setInterval(() => { socket.emit('heartbeat', { t: Date.now() }) }, 5000)
 			socket.on('disconnect', () => clearInterval(hb))
 		})
-		// Project domain event forwarding
-		eventBus.on('project.created', (data) => io?.emit('project.created', data))
-		eventBus.on('project.updated', (data) => io?.emit('project.updated', data))
-		eventBus.on('project.deleted', (data) => io?.emit('project.deleted', data))
+		// Project domain event forwarding (versioned payloads)
+		eventBus.on('project.created', (payload: any) => io?.emit('project.created', payload))
+		eventBus.on('project.updated', (payload: any) => io?.emit('project.updated', payload))
+		eventBus.on('project.deleted', (payload: any) => io?.emit('project.deleted', payload))
 	} catch (e) {
 		logger.warn({ err: e }, 'Socket.IO initialization failed')
 	}

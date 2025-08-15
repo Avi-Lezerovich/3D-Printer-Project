@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { validateBody } from '../middleware/validate.js'
 import { authenticateJWT } from '../middleware/authMiddleware.js'
 import { requireRole } from '../middleware/roleMiddleware.js'
+import { auditSecurity } from '../audit/auditLog.js'
 
 const router = Router()
 
@@ -47,10 +48,12 @@ router.post('/login', validateBody(loginSchema), async (req: Request, res: Respo
 	if (COOKIE_DOMAIN) cookieOptions.domain = COOKIE_DOMAIN
 	const cookieName = SESSION_SECURE && !COOKIE_DOMAIN ? '__Host-token' : 'token'
 	res.cookie(cookieName, pair.access, cookieOptions)
+	auditSecurity('auth.login.success', { userEmail: email, ip: req.ip })
 	res.json({ token: pair.access, refreshToken: pair.refresh, user: { email, role: user.role } })
 })
 
-router.post('/logout', (_req, res) => {
+router.post('/logout', (req, res) => {
+	auditSecurity('auth.logout', { userEmail: (req as any).user?.email, ip: req.ip })
 	res.clearCookie('token', { path: '/' })
 	res.clearCookie('__Host-token', { path: '/' })
 	res.status(204).end()
@@ -67,6 +70,7 @@ router.post('/refresh', async (req, res) => {
 	// we have repositories only internally; call verifyCredentials? Instead minimal fetch by email via repository access is not exported.
 	// For now include role= user placeholder; TODO: enhance with repository fetch
 	const access = issueToken({ email: rotated.userEmail, role: 'user' })
+	auditSecurity('auth.refresh', { userEmail: rotated.userEmail, ip: req.ip })
 	res.json({ token: access, refreshToken: rotated.refresh })
 })
 
