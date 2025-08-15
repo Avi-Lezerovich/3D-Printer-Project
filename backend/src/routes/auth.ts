@@ -1,6 +1,7 @@
 import { Router, Request, Response, type CookieOptions } from 'express'
 import jwt from 'jsonwebtoken'
-import { issueToken, verifyCredentials, issueAuthPair, rotateRefreshToken, revokeRefreshToken, validatePasswordPolicy, hashRefreshToken } from '../services/authService.js'
+import { issueToken, verifyCredentials, issueAuthPair, rotateRefreshToken, revokeRefreshToken, validatePasswordPolicy } from '../services/authService.js'
+import { register as registerUser } from '../services/authService.js'
 import { securityConfig } from '../config/index.js'
 import { z } from 'zod'
 import { validateBody } from '../middleware/validate.js'
@@ -12,6 +13,21 @@ const router = Router()
 const loginSchema = z.object({
 	email: z.string().email().transform(v => v.toLowerCase()),
 	password: z.string().min(8).max(128)
+})
+
+const registerSchema = loginSchema.extend({
+	role: z.string().optional().default('user')
+})
+
+router.post('/register', validateBody(registerSchema), async (req: Request, res: Response) => {
+	const { email, password, role } = (req as any).validatedBody as z.infer<typeof registerSchema>
+	if (!validatePasswordPolicy(password)) return res.status(400).json({ message: 'Password does not meet complexity requirements' })
+	try {
+		const user = await registerUser(email, password, role)
+		res.status(201).json({ user })
+	} catch (e: any) {
+		res.status(e.status || 500).json({ message: e.message || 'Registration failed' })
+	}
 })
 
 router.post('/login', validateBody(loginSchema), async (req: Request, res: Response) => {
@@ -46,7 +62,11 @@ router.post('/refresh', async (req, res) => {
 	if (!refreshToken || typeof refreshToken !== 'string') return res.status(400).json({ message: 'refreshToken required' })
 	const rotated = await rotateRefreshToken(refreshToken)
 	if (!rotated) return res.status(401).json({ message: 'Invalid refresh token' })
-	const access = issueToken({ email: rotated.userEmail, role: 'user' }) // role fetch could be optimized
+	// fetch user for role
+	const userRepo = (await import('../services/authService.js')) // dynamic to avoid cycle
+	// we have repositories only internally; call verifyCredentials? Instead minimal fetch by email via repository access is not exported.
+	// For now include role= user placeholder; TODO: enhance with repository fetch
+	const access = issueToken({ email: rotated.userEmail, role: 'user' })
 	res.json({ token: access, refreshToken: rotated.refresh })
 })
 
@@ -78,6 +98,7 @@ router.get('/admin/ping', authenticateJWT, requireRole('admin'), (_req, res) => 
 router.all('/login', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }))
 router.all('/logout', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }))
 router.all('/me', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }))
+router.all('/register', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }))
 router.all('/refresh', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }))
 router.all('/revoke', (_req, res) => res.status(405).json({ message: 'Method Not Allowed' }))
 

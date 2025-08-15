@@ -20,6 +20,7 @@ import projectManagementRouter from './routes/project-management.js'
 import { setCache } from './middleware/cacheMiddleware.js'
 import { env, allowedOrigins, serverConfig, isProd } from './config/index.js'
 import { httpLogger, logger } from './utils/logger.js'
+import client from 'prom-client'
 import { openapiSpec } from './openapi.js'
 import swaggerUi from 'swagger-ui-express'
 import { setRepositories as setAuthRepos } from './services/authService.js'
@@ -75,6 +76,17 @@ let io: any | undefined
 	}
 })()
 
+// Prometheus metrics setup
+const promRegistry = new client.Registry()
+client.collectDefaultMetrics({ register: promRegistry })
+const httpLatency = new client.Histogram({
+	name: 'http_request_duration_seconds',
+	help: 'Request latency in seconds',
+	labelNames: ['method','route','status'],
+	buckets: [0.01,0.05,0.1,0.25,0.5,1,2,5]
+})
+promRegistry.registerMetric(httpLatency)
+
 // Request ID then metrics middleware (after app created)
 app.use((req, res, next) => {
 	const incoming = (req.headers['x-request-id'] as string | undefined)?.slice(0, 100)
@@ -91,6 +103,8 @@ app.use((req, res, next) => {
 		metrics.reqActive--
 		const durNs = Number(process.hrtime.bigint() - start)
 		;(res as any).locals = { ...(res as any).locals, durationNs: durNs }
+		const route = (req as any).route?.path || req.path
+		httpLatency.labels(req.method, route, String(res.statusCode)).observe(durNs / 1e9)
 	})
 	next()
 })
@@ -224,6 +238,11 @@ if (NODE_ENV !== 'production') {
 
 app.get('/api/metrics', (_req, res) => {
 	res.json({ ...metrics, memoryRss: process.memoryUsage().rss })
+})
+
+app.get('/metrics', async (_req, res) => {
+	res.setHeader('Content-Type', promRegistry.contentType)
+	res.end(await promRegistry.metrics())
 })
 
 // Helpful root route (avoids 404 when opening backend port in browser)
