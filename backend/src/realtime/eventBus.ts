@@ -7,6 +7,9 @@ export type ProjectEvents =
   | { type: 'project.created'; payload: Versioned<{ id: string; name: string; status: string }> }
   | { type: 'project.updated'; payload: Versioned<{ id: string; name?: string; status?: string }> }
   | { type: 'project.deleted'; payload: Versioned<{ id: string }> }
+  | { type: 'security.auth.login'; payload: Versioned<{ email: string }> }
+  | { type: 'security.auth.logout'; payload: Versioned<{ email?: string }> }
+  | { type: 'security.auth.refresh'; payload: Versioned<{ email: string }> }
 
 class TypedEventBus extends EventEmitter {
   emitEvent(ev: ProjectEvents) { return this.emit(ev.type, ev.payload) }

@@ -1,6 +1,6 @@
 import { Router, Request, Response, type CookieOptions } from 'express'
 import jwt from 'jsonwebtoken'
-import { issueToken, verifyCredentials, issueAuthPair, rotateRefreshToken, revokeRefreshToken, validatePasswordPolicy } from '../services/authService.js'
+import { issueToken, verifyCredentials, issueAuthPair, rotateRefreshToken, revokeRefreshToken, validatePasswordPolicy, getUserByEmail } from '../services/authService.js'
 import { register as registerUser } from '../services/authService.js'
 import { securityConfig } from '../config/index.js'
 import { z } from 'zod'
@@ -8,6 +8,7 @@ import { validateBody } from '../middleware/validate.js'
 import { authenticateJWT } from '../middleware/authMiddleware.js'
 import { requireRole } from '../middleware/roleMiddleware.js'
 import { auditSecurity } from '../audit/auditLog.js'
+import { eventBus, EVENT_VERSION } from '../realtime/eventBus.js'
 
 const router = Router()
 
@@ -34,7 +35,10 @@ router.post('/register', validateBody(registerSchema), async (req: Request, res:
 router.post('/login', validateBody(loginSchema), async (req: Request, res: Response) => {
 	const { email, password } = (req as any).validatedBody as z.infer<typeof loginSchema>
 	const user = await verifyCredentials(email, password) as { email: string; role: string } | null
-	if (!user) return res.status(401).json({ message: 'Invalid credentials' })
+	if (!user) {
+		auditSecurity('auth.login.failure', { userEmail: email, ip: req.ip })
+		return res.status(401).json({ message: 'Invalid credentials' })
+	}
 	const pair = await issueAuthPair(user)
 	const SESSION_SECURE = String(process.env.SESSION_SECURE) === 'true'
 	const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN
@@ -49,11 +53,14 @@ router.post('/login', validateBody(loginSchema), async (req: Request, res: Respo
 	const cookieName = SESSION_SECURE && !COOKIE_DOMAIN ? '__Host-token' : 'token'
 	res.cookie(cookieName, pair.access, cookieOptions)
 	auditSecurity('auth.login.success', { userEmail: email, ip: req.ip })
+	eventBus.emitEvent({ type: 'security.auth.login', payload: { version: EVENT_VERSION, data: { email } } })
 	res.json({ token: pair.access, refreshToken: pair.refresh, user: { email, role: user.role } })
 })
 
 router.post('/logout', (req, res) => {
-	auditSecurity('auth.logout', { userEmail: (req as any).user?.email, ip: req.ip })
+	const userEmail = (req as any).user?.email
+	auditSecurity('auth.logout', { userEmail, ip: req.ip })
+	eventBus.emitEvent({ type: 'security.auth.logout', payload: { version: EVENT_VERSION, data: { email: userEmail } } })
 	res.clearCookie('token', { path: '/' })
 	res.clearCookie('__Host-token', { path: '/' })
 	res.status(204).end()
@@ -65,12 +72,15 @@ router.post('/refresh', async (req, res) => {
 	if (!refreshToken || typeof refreshToken !== 'string') return res.status(400).json({ message: 'refreshToken required' })
 	const rotated = await rotateRefreshToken(refreshToken)
 	if (!rotated) return res.status(401).json({ message: 'Invalid refresh token' })
-	// fetch user for role
-	const userRepo = (await import('../services/authService.js')) // dynamic to avoid cycle
-	// we have repositories only internally; call verifyCredentials? Instead minimal fetch by email via repository access is not exported.
-	// For now include role= user placeholder; TODO: enhance with repository fetch
-	const access = issueToken({ email: rotated.userEmail, role: 'user' })
+	// repository-backed role retrieval
+	let role = 'user'
+	try {
+		const user = await getUserByEmail(rotated.userEmail)
+		if (user) role = user.role
+	} catch { /* ignore */ }
+	const access = issueToken({ email: rotated.userEmail, role })
 	auditSecurity('auth.refresh', { userEmail: rotated.userEmail, ip: req.ip })
+	eventBus.emitEvent({ type: 'security.auth.refresh', payload: { version: EVENT_VERSION, data: { email: rotated.userEmail } } })
 	res.json({ token: access, refreshToken: rotated.refresh })
 })
 

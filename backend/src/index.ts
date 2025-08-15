@@ -31,6 +31,7 @@ import { redisSlidingWindowLimiter } from './middleware/rateLimiter.js'
 import { listFlags, flagEnabled } from './config/flags.js'
 import jwt from 'jsonwebtoken'
 import { securityConfig } from './config/index.js'
+// @ts-ignore - TypeScript will resolve to .ts source; runtime uses .js
 import { eventBus } from './realtime/eventBus.js'
 // Simple in-memory metrics (initialized after app instantiation below)
 const metrics = { reqTotal: 0, reqActive: 0 }
@@ -82,6 +83,10 @@ let io: any | undefined
 		eventBus.on('project.created', (payload: any) => io?.emit('project.created', payload))
 		eventBus.on('project.updated', (payload: any) => io?.emit('project.updated', payload))
 		eventBus.on('project.deleted', (payload: any) => io?.emit('project.deleted', payload))
+		// Security events (optional subscribers)
+		eventBus.on('security.auth.login', (payload: any) => io?.emit('security.auth.login', payload))
+		eventBus.on('security.auth.logout', (payload: any) => io?.emit('security.auth.logout', payload))
+		eventBus.on('security.auth.refresh', (payload: any) => io?.emit('security.auth.refresh', payload))
 	} catch (e) {
 		logger.warn({ err: e }, 'Socket.IO initialization failed')
 	}

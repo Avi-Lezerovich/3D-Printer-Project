@@ -56,6 +56,11 @@ export function issueToken(user: UserPayload) {
   return token
 }
 
+export async function getUserByEmail(email: string) {
+  if (!repositories) throw new Error('Repositories not initialized')
+  return repositories.users.findByEmail(email)
+}
+
 // Password policy: at least 8 chars, one upper, one lower, one number, one special
 export function validatePasswordPolicy(pw: string) {
   return /[A-Z]/.test(pw) && /[a-z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw) && pw.length >= 8
