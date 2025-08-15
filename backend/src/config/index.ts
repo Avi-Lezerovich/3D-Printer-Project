@@ -6,6 +6,7 @@ const envSchema = z.object({
   HOST: z.string().default('0.0.0.0'),
   CLIENT_URL: z.string().url().default('http://localhost:5173'),
   ALLOWED_ORIGINS: z.string().optional(),
+  REPO_DRIVER: z.enum(['memory','prisma']).default('memory').optional(),
   JWT_SECRET: z.string().min(10, 'JWT_SECRET too short').optional(),
   JWT_EXPIRES: z.string().default('1h'),
   LOG_LEVEL: z.string().default('info'),

@@ -22,9 +22,9 @@ import { env, allowedOrigins, serverConfig, isProd } from './config/index.js'
 import { httpLogger, logger } from './utils/logger.js'
 import { openapiSpec } from './openapi.js'
 import swaggerUi from 'swagger-ui-express'
-import { createInMemoryRepositories } from './repositories/memoryRepositories.js'
 import { setRepositories as setAuthRepos } from './services/authService.js'
 import { setRepositories as setProjectRepos } from './services/projectService.js'
+import { initializeRepositories } from './repositories/factory.js'
 // Simple in-memory metrics (initialized after app instantiation below)
 const metrics = { reqTotal: 0, reqActive: 0 }
 
@@ -63,21 +63,17 @@ let io: any | undefined
 	} catch {}
 })()
 
-// Initialize repositories (currently memory only; Prisma integration WIP)
-const useMemory = true
-try {
-	const repos = createInMemoryRepositories()
-	setAuthRepos(repos)
-	setProjectRepos(repos)
-	if (env.NODE_ENV !== 'test') {
-		logger.info({ msg: 'Repositories initialized', driver: useMemory ? 'memory' : 'prisma' })
+// Initialize repositories (memory or prisma based on REPO_DRIVER)
+;(async () => {
+	try {
+		const { repos, driver } = await initializeRepositories()
+		setAuthRepos(repos)
+		setProjectRepos(repos)
+		if (env.NODE_ENV !== 'test') logger.info({ msg: 'Repositories initialized', driver })
+	} catch (e) {
+		logger.error({ err: e }, 'Repository initialization failed; memory fallback already applied')
 	}
-} catch (e) {
-	logger.error({ err: e }, 'Failed to initialize repositories, falling back to memory')
-	const repos = createInMemoryRepositories()
-	setAuthRepos(repos)
-	setProjectRepos(repos)
-}
+})()
 
 // Request ID then metrics middleware (after app created)
 app.use((req, res, next) => {
