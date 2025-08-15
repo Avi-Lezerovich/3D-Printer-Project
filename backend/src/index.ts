@@ -9,8 +9,10 @@ import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import csrf from 'csurf'
 import rateLimit from 'express-rate-limit'
+import { randomUUID } from 'crypto'
 
 import { errorHandler, notFoundHandler } from './middleware/errorMiddleware.js'
+import { setupGracefulShutdown } from './serverLifecycle.js'
 import { authenticateJWT } from './middleware/authMiddleware.js'
 import authRouter from './routes/auth.js'
 import projectsRouter from './routes/projects.js'
@@ -77,7 +79,14 @@ try {
 	setProjectRepos(repos)
 }
 
-// Metrics middleware (after app created)
+// Request ID then metrics middleware (after app created)
+app.use((req, res, next) => {
+	const incoming = (req.headers['x-request-id'] as string | undefined)?.slice(0, 100)
+	const id = incoming || randomUUID()
+	;(req as any).requestId = id
+	res.setHeader('X-Request-Id', id)
+	next()
+})
 app.use((req, res, next) => {
 	metrics.reqTotal++
 	metrics.reqActive++
@@ -198,6 +207,14 @@ app.get('/api/health', setCache(5), (_req, res) => {
 	})
 })
 
+// Liveness probe (fast, dependency-agnostic)
+app.get('/healthz', (_req, res) => res.json({ ok: true }))
+
+// Readiness probe (extend with DB/Redis checks when present)
+app.get('/ready', async (_req, res) => {
+	res.json({ ready: true })
+})
+
 // API discovery root
 app.get('/api', (_req, res) => {
 	res.json({ versions: ['v1'], docs: '/api/v1/spec', health: '/api/health' })
@@ -253,6 +270,7 @@ if (env.NODE_ENV !== 'test' && !process.env.NO_LISTEN) {
 		logger.info({ msg: 'API listening', url: `http://${HOST}:${PORT}`, env: NODE_ENV })
 		if (!isProd) logger.debug({ allowedOrigins })
 	})
+	setupGracefulShutdown(server, [])
 }
 
 export default app

@@ -1,6 +1,7 @@
 import { Router, Request, Response, type CookieOptions } from 'express'
 import jwt from 'jsonwebtoken'
 import { issueToken, verifyCredentials } from '../services/authService.js'
+import { securityConfig } from '../config/index.js'
 import { z } from 'zod'
 import { validateBody } from '../middleware/validate.js'
 import { authenticateJWT } from '../middleware/authMiddleware.js'
@@ -40,10 +41,11 @@ router.post('/logout', (_req, res) => {
 })
 
 router.get('/me', (req, res) => {
-	const token = (req as any).cookies?.token as string | undefined
+	const rawCookie = (req as any).cookies?.['__Host-token'] || (req as any).cookies?.token
+	const token = rawCookie as string | undefined
 	if (!token) return res.status(200).json({ user: null })
 	try {
-		const payload = jwt.decode(token)
+		const payload = jwt.verify(token, securityConfig.jwt.secret)
 		return res.json({ user: payload })
 	} catch {
 		return res.json({ user: null })
