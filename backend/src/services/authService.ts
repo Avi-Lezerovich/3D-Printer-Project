@@ -29,7 +29,14 @@ export async function register(email: string, password: string, role: string = '
 export async function verifyCredentials(email: string, password: string) {
   if (repositories) {
     const user = await repositories.users.findByEmail(email)
-    if (!user) return null
+    if (!user) {
+      // fall back to demo user map if present
+      const fallback = fallbackUsers.get(email)
+      if (!fallback) return null
+      const okFb = bcrypt.compareSync(password, fallback.passwordHash)
+      if (!okFb) return null
+      return { email: fallback.email, role: fallback.role }
+    }
     const ok = await bcrypt.compare(password, user.passwordHash)
     if (!ok) return null
     return { email: user.email, role: user.role }

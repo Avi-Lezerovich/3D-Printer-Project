@@ -201,7 +201,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 	const method = req.method
 	if (['GET', 'HEAD', 'OPTIONS'].includes(method)) return next()
 	const path = req.path
-	if (path.startsWith('/api/auth/login') || path.startsWith('/api/auth/logout')) return next()
+	if (
+		path.startsWith('/api/auth/login') || path.startsWith('/api/auth/logout') ||
+		path.startsWith('/api/v1/auth/login') || path.startsWith('/api/v1/auth/logout') ||
+		path.includes('/auth/refresh') || path.includes('/auth/register')
+	) return next()
 	return (csrfProtection as any)(req, res, next)
 })
 
