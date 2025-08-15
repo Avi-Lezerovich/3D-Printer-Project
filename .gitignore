@@ -35,3 +35,10 @@ Thumbs.db
 
 # Local dev database (do not commit SQLite files)
 backend/prisma/dev.db
+
+# Ignore removed legacy artifacts
+server/
+dist-server/
+Secure, Professional Web Development Research/
+backend/prisma/dev.db
+
