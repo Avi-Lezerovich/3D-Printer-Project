@@ -2,6 +2,8 @@ import crypto from 'node:crypto'
 import { Repositories } from '../repositories/types.js'
 import { withCache } from '../cache/cacheService.js'
 import { eventBus, EVENT_VERSION } from '../realtime/eventBus.js'
+import client from 'prom-client'
+const projCounter = client.register.getSingleMetric('projects_created_total') as any
 
 export type ProjectStatus = 'todo' | 'in_progress' | 'done'
 export interface Project { id: string; name: string; status: ProjectStatus; createdAt: string }
@@ -26,7 +28,8 @@ export async function getProject(id: string) {
 export async function createProject(name: string, status: ProjectStatus = 'todo') {
   if (repositories) {
     const created = await repositories.projects.create({ name, status }) as any as Project
-    eventBus.emitEvent({ type: 'project.created', payload: { version: EVENT_VERSION, data: { id: created.id, name: created.name, status: created.status } } })
+  eventBus.emitEvent({ type: 'project.created', payload: { version: EVENT_VERSION, data: { id: created.id, name: created.name, status: created.status } } })
+  if (projCounter) projCounter.inc()
     return created
   }
   const project: Project = { id: crypto.randomUUID(), name, status, createdAt: new Date().toISOString() }

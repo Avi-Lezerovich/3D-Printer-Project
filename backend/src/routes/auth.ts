@@ -9,6 +9,9 @@ import { authenticateJWT } from '../middleware/authMiddleware.js'
 import { requireRole } from '../middleware/roleMiddleware.js'
 import { auditSecurity } from '../audit/auditLog.js'
 import { eventBus, EVENT_VERSION } from '../realtime/eventBus.js'
+import client from 'prom-client'
+const loginCounter = client.register.getSingleMetric('auth_logins_total') as any
+const refreshHist = client.register.getSingleMetric('auth_refresh_latency_seconds') as any
 
 const router = Router()
 
@@ -53,6 +56,7 @@ router.post('/login', validateBody(loginSchema), async (req: Request, res: Respo
 	const cookieName = SESSION_SECURE && !COOKIE_DOMAIN ? '__Host-token' : 'token'
 	res.cookie(cookieName, pair.access, cookieOptions)
 	auditSecurity('auth.login.success', { userEmail: email, ip: req.ip })
+	if (loginCounter) loginCounter.inc()
 	eventBus.emitEvent({ type: 'security.auth.login', payload: { version: EVENT_VERSION, data: { email } } })
 	res.json({ token: pair.access, refreshToken: pair.refresh, user: { email, role: user.role } })
 })
@@ -70,6 +74,7 @@ router.post('/logout', (req, res) => {
 router.post('/refresh', async (req, res) => {
 	const { refreshToken } = req.body || {}
 	if (!refreshToken || typeof refreshToken !== 'string') return res.status(400).json({ message: 'refreshToken required' })
+	const start = process.hrtime.bigint()
 	const rotated = await rotateRefreshToken(refreshToken)
 	if (!rotated) return res.status(401).json({ message: 'Invalid refresh token' })
 	// repository-backed role retrieval
@@ -80,6 +85,10 @@ router.post('/refresh', async (req, res) => {
 	} catch { /* ignore */ }
 	const access = issueToken({ email: rotated.userEmail, role })
 	auditSecurity('auth.refresh', { userEmail: rotated.userEmail, ip: req.ip })
+	if (refreshHist) {
+		const dur = Number(process.hrtime.bigint() - start) / 1e9
+		refreshHist.observe(dur)
+	}
 	eventBus.emitEvent({ type: 'security.auth.refresh', payload: { version: EVENT_VERSION, data: { email: rotated.userEmail } } })
 	res.json({ token: access, refreshToken: rotated.refresh })
 })

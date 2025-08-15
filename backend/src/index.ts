@@ -131,6 +131,14 @@ const httpLatency = new client.Histogram({
 })
 promRegistry.registerMetric(httpLatency)
 
+// Custom metrics
+const authLogins = new client.Counter({ name: 'auth_logins_total', help: 'Total successful logins' })
+const projectsCreated = new client.Counter({ name: 'projects_created_total', help: 'Total projects created' })
+const refreshLatency = new client.Histogram({ name: 'auth_refresh_latency_seconds', help: 'Latency of refresh token rotation', buckets: [0.005,0.01,0.025,0.05,0.1,0.25,0.5] })
+promRegistry.registerMetric(authLogins)
+promRegistry.registerMetric(projectsCreated)
+promRegistry.registerMetric(refreshLatency)
+
 // Request ID then metrics middleware (after app created)
 app.use((req, res, next) => {
 	const incoming = (req.headers['x-request-id'] as string | undefined)?.slice(0, 100)
