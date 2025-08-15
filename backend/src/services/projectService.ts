@@ -1,6 +1,7 @@
 import crypto from 'node:crypto'
 import { Repositories } from '../repositories/types.js'
 import { withCache } from '../cache/cacheService.js'
+import { eventBus } from '../realtime/eventBus.js'
 
 export type ProjectStatus = 'todo' | 'in_progress' | 'done'
 export interface Project { id: string; name: string; status: ProjectStatus; createdAt: string }
@@ -23,20 +24,37 @@ export async function getProject(id: string) {
   return memoryProjects.get(id) || null
 }
 export async function createProject(name: string, status: ProjectStatus = 'todo') {
-  if (repositories) return await repositories.projects.create({ name, status }) as any as Project
+  if (repositories) {
+    const created = await repositories.projects.create({ name, status }) as any as Project
+    eventBus.emitEvent({ type: 'project.created', payload: { id: created.id, name: created.name, status: created.status } })
+    return created
+  }
   const project: Project = { id: crypto.randomUUID(), name, status, createdAt: new Date().toISOString() }
   memoryProjects.set(project.id, project)
+  eventBus.emitEvent({ type: 'project.created', payload: { id: project.id, name: project.name, status: project.status } })
   return project
 }
 export async function updateProject(id: string, changes: Partial<Pick<Project, 'name' | 'status'>>) {
-  if (repositories) return await repositories.projects.update(id, changes) as any as Project | null
+  if (repositories) {
+    const updated = await repositories.projects.update(id, changes) as any as Project | null
+    if (updated) eventBus.emitEvent({ type: 'project.updated', payload: { id: updated.id, name: changes.name, status: changes.status } })
+    return updated
+  }
   const current = memoryProjects.get(id)
   if (!current) return null
   const next: Project = { ...current, ...changes }
   memoryProjects.set(id, next)
+  eventBus.emitEvent({ type: 'project.updated', payload: { id: next.id, name: changes.name, status: changes.status } })
   return next
 }
 export async function deleteProject(id: string) {
-  if (repositories) return await repositories.projects.remove(id)
-  return memoryProjects.delete(id)
+  if (repositories) {
+    const existed = await repositories.projects.get(id)
+    const result = await repositories.projects.remove(id)
+    if (existed) eventBus.emitEvent({ type: 'project.deleted', payload: { id } })
+    return result
+  }
+  const existed = memoryProjects.delete(id)
+  if (existed) eventBus.emitEvent({ type: 'project.deleted', payload: { id } })
+  return existed
 }

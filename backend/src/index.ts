@@ -28,7 +28,10 @@ import { setRepositories as setProjectRepos } from './services/projectService.js
 import { initializeRepositories } from './repositories/factory.js'
 import { initCache, cacheStats } from './cache/cacheService.js'
 import { redisSlidingWindowLimiter } from './middleware/rateLimiter.js'
-import { listFlags } from './config/flags.js'
+import { listFlags, flagEnabled } from './config/flags.js'
+import jwt from 'jsonwebtoken'
+import { securityConfig } from './config/index.js'
+import { eventBus } from './realtime/eventBus.js'
 // Simple in-memory metrics (initialized after app instantiation below)
 const metrics = { reqTotal: 0, reqActive: 0 }
 
@@ -54,17 +57,34 @@ app.disable('x-powered-by')
 // Socket.IO is optional; guard require to avoid top-level import side effects in tests
 let io: any | undefined
 ;(async () => {
+	if (!flagEnabled('REALTIME')) return
 	try {
 		const { Server } = await import('socket.io') as any
-		io = new Server(server, { cors: { origin: CLIENT_URL, credentials: true } })
-		io.on('connection', (socket: any) => {
-			if (NODE_ENV !== 'production') console.info('Socket client connected')
-			const interval = setInterval(() => {
-				socket.emit('heartbeat', { t: Date.now() })
-			}, 5000)
-			socket.on('disconnect', () => clearInterval(interval))
+		io = new Server(server, { cors: { origin: NODE_ENV === 'production' ? CLIENT_URL : true, credentials: true } })
+		// Auth middleware for sockets
+		io.use((socket: any, next: any) => {
+			try {
+				const token = socket.handshake?.auth?.token || socket.handshake?.query?.token
+				if (!token) return next(new Error('unauthorized'))
+				const payload = jwt.verify(token, securityConfig.jwt.secret)
+				;(socket as any).user = payload
+				next()
+			} catch (e) {
+				next(new Error('unauthorized'))
+			}
 		})
-	} catch {}
+		io.on('connection', (socket: any) => {
+			if (NODE_ENV !== 'production') logger.debug({ sid: socket.id }, 'socket connected')
+			const hb = setInterval(() => { socket.emit('heartbeat', { t: Date.now() }) }, 5000)
+			socket.on('disconnect', () => clearInterval(hb))
+		})
+		// Project domain event forwarding
+		eventBus.on('project.created', (data) => io?.emit('project.created', data))
+		eventBus.on('project.updated', (data) => io?.emit('project.updated', data))
+		eventBus.on('project.deleted', (data) => io?.emit('project.deleted', data))
+	} catch (e) {
+		logger.warn({ err: e }, 'Socket.IO initialization failed')
+	}
 })()
 
 // Initialize repositories (memory or prisma based on REPO_DRIVER)
@@ -316,4 +336,5 @@ if (env.NODE_ENV !== 'test' && !process.env.NO_LISTEN) {
 	setupGracefulShutdown(server, [])
 }
 
+export { server }
 export default app
