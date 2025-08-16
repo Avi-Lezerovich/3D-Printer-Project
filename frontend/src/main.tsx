@@ -7,7 +7,7 @@ import { SocketProvider } from './core/realtime/SocketProvider'
 import { lazy, Suspense } from 'react'
 import Spinner from './components/Spinner'
 import ErrorBoundary from './components/ErrorBoundary'
-import AppShell from './shell/AppShell'
+import Layout from './shared/Layout'
 // Micro-frontends
 const PortfolioApp = lazy(()=> import('./apps/portfolio'))
 const ControlPanelApp = lazy(()=> import('./apps/control-panel'))
@@ -23,7 +23,7 @@ const Observability = lazy(()=> import('./pages/Observability'))
 const router = createBrowserRouter([
   {
     path: '/',
-  element: <AppShell />,
+  element: <Layout />,
     errorElement: <ErrorBoundary />,
     children: [
   { index: true, element: <Suspense fallback={<Spinner />}><PortfolioApp /></Suspense> },
