@@ -32,7 +32,7 @@ export function SocketProvider({ children, enable }: SocketProviderProps){
     s.on('connect', ()=>{ setStatus('open'); });
     s.on('disconnect', ()=>{ setStatus('closed'); });
     s.on('connect_error', ()=>{ setStatus(prev=> prev==='open'? 'open':'error'); });
-    s.on('heartbeat', (data: { t: number })=>{
+  s.on('heartbeat', ()=>{
       setLastHeartbeat(Date.now());
       if(lastPing.current){ setLatency(Date.now() - lastPing.current); }
       lastPing.current = Date.now();

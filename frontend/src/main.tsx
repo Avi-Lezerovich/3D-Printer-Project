@@ -15,6 +15,7 @@ const Settings = lazy(()=> import('./pages/Settings'))
 const Help = lazy(()=> import('./pages/Help'))
 const Login = lazy(()=> import('./pages/Login'))
 const NotFound = lazy(()=> import('./pages/NotFound'))
+const Observability = lazy(()=> import('./pages/Observability'))
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
     { path: 'management', element: <Suspense fallback={<Spinner />}><ProjectManagement /></Suspense> },
     { path: 'settings', element: <Suspense fallback={<Spinner />}><Settings /></Suspense> },
     { path: 'help', element: <Suspense fallback={<Spinner />}><Help /></Suspense> },
+  { path: 'observability', element: <Suspense fallback={<Spinner />}><Observability /></Suspense> },
   { path: 'login', element: <Suspense fallback={<Spinner />}><Login /></Suspense> },
       { path: '*', element: <Suspense fallback={<Spinner />}><NotFound /></Suspense> },
     ],

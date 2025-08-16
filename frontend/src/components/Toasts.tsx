@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAppStore, Toast } from '../shared/store';
 
 function ToastItem({ t }: { t: Toast }) {
