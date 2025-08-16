@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './styles/index.css'
+import { AppQueryProvider } from './core/query/QueryProvider'
 import Layout from './shared/Layout'
 import { lazy, Suspense } from 'react'
 import Spinner from './components/Spinner'
@@ -34,7 +35,9 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <RouterProvider router={router} />
+      <AppQueryProvider>
+        <RouterProvider router={router} />
+      </AppQueryProvider>
     </ErrorBoundary>
   </React.StrictMode>,
 )
