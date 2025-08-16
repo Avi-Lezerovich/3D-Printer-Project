@@ -8,11 +8,10 @@ import { lazy, Suspense } from 'react'
 import Spinner from './components/Spinner'
 import ErrorBoundary from './components/ErrorBoundary'
 import Layout from './shared/Layout'
-// Micro-frontends
-const PortfolioApp = lazy(()=> import('./apps/portfolio'))
-const ControlPanelApp = lazy(()=> import('./apps/control-panel'))
-const ProjectMgmtApp = lazy(()=> import('./apps/project-mgmt'))
-// Legacy / shared pages (keep for now)
+// Restore original rich page implementations pending micro-frontend parity
+const Portfolio = lazy(()=> import('./pages/Portfolio'))
+const ControlPanel = lazy(()=> import('./pages/ControlPanel'))
+const ProjectManagement = lazy(()=> import('./pages/ProjectManagement'))
 const ProjectAnalytics = lazy(()=> import('./pages/ProjectAnalytics'))
 const Settings = lazy(()=> import('./pages/Settings'))
 const Help = lazy(()=> import('./pages/Help'))
@@ -26,9 +25,9 @@ const router = createBrowserRouter([
   element: <Layout />,
     errorElement: <ErrorBoundary />,
     children: [
-  { index: true, element: <Suspense fallback={<Spinner />}><PortfolioApp /></Suspense> },
-  { path: 'control', element: <Suspense fallback={<Spinner />}><ControlPanelApp /></Suspense> },
-  { path: 'management', element: <Suspense fallback={<Spinner />}><ProjectMgmtApp /></Suspense> },
+  { index: true, element: <Suspense fallback={<Spinner />}><Portfolio /></Suspense> },
+  { path: 'control', element: <Suspense fallback={<Spinner />}><ControlPanel /></Suspense> },
+  { path: 'management', element: <Suspense fallback={<Spinner />}><ProjectManagement /></Suspense> },
   { path: 'projects/analytics', element: <Suspense fallback={<Spinner />}><ProjectAnalytics /></Suspense> },
     { path: 'settings', element: <Suspense fallback={<Spinner />}><Settings /></Suspense> },
     { path: 'help', element: <Suspense fallback={<Spinner />}><Help /></Suspense> },
