@@ -1,7 +1,7 @@
 import React from 'react';
-import { login } from '../services/api';
-import { validators } from '../services/project-management-api';
 import '../styles/login.css';
+import { useAuthStore } from '../core/state/authStore';
+function sanitizeInput(v:string){ return v.replace(/<|>|\"|'|`/g,'').trim(); }
 
 export default function Login() {
   const [email, setEmail] = React.useState('');
@@ -15,6 +15,7 @@ export default function Login() {
     return re.test(email);
   };
 
+  const authLogin = useAuthStore(s=>s.login);
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('loading');
@@ -26,11 +27,10 @@ export default function Login() {
       return;
     }
 
-    try {
-      const cleanEmail = validators.sanitizeInput(email).toLowerCase();
-      await login(cleanEmail, password);
+    const ok = await authLogin(sanitizeInput(email).toLowerCase(), password);
+    if(ok){
       setStatus('success');
-    } catch {
+    } else {
       setStatus('error');
       setError('Invalid email or password.');
     }
