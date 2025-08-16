@@ -11,6 +11,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 const Portfolio = lazy(()=> import('./pages/Portfolio'))
 const ControlPanel = lazy(()=> import('./pages/ControlPanel'))
 const ProjectManagement = lazy(()=> import('./pages/ProjectManagement'))
+const ProjectAnalytics = lazy(()=> import('./pages/ProjectAnalytics'))
 const Settings = lazy(()=> import('./pages/Settings'))
 const Help = lazy(()=> import('./pages/Help'))
 const Login = lazy(()=> import('./pages/Login'))
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
     { index: true, element: <Suspense fallback={<Spinner />}><Portfolio /></Suspense> },
     { path: 'control', element: <Suspense fallback={<Spinner />}><ControlPanel /></Suspense> },
     { path: 'management', element: <Suspense fallback={<Spinner />}><ProjectManagement /></Suspense> },
+  { path: 'projects/analytics', element: <Suspense fallback={<Spinner />}><ProjectAnalytics /></Suspense> },
     { path: 'settings', element: <Suspense fallback={<Spinner />}><Settings /></Suspense> },
     { path: 'help', element: <Suspense fallback={<Spinner />}><Help /></Suspense> },
   { path: 'observability', element: <Suspense fallback={<Spinner />}><Observability /></Suspense> },
