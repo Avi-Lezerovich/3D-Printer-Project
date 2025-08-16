@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './styles/index.css'
 import { AppQueryProvider } from './core/query/QueryProvider'
+import { SocketProvider } from './core/realtime/SocketProvider'
 import Layout from './shared/Layout'
 import { lazy, Suspense } from 'react'
 import Spinner from './components/Spinner'
@@ -36,8 +37,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary>
       <AppQueryProvider>
-        <RouterProvider router={router} />
+        <SocketProvider>
+          <RouterProvider router={router} />
+        </SocketProvider>
       </AppQueryProvider>
     </ErrorBoundary>
-  </React.StrictMode>,
+  </React.StrictMode>
 )

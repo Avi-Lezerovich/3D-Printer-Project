@@ -5,6 +5,7 @@ import Sidebar from '../components/layout/Sidebar';
 import MainContent from '../components/layout/MainContent';
 import './layout.css';
 import Toasts from '../components/Toasts';
+import { ConnectionBadge } from '../core/realtime/ConnectionBadge';
 
 export default function Layout() {
   const { setSidebarCollapsed } = useAppStore();
@@ -24,9 +25,10 @@ export default function Layout() {
   return (
     <div className="app-shell">
       <SkipToContent />
-      <Sidebar />
-      <MainContent />
+  <Sidebar />
+  <MainContent />
   <Toasts />
+  <ConnectionBadge />
     </div>
   );
 }
