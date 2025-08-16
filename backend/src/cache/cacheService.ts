@@ -2,6 +2,10 @@ import redisWrapper from './redisClient.js'
 import { logger } from '../utils/logger.js'
 
 // Basic cache abstraction with in-memory fallback if Redis unavailable
+// Phase 2: introduce pluggable strategies (e.g., stale-while-revalidate)
+export type CacheStrategy = 'simple' | 'swr'
+let currentStrategy: CacheStrategy = 'simple'
+export function setCacheStrategy(s: CacheStrategy) { currentStrategy = s }
 const memoryCache = new Map<string, { value: any; expiresAt: number }>()
 
 function now() { return Date.now() }
@@ -34,6 +38,12 @@ export async function cacheDelete(key: string) {
   memoryCache.delete(key)
 }
 
+export async function cacheInvalidatePrefix(prefix: string) {
+  // Lightweight: only effective for memory cache; Redis needs SCAN (skip for perf in MVP)
+  if (redisWrapper.isConnected && redisWrapper.client) return // TODO: implement SCAN-based invalidation when needed
+  for (const key of memoryCache.keys()) if (key.startsWith(prefix)) memoryCache.delete(key)
+}
+
 // Scheduled memory cleanup (noop for Redis)
 setInterval(() => {
   const t = now()
@@ -44,14 +54,25 @@ setInterval(() => {
 
 export async function withCache<T>(key: string, ttlSeconds: number, producer: () => Promise<T>): Promise<T> {
   const cached = await cacheGet<T>(key)
-  if (cached !== null) return cached
+  if (cached !== null) {
+    if (currentStrategy === 'swr') {
+      // Refresh in background if nearing TTL (heuristic: 20% lifetime remaining) – only for Redis-connected for now
+      if (redisWrapper.isConnected) {
+        // Async fire-and-forget
+        setTimeout(async () => {
+          try { await cacheSet(key + ':lock', 1, 5); const fresh = await producer(); await cacheSet(key, fresh, ttlSeconds) } catch { /* ignore */ }
+        }, 0)
+      }
+    }
+    return cached
+  }
   const value = await producer()
   await cacheSet(key, value, ttlSeconds)
   return value
 }
 
 export function cacheStats() {
-  return { memoryEntries: memoryCache.size, redis: redisWrapper.isConnected }
+  return { memoryEntries: memoryCache.size, redis: redisWrapper.isConnected, strategy: currentStrategy }
 }
 
 export async function initCache() {

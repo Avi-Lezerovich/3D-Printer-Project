@@ -16,6 +16,9 @@ const envSchema = z.object({
   COOKIE_DOMAIN: z.string().optional(),
   CSRF_COOKIE_NAME: z.string().optional(),
   COMMIT_SHA: z.string().optional(),
+  QUEUES_ENABLED: z.string().optional(),
+  ENCRYPTION_KEY: z.string().optional(),
+  CACHE_STRATEGY: z.enum(['simple','swr']).optional(),
 })
 
 const parsed = envSchema.safeParse(process.env)
@@ -53,6 +56,12 @@ export const securityConfig = {
   sessionSecure: String(env.SESSION_SECURE) === 'true',
   cookieDomain: env.COOKIE_DOMAIN,
   csrfCookieName: env.CSRF_COOKIE_NAME,
+  encryptionKey: (env.ENCRYPTION_KEY || (!isProd ? 'dev_key_dev_key_dev_key_dev_key__' : '')).slice(0, 32),
+}
+
+export const featureFlags = {
+  queuesEnabled: String(env.QUEUES_ENABLED) === 'true',
+  cacheStrategy: env.CACHE_STRATEGY || 'simple'
 }
 
 if (isProd && !securityConfig.jwt.secret) {

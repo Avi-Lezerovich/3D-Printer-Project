@@ -1,3 +1,6 @@
 export * from './models.js'
 export * from './api.js'
 export * from './events.js'
+export * from '../schemas/api.schemas.js'
+export * from '../schemas/project.schemas.js'
+export * from '../schemas/user.schemas.js'

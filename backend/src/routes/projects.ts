@@ -4,6 +4,8 @@ import { setCache } from '../middleware/cacheMiddleware.js'
 import { z } from 'zod'
 import { validateBody, validateParams } from '../middleware/validate.js'
 import { listProjects, getProject, createProject, updateProject, deleteProject } from '../services/projectService.js'
+import { authenticateJWT } from '../middleware/authMiddleware.js'
+import { requirePermission } from '../middleware/permissionMiddleware.js'
 
 type Project = { id: string; name: string; status: 'todo' | 'in_progress' | 'done'; createdAt: string }
 
@@ -28,7 +30,7 @@ const projectBodySchema = z.object({
 	status: z.enum(['todo', 'in_progress', 'done']).optional()
 })
 
-router.post('/', validateBody(projectBodySchema), async (req, res) => {
+router.post('/', authenticateJWT, requirePermission('project.write'), validateBody(projectBodySchema), async (req, res) => {
 	const data = (req as any).validatedBody as z.infer<typeof projectBodySchema>
 	const project = await createProject(data.name, data.status || 'todo')
 	res.status(201).json({ project })
@@ -37,7 +39,7 @@ router.post('/', validateBody(projectBodySchema), async (req, res) => {
 const projectUpdateBody = projectBodySchema.partial()
 const idParamSchema = z.object({ id: z.string().min(1) })
 
-router.put('/:id', validateParams(idParamSchema), validateBody(projectUpdateBody), async (req, res) => {
+router.put('/:id', authenticateJWT, requirePermission('project.write'), validateParams(idParamSchema), validateBody(projectUpdateBody), async (req, res) => {
 	const id = (req as any).validatedParams.id as string
 	const data = (req as any).validatedBody as z.infer<typeof projectUpdateBody>
 	const updated = await updateProject(id, { name: data.name, status: data.status })
@@ -45,7 +47,7 @@ router.put('/:id', validateParams(idParamSchema), validateBody(projectUpdateBody
 	res.json({ project: updated })
 })
 
-router.delete('/:id', param('id').isString(), async (req, res) => {
+router.delete('/:id', authenticateJWT, requirePermission('project.write'), param('id').isString(), async (req, res) => {
 	const errors = validationResult(req)
 	if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
 	const id = (req.params as any).id as string

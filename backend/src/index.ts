@@ -18,15 +18,20 @@ import authRouter from './routes/auth.js'
 import projectsRouter from './routes/projects.js'
 import projectManagementRouter from './routes/project-management.js'
 import { setCache } from './middleware/cacheMiddleware.js'
-import { env, allowedOrigins, serverConfig, isProd } from './config/index.js'
+import { env, allowedOrigins, serverConfig, isProd, featureFlags } from './config/index.js'
 import { httpLogger, logger } from './utils/logger.js'
-import client from 'prom-client'
+// Metrics/telemetry
+import { registry as promRegistry, httpLatency, exposePrometheus } from './telemetry/metrics.js'
 import { openapiSpec } from './openapi.js'
 import swaggerUi from 'swagger-ui-express'
 import { setRepositories as setAuthRepos } from './services/authService.js'
 import { setRepositories as setProjectRepos } from './services/projectService.js'
 import { initializeRepositories } from './repositories/factory.js'
-import { initCache, cacheStats } from './cache/cacheService.js'
+import { initCache, cacheStats, setCacheStrategy } from './cache/cacheService.js'
+import redisWrapper from './cache/redisClient.js'
+import { queueStats, registerProcessor } from './queues/index.js'
+import { processProjectAudit } from './queues/processors/projectAuditProcessor.js'
+import { deepSanitize } from './security/sanitization/sanitize.js'
 import { redisSlidingWindowLimiter } from './middleware/rateLimiter.js'
 import { listFlags, flagEnabled } from './config/flags.js'
 import jwt from 'jsonwebtoken'
@@ -34,6 +39,8 @@ import { securityConfig } from './config/index.js'
 // @ts-ignore - TypeScript will resolve to .ts source; runtime uses .js
 import { eventBus } from './realtime/eventBus.js'
 import { startBackgroundJobs, setBackgroundRepositories, getCleanupStats } from './background/jobs.js'
+import v2ProjectsRouter from './api/v2/projects.js'
+import { getSpans } from './telemetry/tracing/tracer.js'
 // Simple in-memory metrics (initialized after app instantiation below)
 const metrics = { reqTotal: 0, reqActive: 0 }
 
@@ -117,27 +124,13 @@ let io: any | undefined
 	}
 })()
 
-// Initialize cache (Redis or memory fallback)
-;(async () => { await initCache() })()
+// Initialize cache (Redis or memory fallback) then apply strategy flag
+;(async () => { await initCache(); setCacheStrategy(featureFlags.cacheStrategy as any) })()
 
-// Prometheus metrics setup
-const promRegistry = new client.Registry()
-client.collectDefaultMetrics({ register: promRegistry })
-const httpLatency = new client.Histogram({
-	name: 'http_request_duration_seconds',
-	help: 'Request latency in seconds',
-	labelNames: ['method','route','status'],
-	buckets: [0.01,0.05,0.1,0.25,0.5,1,2,5]
-})
-promRegistry.registerMetric(httpLatency)
+// Register queue processors
+registerProcessor('project.audit', processProjectAudit)
 
-// Custom metrics
-const authLogins = new client.Counter({ name: 'auth_logins_total', help: 'Total successful logins' })
-const projectsCreated = new client.Counter({ name: 'projects_created_total', help: 'Total projects created' })
-const refreshLatency = new client.Histogram({ name: 'auth_refresh_latency_seconds', help: 'Latency of refresh token rotation', buckets: [0.005,0.01,0.025,0.05,0.1,0.25,0.5] })
-promRegistry.registerMetric(authLogins)
-promRegistry.registerMetric(projectsCreated)
-promRegistry.registerMetric(refreshLatency)
+// (Prometheus metrics now initialized in telemetry/metrics)
 
 // Request ID then metrics middleware (after app created)
 app.use((req, res, next) => {
@@ -213,6 +206,12 @@ app.use(express.json({ limit: '1mb' }))
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
+// Basic sanitization (Phase 2) – creates sanitizedBody clone to avoid mutating raw
+app.use((req, _res, next) => {
+	if (req.body && typeof req.body === 'object') (req as any).sanitizedBody = deepSanitize(req.body)
+	next()
+})
+
 // Compression
 app.use(compression())
 
@@ -280,13 +279,23 @@ app.get('/healthz', (_req, res) => res.json({ ok: true }))
 
 // Readiness probe (extend with DB/Redis checks when present)
 app.get('/ready', async (_req, res) => {
-  const cache = cacheStats()
-  res.json({ ready: true, cache })
+	const cache = cacheStats()
+	// Basic Redis ping if connected
+	let redisOk: boolean | null = null
+	if (redisWrapper.isConnected && redisWrapper.client) {
+		try { await redisWrapper.client.ping(); redisOk = true } catch { redisOk = false }
+	}
+	res.json({ ready: true, cache, redis: redisOk, queues: queueStats() })
 })
 
 // API discovery root
 app.get('/api', (_req, res) => {
-	res.json({ versions: ['v1'], docs: '/api/v1/spec', health: '/api/health' })
+	res.json({ versions: ['v1','v2'], docs: ['/api/v1/spec','/api/v2/spec'], health: '/api/health' })
+})
+
+// API v2 placeholder (Phase 2 scaffold)
+app.get('/api/v2/spec', (_req, res) => {
+  res.json({ openapi: '3.0.3', info: { title: '3D Printer Project API', version: '2.0.0-draft' }, note: 'v2 under construction' })
 })
 
 // Expose OpenAPI spec (dev only for now)
@@ -296,13 +305,10 @@ if (NODE_ENV !== 'production') {
 }
 
 app.get('/api/metrics', (_req, res) => {
-	res.json({ ...metrics, memoryRss: process.memoryUsage().rss, cache: cacheStats(), cleanup: getCleanupStats() })
+	res.json({ ...metrics, memoryRss: process.memoryUsage().rss, cache: cacheStats(), cleanup: getCleanupStats(), spans: getSpans() })
 })
 
-app.get('/metrics', async (_req, res) => {
-	res.setHeader('Content-Type', promRegistry.contentType)
-	res.end(await promRegistry.metrics())
-})
+exposePrometheus(app)
 
 // Helpful root route (avoids 404 when opening backend port in browser)
 app.get('/', (_req, res) => {
@@ -344,6 +350,8 @@ app.use('/api/v1/projects', authenticateJWT, (req, res, next) => {
   next()
 }, projectsRouter)
 app.use('/api/v1/project-management', authenticateJWT, projectManagementRouter)
+// V2 draft routes
+app.use('/api/v2/projects', v2ProjectsRouter)
 // Back-compat temporary mounts (to be removed after clients migrate)
 app.use('/api/auth', authRouter)
 app.use('/api/projects', authenticateJWT, projectsRouter)

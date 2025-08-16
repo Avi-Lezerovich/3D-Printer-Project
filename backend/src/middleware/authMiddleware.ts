@@ -30,6 +30,7 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
 		if (!secret) throw new Error('JWT_SECRET not configured')
 
 		const decoded = jwt.verify(token, secret) as AuthPayload
+		if (!decoded.role) decoded.role = 'user'
 		req.user = decoded
 		return next()
 	} catch (err: any) {

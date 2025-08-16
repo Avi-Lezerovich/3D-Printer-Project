@@ -3,6 +3,8 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { flagEnabled } from '../config/flags.js'
 import { logger } from '../utils/logger.js'
+import { securityConfig } from '../config/index.js'
+import { encrypt } from '../security/encryption/crypto.js'
 
 // Basic JSONL audit writer (append-only). Enabled when FLAG_AUDIT=1.
 export interface AuditEvent {
@@ -27,7 +29,11 @@ export function writeAuditEvent(ev: AuditEvent) {
   if (!flagEnabled('AUDIT')) return
   try {
     ensureDir()
-    fs.appendFile(auditFile, JSON.stringify(ev) + '\n', err => { if (err) logger.warn({ err }, 'audit write failed') })
+    const record = { ...ev }
+    if (record.payload && securityConfig.encryptionKey) {
+      try { record.payload = { enc: encrypt(JSON.stringify(record.payload)) } } catch { /* ignore */ }
+    }
+    fs.appendFile(auditFile, JSON.stringify(record) + '\n', err => { if (err) logger.warn({ err }, 'audit write failed') })
   } catch (err) {
     logger.warn({ err }, 'audit write exception')
   }

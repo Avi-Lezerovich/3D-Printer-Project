@@ -1,6 +1,7 @@
 import crypto from 'node:crypto'
 import { Repositories } from '../repositories/types.js'
-import { withCache } from '../cache/cacheService.js'
+import { withCache, cacheInvalidatePrefix } from '../cache/cacheService.js'
+import { enqueue } from '../queues/index.js'
 import { eventBus, EVENT_VERSION } from '../realtime/eventBus.js'
 import client from 'prom-client'
 const projCounter = client.register.getSingleMetric('projects_created_total') as any
@@ -30,17 +31,22 @@ export async function createProject(name: string, status: ProjectStatus = 'todo'
     const created = await repositories.projects.create({ name, status }) as any as Project
   eventBus.emitEvent({ type: 'project.created', payload: { version: EVENT_VERSION, data: { id: created.id, name: created.name, status: created.status } } })
   if (projCounter) projCounter.inc()
+  await cacheInvalidatePrefix('projects:')
+  enqueue({ name: 'project.audit', payload: { id: created.id } })
     return created
   }
   const project: Project = { id: crypto.randomUUID(), name, status, createdAt: new Date().toISOString() }
   memoryProjects.set(project.id, project)
   eventBus.emitEvent({ type: 'project.created', payload: { version: EVENT_VERSION, data: { id: project.id, name: project.name, status: project.status } } })
+  await cacheInvalidatePrefix('projects:')
+  enqueue({ name: 'project.audit', payload: { id: project.id } })
   return project
 }
 export async function updateProject(id: string, changes: Partial<Pick<Project, 'name' | 'status'>>) {
   if (repositories) {
     const updated = await repositories.projects.update(id, changes) as any as Project | null
     if (updated) eventBus.emitEvent({ type: 'project.updated', payload: { version: EVENT_VERSION, data: { id: updated.id, name: changes.name, status: changes.status } } })
+    if (updated) await cacheInvalidatePrefix('projects:')
     return updated
   }
   const current = memoryProjects.get(id)
@@ -48,6 +54,7 @@ export async function updateProject(id: string, changes: Partial<Pick<Project, '
   const next: Project = { ...current, ...changes }
   memoryProjects.set(id, next)
   eventBus.emitEvent({ type: 'project.updated', payload: { version: EVENT_VERSION, data: { id: next.id, name: changes.name, status: changes.status } } })
+  await cacheInvalidatePrefix('projects:')
   return next
 }
 export async function deleteProject(id: string) {
@@ -55,9 +62,11 @@ export async function deleteProject(id: string) {
     const existed = await repositories.projects.get(id)
     const result = await repositories.projects.remove(id)
     if (existed) eventBus.emitEvent({ type: 'project.deleted', payload: { version: EVENT_VERSION, data: { id } } })
+    if (existed) await cacheInvalidatePrefix('projects:')
     return result
   }
   const existed = memoryProjects.delete(id)
   if (existed) eventBus.emitEvent({ type: 'project.deleted', payload: { version: EVENT_VERSION, data: { id } } })
+  if (existed) await cacheInvalidatePrefix('projects:')
   return existed
 }

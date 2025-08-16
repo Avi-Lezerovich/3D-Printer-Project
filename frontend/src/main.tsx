@@ -4,13 +4,15 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './styles/index.css'
 import { AppQueryProvider } from './core/query/QueryProvider'
 import { SocketProvider } from './core/realtime/SocketProvider'
-import Layout from './shared/Layout'
 import { lazy, Suspense } from 'react'
 import Spinner from './components/Spinner'
 import ErrorBoundary from './components/ErrorBoundary'
-const Portfolio = lazy(()=> import('./pages/Portfolio'))
-const ControlPanel = lazy(()=> import('./pages/ControlPanel'))
-const ProjectManagement = lazy(()=> import('./pages/ProjectManagement'))
+import AppShell from './shell/AppShell'
+// Micro-frontends
+const PortfolioApp = lazy(()=> import('./apps/portfolio'))
+const ControlPanelApp = lazy(()=> import('./apps/control-panel'))
+const ProjectMgmtApp = lazy(()=> import('./apps/project-mgmt'))
+// Legacy / shared pages (keep for now)
 const ProjectAnalytics = lazy(()=> import('./pages/ProjectAnalytics'))
 const Settings = lazy(()=> import('./pages/Settings'))
 const Help = lazy(()=> import('./pages/Help'))
@@ -21,12 +23,12 @@ const Observability = lazy(()=> import('./pages/Observability'))
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Layout />,
+  element: <AppShell />,
     errorElement: <ErrorBoundary />,
     children: [
-    { index: true, element: <Suspense fallback={<Spinner />}><Portfolio /></Suspense> },
-    { path: 'control', element: <Suspense fallback={<Spinner />}><ControlPanel /></Suspense> },
-    { path: 'management', element: <Suspense fallback={<Spinner />}><ProjectManagement /></Suspense> },
+  { index: true, element: <Suspense fallback={<Spinner />}><PortfolioApp /></Suspense> },
+  { path: 'control', element: <Suspense fallback={<Spinner />}><ControlPanelApp /></Suspense> },
+  { path: 'management', element: <Suspense fallback={<Spinner />}><ProjectMgmtApp /></Suspense> },
   { path: 'projects/analytics', element: <Suspense fallback={<Spinner />}><ProjectAnalytics /></Suspense> },
     { path: 'settings', element: <Suspense fallback={<Spinner />}><Settings /></Suspense> },
     { path: 'help', element: <Suspense fallback={<Spinner />}><Help /></Suspense> },

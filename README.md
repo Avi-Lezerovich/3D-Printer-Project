@@ -2,6 +2,32 @@
 
 Full‑stack 3D printer management & project hub. React + Vite + TypeScript frontend, Express + TypeScript backend, real‑time (Socket.io), Redis cache, Postgres (Prisma option), and containerized deployment. Architecture follows clear domain separation guided by the Frontend / Backend Development Deep Dive documents.
 
+## 🆕 Recent Improvements (Phase 1 Initiation)
+
+- Added shared Zod schemas (`shared/src/schemas`) for projects, users, and auth payloads
+- Centralized metrics/Prometheus setup in `backend/src/telemetry/metrics.ts`
+- Refactored `backend/src/index.ts` to consume telemetry module (cleaner separation)
+- Exported schemas via `@3d/shared` so frontend (and future tools) can import single source of truth
+- Introduced test utility scaffold (`backend/src/__tests__/utils/testServer.ts`) for upcoming enhanced test layers
+
+Planned next small steps (Phase 1 wrap / early Phase 2):
+- Enrich `/ready` endpoint with DB & Redis connectivity checks (Redis added; DB next when driver active)
+- Introduce tracing scaffold (OpenTelemetry provider & span helpers) without intrusive changes
+- Begin reorganizing tests into unit/integration/performance folders (non-breaking incremental moves)
+
+## 🔄 Phase 2 Scaffold Added
+
+- Queue system placeholder (`backend/src/queues`) with feature flag `QUEUES_ENABLED`
+- Enhanced readiness: `/ready` returns Redis + queue stats + cache strategy
+- API versioning placeholder: `/api/v2/spec` draft plus mounted `/api/v2/projects` using shared schemas
+- Security: sanitization (`security/sanitization/sanitize.ts`), encryption helper (`security/encryption/crypto.ts`), RBAC permissions map (`security/permissions/rbac.ts`)
+- Cache strategies groundwork (`cacheService.ts`) with future `swr` option & feature flag `CACHE_STRATEGY`
+   - Added invalidation on project CRUD + optional SWR background refresh (Redis-ready placeholder)
+   - Queue processor registered (`project.audit`) and dispatched on project create (feature‑flag controlled)
+   - Tracing scaffold (`telemetry/tracing/tracer.ts`) with spans surfaced in `/api/metrics`
+   - Audit log payload encryption when encryption key present
+
+
 ## 📁 Updated Monorepo Structure (Workspace)
 
 ```
