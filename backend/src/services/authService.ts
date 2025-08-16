@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import jwt, { SignOptions } from 'jsonwebtoken'
+import crypto from 'crypto'
 import { securityConfig } from '../config/index.js'
 import { AppError } from '../errors/AppError.js'
 import { Repositories } from '../repositories/types.js'
@@ -28,7 +29,14 @@ export async function register(email: string, password: string, role: string = '
 export async function verifyCredentials(email: string, password: string) {
   if (repositories) {
     const user = await repositories.users.findByEmail(email)
-    if (!user) return null
+    if (!user) {
+      // fall back to demo user map if present
+      const fallback = fallbackUsers.get(email)
+      if (!fallback) return null
+      const okFb = bcrypt.compareSync(password, fallback.passwordHash)
+      if (!okFb) return null
+      return { email: fallback.email, role: fallback.role }
+    }
     const ok = await bcrypt.compare(password, user.passwordHash)
     if (!ok) return null
     return { email: user.email, role: user.role }
@@ -46,4 +54,53 @@ export function issueToken(user: UserPayload) {
   if (!secret) throw new Error('JWT secret misconfigured')
   const token = jwt.sign({ sub: user.email, email: user.email, role: user.role }, secret, { expiresIn: securityConfig.jwt.expiresIn } as SignOptions)
   return token
+}
+
+export async function getUserByEmail(email: string) {
+  if (!repositories) throw new Error('Repositories not initialized')
+  return repositories.users.findByEmail(email)
+}
+
+// Password policy: at least 8 chars, one upper, one lower, one number, one special
+export function validatePasswordPolicy(pw: string) {
+  return /[A-Z]/.test(pw) && /[a-z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw) && pw.length >= 8
+}
+
+export function hashRefreshToken(raw: string) {
+  return crypto.createHash('sha256').update(raw).digest('hex')
+}
+
+export async function issueAuthPair(user: UserPayload) {
+  const access = issueToken(user)
+  const rawRefresh = crypto.randomBytes(32).toString('base64url')
+  const hash = hashRefreshToken(rawRefresh)
+  const expiresAt = new Date(Date.now() + parseExpires(securityConfig.jwt.refreshExpires || '7d'))
+  if (!repositories) throw new Error('Repositories not initialized')
+  await repositories.users.storeRefreshToken(user.email, hash, expiresAt)
+  return { access, refresh: rawRefresh, refreshExpires: expiresAt }
+}
+
+function parseExpires(expr: string) {
+  // naive: supports Nd or Nh
+  const m = expr.match(/^(\d+)([dh])$/)
+  if (!m) return 7 * 24 * 60 * 60 * 1000
+  const val = Number(m[1])
+  return m[2] === 'd' ? val * 86400000 : val * 3600000
+}
+
+export async function rotateRefreshToken(oldRaw: string) {
+  if (!repositories) throw new Error('Repositories not initialized')
+  const oldHash = hashRefreshToken(oldRaw)
+  const valid = await repositories.users.getValidRefreshToken(oldHash)
+  if (!valid) return null
+  const newRaw = crypto.randomBytes(32).toString('base64url')
+  const newHash = hashRefreshToken(newRaw)
+  const newExpires = new Date(Date.now() + parseExpires(securityConfig.jwt.refreshExpires || '7d'))
+  await repositories.users.rotateRefreshToken(oldHash, newHash, newExpires)
+  return { refresh: newRaw, refreshExpires: newExpires, userEmail: valid.userEmail }
+}
+
+export async function revokeRefreshToken(raw: string) {
+  if (!repositories) return
+  await repositories.users.revokeRefreshToken(hashRefreshToken(raw))
 }
