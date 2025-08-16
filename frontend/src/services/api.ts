@@ -11,7 +11,8 @@ async function ensureCsrf(): Promise<void> {
         const res = await fetch('/api/csrf-token', { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
-            if ((data as { csrfToken?: string }).csrfToken) cachedCsrfToken = (data as { csrfToken?: string }).csrfToken;
+          const token = (data as { csrfToken?: string }).csrfToken;
+          if (typeof token === 'string') cachedCsrfToken = token; // narrow to definite string
         }
       } catch {}
     })();
@@ -42,7 +43,11 @@ export async function apiFetch(input: RequestInfo | URL, init: ApiFetchOptions =
   catch(e){ clearTimeout(id); if(e instanceof Error && e.name==='AbortError') throw new ApiError('Request timed out', 408); throw new ApiError('Network error', 0); }
   clearTimeout(id);
   if(!resp.ok){ let body: unknown; if(expectJson){ try{ body = await resp.json(); }catch{} } const message = (body as { message?: string })?.message || `Request failed (${resp.status})`; throw new ApiError(message, resp.status, body); }
-  if(!expectJson) return resp; const data = await resp.json(); if((data as { csrfToken?: string }).csrfToken) cachedCsrfToken = (data as { csrfToken?: string }).csrfToken; return data as unknown;
+  if(!expectJson) return resp;
+  const data = await resp.json();
+  const token = (data as { csrfToken?: string }).csrfToken;
+  if (typeof token === 'string') cachedCsrfToken = token; // narrow to string
+  return data as unknown;
 }
 
 export async function login(email: string, password: string) {

@@ -36,7 +36,6 @@ import { redisSlidingWindowLimiter } from './middleware/rateLimiter.js'
 import { listFlags, flagEnabled } from './config/flags.js'
 import jwt from 'jsonwebtoken'
 import { securityConfig } from './config/index.js'
-// @ts-expect-error Type only resolution note: runtime uses .js
 import { eventBus } from './realtime/eventBus.js'
 import { startBackgroundJobs, setBackgroundRepositories, getCleanupStats } from './background/jobs.js'
 import v2ProjectsRouter from './api/v2/projects.js'

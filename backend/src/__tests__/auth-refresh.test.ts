@@ -1,4 +1,5 @@
-/// <reference types="vitest" />
+/// <reference types="vitest/globals" />
+// Vitest global reference ensures describe/it/expect are typed in editors
 import request from 'supertest'
 import app from '../index.js'
 

@@ -4,7 +4,8 @@ import Layout from '../shared/Layout';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SocketProvider } from '../core/realtime/SocketProvider';
 import { MemoryRouter } from 'react-router-dom';
-import { axe, AxeResults, Result } from 'jest-axe';
+import { axe } from 'jest-axe';
+import type { AxeResults, Result } from 'axe-core';
 
 // Basic accessibility smoke test for Layout shell
 // More granular tests will be added per feature later (modals, forms, drag-drop)
