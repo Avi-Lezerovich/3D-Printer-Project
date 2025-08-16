@@ -10,7 +10,8 @@ vi.mock('../core/api/client', () => ({
   }
 }));
 
-function wrapper({ children }: any){
+interface WrapperProps { children: React.ReactNode }
+function wrapper({ children }: WrapperProps){
   const qc = new QueryClient();
   return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
 }

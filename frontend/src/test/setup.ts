@@ -1,16 +1,16 @@
 import '@testing-library/jest-dom/vitest'
 // JSDOM setup for React tests
 // Polyfill ResizeObserver for components relying on it
-if (typeof (globalThis as any).ResizeObserver === 'undefined') {
+if (typeof (globalThis as unknown as { ResizeObserver?: unknown }).ResizeObserver === 'undefined') {
 	class RO {
 		observe() {}
 		unobserve() {}
 		disconnect() {}
 	}
-	;(globalThis as any).ResizeObserver = RO
+	;(globalThis as unknown as { ResizeObserver?: unknown }).ResizeObserver = RO
 }
 
-if (typeof (globalThis as any).IntersectionObserver === 'undefined') {
+if (typeof (globalThis as unknown as { IntersectionObserver?: unknown }).IntersectionObserver === 'undefined') {
 	class IO {
 		observe() {}
 		unobserve() {}
@@ -20,5 +20,5 @@ if (typeof (globalThis as any).IntersectionObserver === 'undefined') {
 		rootMargin = '0px'
 		thresholds: ReadonlyArray<number> = [0]
 	}
-	;(globalThis as any).IntersectionObserver = IO as any
+	;(globalThis as unknown as { IntersectionObserver?: unknown }).IntersectionObserver = IO as unknown
 }

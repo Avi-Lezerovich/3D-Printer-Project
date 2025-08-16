@@ -4,13 +4,17 @@
 // const socket = io('http://your-server:port')
 // socket.on('printer:update', (payload) => { /* update store */ })
 
+interface HeartbeatPayload { t?: number }
+interface SocketLike { on(event: 'heartbeat', handler: (p: HeartbeatPayload)=>void): void; close(): void }
+
 export function connectRealtime(){
-  let socket: any
+  let socket: SocketLike | undefined
   ;(async()=>{
     try {
-      const mod: any = await import('socket.io-client')
-      socket = mod.io('/', { withCredentials: true })
-      socket.on('heartbeat', ()=>{/* hook to store here if desired */})
+  const mod = await import('socket.io-client')
+  const { io } = mod as unknown as { io: (url: string, opts: Record<string, unknown>) => SocketLike }
+  socket = io('/', { withCredentials: true })
+  socket.on('heartbeat', ()=>{/* hook to store here if desired */})
     } catch {}
   })()
   return { close(){ try{ socket?.close() }catch{} } }

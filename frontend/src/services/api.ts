@@ -11,7 +11,7 @@ async function ensureCsrf(): Promise<void> {
         const res = await fetch('/api/csrf-token', { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
-            if ((data as any)?.csrfToken) cachedCsrfToken = (data as any).csrfToken;
+            if ((data as { csrfToken?: string }).csrfToken) cachedCsrfToken = (data as { csrfToken?: string }).csrfToken;
         }
       } catch {}
     })();
@@ -39,10 +39,10 @@ export async function apiFetch(input: RequestInfo | URL, init: ApiFetchOptions =
   const id = setTimeout(()=>controller.abort(), timeoutMs);
   let resp: Response;
   try { resp = await fetch(input, { ...rest, headers, credentials: 'include', signal: controller.signal }); }
-  catch(e: any){ clearTimeout(id); if(e.name==='AbortError') throw new ApiError('Request timed out', 408); throw new ApiError('Network error', 0); }
+  catch(e){ clearTimeout(id); if(e instanceof Error && e.name==='AbortError') throw new ApiError('Request timed out', 408); throw new ApiError('Network error', 0); }
   clearTimeout(id);
-  if(!resp.ok){ let body: any; if(expectJson){ try{ body = await resp.json(); }catch{} } throw new ApiError(body?.message || `Request failed (${resp.status})`, resp.status, body); }
-  if(!expectJson) return resp; const data = await resp.json(); if((data as any)?.csrfToken) cachedCsrfToken = (data as any).csrfToken; return data;
+  if(!resp.ok){ let body: unknown; if(expectJson){ try{ body = await resp.json(); }catch{} } const message = (body as { message?: string })?.message || `Request failed (${resp.status})`; throw new ApiError(message, resp.status, body); }
+  if(!expectJson) return resp; const data = await resp.json(); if((data as { csrfToken?: string }).csrfToken) cachedCsrfToken = (data as { csrfToken?: string }).csrfToken; return data as unknown;
 }
 
 export async function login(email: string, password: string) {
@@ -50,8 +50,9 @@ export async function login(email: string, password: string) {
 }
 
 // Projects API
-export async function listProjects() { return apiFetch('/api/v1/projects') as Promise<{ projects: any[] }>; }
+export interface ProjectDto { id: string; name: string; status: 'todo' | 'in_progress' | 'done' }
+export async function listProjects() { return apiFetch('/api/v1/projects') as Promise<{ projects: ProjectDto[] }>; }
 
-export async function createProject(input: { name: string; status?: 'todo' | 'in_progress' | 'done' }) { return apiFetch('/api/v1/projects', { method: 'POST', body: JSON.stringify(input) }) as Promise<{ project: any }>; }
+export async function createProject(input: { name: string; status?: 'todo' | 'in_progress' | 'done' }) { return apiFetch('/api/v1/projects', { method: 'POST', body: JSON.stringify(input) }) as Promise<{ project: ProjectDto }>; }
 
-export async function updateProject(id: string, input: Partial<{ name: string; status: 'todo' | 'in_progress' | 'done' }>) { return apiFetch(`/api/v1/projects/${id}`, { method: 'PUT', body: JSON.stringify(input) }) as Promise<{ project: any }>; }
+export async function updateProject(id: string, input: Partial<{ name: string; status: 'todo' | 'in_progress' | 'done' }>) { return apiFetch(`/api/v1/projects/${id}`, { method: 'PUT', body: JSON.stringify(input) }) as Promise<{ project: ProjectDto }>; }

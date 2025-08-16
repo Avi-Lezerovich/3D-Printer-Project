@@ -90,83 +90,55 @@ export const taskAPI = {
     }
     
     const url = `/api/v1/project-management/tasks${params.toString() ? `?${params.toString()}` : ''}`;
-    const res = await apiFetch(url);
-    if (!res.ok) throw new Error('Failed to fetch tasks');
-    const data = await res.json();
-    return data.tasks;
+  const data = await apiFetch(url) as { tasks: Task[] };
+  return data.tasks;
   },
 
   async getById(id: string): Promise<Task> {
-    const res = await apiFetch(`/api/v1/project-management/tasks/${id}`);
-    if (!res.ok) throw new Error('Failed to fetch task');
-    const data = await res.json();
-    return data.task;
+  const data = await apiFetch(`/api/v1/project-management/tasks/${id}`) as { task: Task };
+  return data.task;
   },
 
   async create(taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<Task> {
-    const res = await apiFetch('/api/v1/project-management/tasks', {
+    const data = await apiFetch('/api/v1/project-management/tasks', {
       method: 'POST',
       body: JSON.stringify(taskData),
-    });
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || 'Failed to create task');
-    }
-    const data = await res.json();
+    }) as { task: Task };
     return data.task;
   },
 
   async update(id: string, taskData: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Task> {
-    const res = await apiFetch(`/api/v1/project-management/tasks/${id}`, {
+    const data = await apiFetch(`/api/v1/project-management/tasks/${id}`, {
       method: 'PUT',
       body: JSON.stringify(taskData),
-    });
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || 'Failed to update task');
-    }
-    const data = await res.json();
+    }) as { task: Task };
     return data.task;
   },
 
   async delete(id: string): Promise<void> {
-    const res = await apiFetch(`/api/v1/project-management/tasks/${id}`, {
-      method: 'DELETE',
-    });
-    if (!res.ok) {
-      throw new Error('Failed to delete task');
-    }
+  await apiFetch(`/api/v1/project-management/tasks/${id}`, { method: 'DELETE' });
   }
 };
 
 // Budget Management API
 export const budgetAPI = {
   async getCategories(): Promise<BudgetCategory[]> {
-    const res = await apiFetch('/api/v1/project-management/budget/categories');
-    if (!res.ok) throw new Error('Failed to fetch budget categories');
-    const data = await res.json();
-    return data.categories;
+  const data = await apiFetch('/api/v1/project-management/budget/categories') as { categories: BudgetCategory[] };
+  return data.categories;
   },
 
   async createCategory(categoryData: Omit<BudgetCategory, 'id' | 'createdAt' | 'updatedAt'>): Promise<BudgetCategory> {
-    const res = await apiFetch('/api/v1/project-management/budget/categories', {
+    const data = await apiFetch('/api/v1/project-management/budget/categories', {
       method: 'POST',
       body: JSON.stringify(categoryData),
-    });
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || 'Failed to create budget category');
-    }
-    const data = await res.json();
+    }) as { category: BudgetCategory };
     return data.category;
   },
 
   async getExpenses(categoryId?: string): Promise<BudgetExpense[]> {
     const params = categoryId ? `?categoryId=${categoryId}` : '';
-    const res = await apiFetch(`/api/v1/project-management/budget/expenses${params}`);
-    if (!res.ok) throw new Error('Failed to fetch budget expenses');
-    const data = await res.json();
-    return data.expenses;
+  const data = await apiFetch(`/api/v1/project-management/budget/expenses${params}`) as { expenses: BudgetExpense[] };
+  return data.expenses;
   }
 };
 
@@ -181,35 +153,23 @@ export const inventoryAPI = {
     }
     
     const url = `/api/v1/project-management/inventory${params.toString() ? `?${params.toString()}` : ''}`;
-    const res = await apiFetch(url);
-    if (!res.ok) throw new Error('Failed to fetch inventory');
-    const data = await res.json();
-    return data.items;
+  const data = await apiFetch(url) as { items: InventoryItem[] };
+  return data.items;
   },
 
   async create(itemData: Omit<InventoryItem, 'id' | 'status' | 'createdAt' | 'updatedAt'>): Promise<InventoryItem> {
-    const res = await apiFetch('/api/v1/project-management/inventory', {
+    const data = await apiFetch('/api/v1/project-management/inventory', {
       method: 'POST',
       body: JSON.stringify(itemData),
-    });
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || 'Failed to create inventory item');
-    }
-    const data = await res.json();
+    }) as { item: InventoryItem };
     return data.item;
   },
 
   async updateQuantity(id: string, quantity: number): Promise<InventoryItem> {
-    const res = await apiFetch(`/api/v1/project-management/inventory/${id}/quantity`, {
+    const data = await apiFetch(`/api/v1/project-management/inventory/${id}/quantity`, {
       method: 'PUT',
       body: JSON.stringify({ quantity }),
-    });
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || 'Failed to update inventory quantity');
-    }
-    const data = await res.json();
+    }) as { item: InventoryItem };
     return data.item;
   }
 };
@@ -217,10 +177,8 @@ export const inventoryAPI = {
 // Analytics API
 export const analyticsAPI = {
   async getSummary(): Promise<ProjectAnalyticsSummary> {
-    const res = await apiFetch('/api/v1/project-management/analytics/summary');
-    if (!res.ok) throw new Error('Failed to fetch analytics summary');
-    const data = await res.json();
-    return data.summary;
+  const data = await apiFetch('/api/v1/project-management/analytics/summary') as { summary: ProjectAnalyticsSummary };
+  return data.summary;
   }
 };
 
@@ -229,7 +187,7 @@ export class ProjectManagementError extends Error {
   constructor(
     message: string,
     public readonly code?: string,
-    public readonly details?: any
+  public readonly details?: unknown
   ) {
     super(message);
     this.name = 'ProjectManagementError';

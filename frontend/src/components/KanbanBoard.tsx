@@ -79,11 +79,12 @@ export default function KanbanBoard() {
     const taskId = parseInt(active.id as string)
     const overContainer = over.id as string
     
-    console.log('Drag end:', { taskId, overContainer }) // Debug log
+  // Debug: drag completed; replace console.log with info-level logging or remove in production
+  // console.info('Drag end:', { taskId, overContainer })
     
     // If dropped on a column, move task to that column
     if (columns.some(col => col.id === overContainer)) {
-      console.log('Moving task:', taskId, 'to', overContainer) // Debug log
+  // console.info('Moving task:', taskId, 'to', overContainer)
       moveTask(taskId, overContainer as 'todo'|'doing'|'done')
     }
   }, [moveTask, columns])

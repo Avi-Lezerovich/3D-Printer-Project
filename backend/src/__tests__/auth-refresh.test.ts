@@ -6,7 +6,6 @@ import app from '../index.js'
 
 describe('auth refresh flow', () => {
   let refreshToken: string | undefined
-  let accessToken: string | undefined
   const email = 'demo@example.com'
   const password = 'Password123!'
 
@@ -18,7 +17,6 @@ describe('auth refresh flow', () => {
     expect(res.body.refreshToken).toBeDefined()
     expect(res.body.token).toBeDefined()
     refreshToken = res.body.refreshToken
-    accessToken = res.body.token
   })
 
   it('rotates refresh token', async () => {

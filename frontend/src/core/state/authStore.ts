@@ -36,8 +36,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       // resp.user payload shape differs slightly from /me; treat as authoritative
       set({ user: { email: resp.user.email, role: resp.user.role }, token: resp.token, loading: false, initialized: true });
       return true;
-    } catch (e: any) {
-      set({ error: e.message || 'Login failed', loading: false, user: null });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Login failed'
+      set({ error: msg, loading: false, user: null });
       return false;
     }
   },

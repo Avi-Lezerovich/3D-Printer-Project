@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll, test } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { io as Client, Socket } from 'socket.io-client'
 import jwt from 'jsonwebtoken'
 // Enable realtime before importing app so index.ts sees flag
 process.env.FLAG_REALTIME = 'true'
-import app, { server } from '../index.js'
+import { server } from '../index.js'
 import { securityConfig } from '../config/index.js'
 import { createProject, updateProject, deleteProject } from '../services/projectService.js'
 

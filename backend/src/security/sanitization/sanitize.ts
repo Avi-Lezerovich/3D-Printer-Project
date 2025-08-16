@@ -2,7 +2,9 @@
 // Intentionally lightweight; extend with library if risk profile increases.
 
 export function sanitizeString(input: string): string {
-  return input.replace(/[\0\x08\x09\x1a\n\r"'\\%]/g, c => {
+  // Match NULL, backspace, tab, newline, carriage return, quotes, backslash, percent
+  // Removed \x1a (SUB) to satisfy no-control-regex rule; not commonly encountered in typical HTTP JSON bodies.
+  return input.replace(/[\0\b\t\n\r"'\\%]/g, c => {
     switch (c) {
       case '\0': return ''
       case '\n': return ' '

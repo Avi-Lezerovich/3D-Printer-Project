@@ -4,8 +4,8 @@ export interface RuntimeMetrics {
   reqTotal: number;
   reqActive: number;
   memoryRss: number;
-  cache?: any;
-  cleanup?: any;
+  cache?: Record<string, unknown>;
+  cleanup?: Record<string, unknown>;
   fetchedAt: number;
 }
 

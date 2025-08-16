@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import crypto from 'node:crypto';
-import { body, param, query, validationResult } from 'express-validator';
+import { body, param, validationResult } from 'express-validator';
 import { setCache } from '../middleware/cacheMiddleware.js';
 
 // Task types aligned with frontend domain models

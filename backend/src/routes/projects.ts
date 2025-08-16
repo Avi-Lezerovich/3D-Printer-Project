@@ -7,8 +7,6 @@ import { listProjects, getProject, createProject, updateProject, deleteProject }
 import { authenticateJWT } from '../middleware/authMiddleware.js'
 import { requirePermission } from '../middleware/permissionMiddleware.js'
 
-type Project = { id: string; name: string; status: 'todo' | 'in_progress' | 'done'; createdAt: string }
-
 const router = Router()
 
 router.get('/', setCache(10), async (_req, res) => {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '../../core/api/client';
 
-interface AuditEvent { type: string; at: string; userEmail?: string; ip?: string; version: number; [k: string]: any }
+interface AuditEvent { type: string; at: string; userEmail?: string; ip?: string; version: number; [k: string]: unknown }
 
 export function AuditLogPanel(){
   const [events, setEvents] = useState<AuditEvent[]>([]);
@@ -12,7 +12,7 @@ export function AuditLogPanel(){
     try {
       const data = await apiClient.get<{ events?: AuditEvent[] }>('/api/v1/audit').catch(()=>({ events: [] }));
       setEvents(data.events || []);
-    } catch(e:any){ setError(e.message); }
+  } catch(e){ setError(e instanceof Error ? e.message : 'Failed to load audit log'); }
     finally { setLoading(false); }
   })(); },[]);
   return <div className="panel" aria-labelledby="audit-heading">

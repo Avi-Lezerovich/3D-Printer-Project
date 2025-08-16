@@ -8,7 +8,6 @@ export function notFoundHandler(_req: Request, res: Response) {
 }
 
 // Central error handler
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction) {
 	const status = (err as any)?.status || 500
 	const isProd = process.env.NODE_ENV === 'production'

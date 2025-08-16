@@ -21,7 +21,7 @@ import { setCache } from './middleware/cacheMiddleware.js'
 import { env, allowedOrigins, serverConfig, isProd, featureFlags } from './config/index.js'
 import { httpLogger, logger } from './utils/logger.js'
 // Metrics/telemetry
-import { registry as promRegistry, httpLatency, exposePrometheus } from './telemetry/metrics.js'
+import { httpLatency, exposePrometheus } from './telemetry/metrics.js'
 import { openapiSpec } from './openapi.js'
 import swaggerUi from 'swagger-ui-express'
 import { setRepositories as setAuthRepos } from './services/authService.js'
@@ -36,7 +36,7 @@ import { redisSlidingWindowLimiter } from './middleware/rateLimiter.js'
 import { listFlags, flagEnabled } from './config/flags.js'
 import jwt from 'jsonwebtoken'
 import { securityConfig } from './config/index.js'
-// @ts-ignore - TypeScript will resolve to .ts source; runtime uses .js
+// @ts-expect-error Type only resolution note: runtime uses .js
 import { eventBus } from './realtime/eventBus.js'
 import { startBackgroundJobs, setBackgroundRepositories, getCleanupStats } from './background/jobs.js'
 import v2ProjectsRouter from './api/v2/projects.js'
@@ -88,7 +88,8 @@ let io: any | undefined
 				const payload = jwt.verify(token, securityConfig.jwt.secret)
 				;(socket as any).user = payload
 				next()
-			} catch (e) {
+			} catch {
+				// Swallow the specific error to avoid leaking token verification details
 				next(new Error('unauthorized'))
 			}
 		})
@@ -105,8 +106,8 @@ let io: any | undefined
 		eventBus.on('security.auth.login', (payload: any) => io?.emit('security.auth.login', payload))
 		eventBus.on('security.auth.logout', (payload: any) => io?.emit('security.auth.logout', payload))
 		eventBus.on('security.auth.refresh', (payload: any) => io?.emit('security.auth.refresh', payload))
-	} catch (e) {
-		logger.warn({ err: e }, 'Socket.IO initialization failed')
+	} catch (err) {
+		logger.warn({ err }, 'Socket.IO initialization failed')
 	}
 })()
 

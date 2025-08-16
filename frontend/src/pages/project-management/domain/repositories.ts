@@ -51,8 +51,8 @@ export interface InventoryRepository extends Repository<InventoryItem> {
 // Analytics Repository
 export interface AnalyticsRepository extends Repository<AnalyticsReport> {
   findByDateRange(start: Date, end: Date): Promise<AnalyticsReport[]>;
-  getTaskCompletionMetrics(period: { start: Date; end: Date }): Promise<any>;
-  getBudgetUtilizationMetrics(period: { start: Date; end: Date }): Promise<any>;
-  getInventoryTurnoverMetrics(period: { start: Date; end: Date }): Promise<any>;
+  getTaskCompletionMetrics(period: { start: Date; end: Date }): Promise<Record<string, unknown>>;
+  getBudgetUtilizationMetrics(period: { start: Date; end: Date }): Promise<Record<string, unknown>>;
+  getInventoryTurnoverMetrics(period: { start: Date; end: Date }): Promise<Record<string, unknown>>;
   generateReport(reportType: string, period: { start: Date; end: Date }): Promise<AnalyticsReport>;
 }

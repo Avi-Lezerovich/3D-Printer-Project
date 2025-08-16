@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { authenticateJWT } from '../../middleware/authMiddleware.js'
-import { projectSchema, createProjectRequestSchema } from '@3d/shared'
+import { createProjectRequestSchema } from '@3d/shared'
 import { z } from 'zod'
 import { validateBody } from '../../middleware/validate.js'
 import { listProjects, createProject } from '../../services/projectService.js'
