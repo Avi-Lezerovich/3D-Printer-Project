@@ -278,7 +278,8 @@ export const validators = {
   sanitizeInput: (input: string): string => {
     // Basic XSS prevention - strip HTML tags and encode special characters
     return input
-      .replace(/[<>\"']/g, (char) => {
+      .replace(/[<>"']/g, (char) => {
+        // Character class without unnecessary escapes; ESLint no-useless-escape satisfied
         const map: Record<string, string> = {
           '<': '&lt;',
           '>': '&gt;',

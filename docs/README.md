@@ -1,79 +1,113 @@
-# 3D Printer Project System
+# 3D Printer Project – Documentation Hub
 
-Three-part React + Vite TypeScript app:
-- Portfolio (public-facing showcase)
-- Control Panel (printer management UI)
-- Project Management (internal tracking)
+This folder centralizes living documentation: architecture, security, testing strategy, analyses, and improvement roadmap. The system comprises two primary deployable units (frontend SPA & backend API) plus optional data services (Postgres, Redis) orchestrated via Docker.
 
-## Quick start
+## 🧱 High-Level Domains
 
-1) Copy env and install dependencies
+Frontend (React + Vite + TypeScript)
+- Portfolio (public showcase / project narrative)
+- Control Panel (printer operations & realtime telemetry UI)
+- Project Management Hub (tasks, inventory, budget, analytics, timeline)
+
+Backend (Express + TypeScript)
+- Auth / Session / JWT issuance & refresh
+- Project & task domain services
+- Realtime event gateway (Socket.io + optional Redis adapter)
+- Caching, rate limiting, CSRF, validation, audit logging
+- Pluggable persistence (in-memory baseline, Prisma/Postgres optional)
+
+## 🔐 Separation of Concerns
+| Layer | Responsibility | Key Directories |
+|-------|----------------|-----------------|
+| UI Composition | Presentational + interaction components | `frontend/src/design-system`, `frontend/src/components` |
+| Feature Logic | Domain-specific state & orchestrations | `frontend/src/features/*` |
+| App Shell | Routing, providers, API typing | `frontend/src/core` |
+| Services (Client) | HTTP client, socket bridge, adapters | `frontend/src/services` |
+| API Transport | HTTP routing, input validation | `backend/src/routes` |
+| Business Logic | Use cases & rules | `backend/src/services` |
+| Data Access | Repository interfaces & drivers | `backend/src/repositories` |
+| Cross-Cutting | Auth, security, caching, logging | `backend/src/middleware`, `backend/src/cache`, `backend/src/utils` |
+
+No frontend file imports backend code; contract maintained via OpenAPI → generated TypeScript types (see `frontend` script `generate:api`).
+
+## 🚀 Quick Start (Monorepo Root)
 
 ```powershell
-Copy-Item .env.example .env
-npm install
-```
+# Install all workspaces
+npm run install:all
 
-2) Run client + server in dev
+# Copy env template (edit values afterward)
+Copy-Item deployment/config/.env.example deployment/config/.env
 
-```powershell
+# Dev (concurrent frontend + backend)
 npm run dev
-```
 
-- Client: http://localhost:5173
-- API: http://localhost:8080 (health: /api/health)
-
-3) Run tests
-
-```powershell
+# Tests (frontend then backend)
 npm test
 ```
 
-## Structure
-- `src/pages/Portfolio.tsx` — portfolio site sections
-- `src/pages/ControlPanel.tsx` — printer dashboard & controls
-- `src/pages/ProjectManagement.tsx` — tasks, inventory, budget
-- `src/shared/Layout.tsx` — shared shell + navigation
-- `src/shared/store.ts` — shared app state (Zustand)
-- `src/services/socket.ts` — placeholder for realtime events
+Endpoints:
+- Frontend Dev: http://localhost:5173 (or 3000 if configured)
+- API: http://localhost:8080  (health: /api/health, spec: /api/v1/spec)
 
-## Next steps
-- Flesh out portfolio sections with real content, images, and downloads
-- Hook Control Panel to your printer backend (OctoPrint/Klipper/Marlin via server)
-- Add persistent storage (localStorage or backend API)
-- Implement auth and shared settings
-- Integrate camera feed and charts
+## 🧪 Testing Overview
+- Backend: Vitest + Supertest (`backend/src/__tests__`) covering auth, projects, openapi contract, security, sockets.
+- Frontend: Vitest + Testing Library (a11y, component, feature interaction tests).
+- Coverage: v8 provider; run `npm run test:coverage` for aggregate.
 
-## Security & configuration
-- Secrets live in environment variables. Copy `.env.example` to `.env` and set real values for production.
-- CSRF protection is enabled via cookie + header for state-changing requests.
-- Helmet sets common security headers; adjust CSP if embedding remote assets.
-- Rate limiting is enabled on `/api/*`.
- - See `SECURITY.md` for a full overview of OWASP Top 10 coverage and headers.
+See `TESTING.md` for detailed patterns and roadmap (SAST/DAST suggestions).
 
-## Front-end standards & performance
-- Component-based architecture with lazy-loaded routes (React Suspense).
-- Mobile-first, responsive CSS with utility classes and media queries.
-- Images default to lazy loading via a shared `Image` component.
-- Code-splitting configured in `vite.config.ts` for major libraries.
-- Consider serving static assets via a CDN with caching headers in production.
+## 🔒 Security Highlights
+Summarized; full detail in `SECURITY.md`.
+- JWT (access + refresh) rotation, short TTL access tokens.
+- CSRF tokens for cookie-based state-changing requests.
+- Helmet + strict headers (CSP, HSTS prod, referrer, frameguard).
+- Rate limiting (global + auth-specific throttling).
+- Input validation (express-validator / zod → OpenAPI schema).
+- Least-privilege role claims in tokens.
 
-## Back-end standards
-- RESTful routes with JSON responses and consistent errors.
-- API versioning: primary mount at `/api/v1/*` (legacy mounts kept for migration).
-- Central error handler with clear status codes; 404 and 405 coverage.
-- Simple response caching middleware available (`setCache(seconds)` for GET endpoints).
+## 🏗️ Backend Architectural Notes
+- Repository factory switches between memory and Prisma drivers (`REPO_DRIVER`).
+- Event bus abstraction wraps Socket.io enabling alternate transports.
+- Background jobs placeholder (`background/jobs.ts`) isolates future schedulers.
+- Audit log centralization enables structured compliance trails.
 
-## Git workflow
-- Use short-lived feature branches (GitHub Flow). Example: `fe-standards-performance`.
-- Open pull requests early; keep changes focused and small; squash-merge when ready.
+## 🎨 Frontend Architectural Notes
+- Feature slices isolate domain UI and state to minimize global stores.
+- React Query manages server cache; Zustand reserved for lightweight global ephemeral state.
+- Design system ensures consistent tokens (spacing, color, motion durations).
+- Framer Motion leveraged for micro-interactions and staged transitions.
 
-## Docker
-
-Build and run the API container locally:
-
+## 🐳 Container / Deployment
+Authoritative compose + Dockerfiles: `deployment/docker/`.
 ```powershell
-docker compose up --build
+npm run deploy:local:build
+npm run deploy:local:up
+npm run deploy:local:logs
 ```
+Optional dev-only compose duplicate in `backend/docker-compose.yml` (kept temporarily; prefer removal in future cleanup to avoid drift).
 
-Then open http://localhost:8080/api/health
+Services (toggle via env):
+- backend (Node server)
+- frontend (static build served via lightweight web server)
+- postgres (Prisma driver)
+- redis (cache + socket scaling)
+
+## 🧹 Duplicate / Legacy Artifacts
+- `backend/docker-compose.yml` – superseded by `deployment/docker/docker-compose.yml`.
+- Root `public/` – currently empty; retained only if a static marketing site or docs export is added; otherwise removable.
+
+## 🔄 Future Improvements (See also IMPROVEMENTS.md)
+- Replace in-memory repository usage in production with Prisma by default.
+- Introduce metrics endpoint `/metrics` (prom-client) + Grafana dashboard examples.
+- Add e2e journey tests (Playwright) for critical flows.
+- Refine domain boundaries for analytics vs project management.
+
+## 🧭 Related Documents
+- `FINAL_PROJECT_ANALYSIS.md` – Feature completeness & quality assessment
+- `IMPROVEMENTS.md` – Portfolio / UX enhancement log
+- `SECURITY.md` – Threat model & controls
+- `TESTING.md` – Testing layers and roadmap
+
+---
+Maintained to reflect actual implementation; update this file alongside structural or architectural changes.

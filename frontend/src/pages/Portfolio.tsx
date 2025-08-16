@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 import { useReducedMotion } from 'framer-motion';
 import Hero from './portfolio/Hero';
 import Transformation from './portfolio/Transformation';

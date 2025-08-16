@@ -4,15 +4,16 @@ import { render, screen, waitFor } from '@testing-library/react';
 import Protected from '../core/components/Protected';
 
 vi.mock('../core/state/authStore', () => {
-  let state = {
-    user: null as any,
+  interface MockState { user: { email: string } | null; initialized: boolean; login: () => void; logout: () => void; refreshSession: () => void; setUser: (u: { email: string } | null) => void }
+  const state: MockState = {
+    user: null,
     initialized: true,
     login: vi.fn(),
     logout: vi.fn(),
     refreshSession: vi.fn(),
-    setUser: (u: any) => { state.user = u; }
+    setUser: (u) => { state.user = u; }
   };
-  const useAuthStore = (selector?: any) => selector ? selector(state) : state;
+  const useAuthStore = (selector?: (s: MockState)=>unknown) => selector ? selector(state) : state;
   return { useAuthStore };
 });
 

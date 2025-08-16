@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/login.css';
 import { useAuthStore } from '../core/state/authStore';
-function sanitizeInput(v:string){ return v.replace(/<|>|\"|'|`/g,'').trim(); }
+function sanitizeInput(v:string){ return v.replace(/[<>"'`]/g,'').trim(); }
 
 export default function Login() {
   const [email, setEmail] = React.useState('');
@@ -11,7 +11,7 @@ export default function Login() {
   const [error, setError] = React.useState<string | null>(null);
 
   const validateEmail = (email: string) => {
-    const re = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+  const re = /^[\w.-]+@[\w-]+(?:\.[\w-]+)+$/;
     return re.test(email);
   };
 

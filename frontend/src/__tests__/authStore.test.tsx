@@ -6,7 +6,7 @@ vi.mock('../core/api/client', () => {
   return {
     apiClient: {
       post: vi.fn((path: string) => {
-        if(path.includes('login')) return Promise.resolve({});
+        if(path.includes('login')) return Promise.resolve({ token: 't123', refreshToken: 'r123', user: { email: 'user@example.com', role: 'user' } });
         if(path.includes('logout')) return Promise.resolve({});
         return Promise.resolve({});
       }),
@@ -20,6 +20,7 @@ vi.mock('../core/api/client', () => {
 
 describe('authStore', () => {
   it('logs in and sets user', async () => {
+  useAuthStore.setState({ user: null, loading: false, error: null, initialized: false, token: null });
     let success: boolean | undefined;
     await act(async () => { success = await useAuthStore.getState().login('user@example.com','pass'); });
     expect(success).toBe(true);

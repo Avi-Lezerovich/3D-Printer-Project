@@ -15,12 +15,12 @@ class ErrorBoundary extends Component<Props, State> {
     hasError: false
   };
 
-  public static getDerivedStateFromError(_: Error): State {
+  public static getDerivedStateFromError(): State {
     return { hasError: true };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+  public componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("Uncaught error:", error, info);
   }
 
   public render() {
@@ -28,7 +28,7 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="error-boundary-container">
           <h1>Something went wrong.</h1>
-          <p>We're sorry for the inconvenience. Please try refreshing the page, or go back to the homepage.</p>
+          <p>We&apos;re sorry for the inconvenience. Please try refreshing the page, or return to the homepage.</p>
           <Link to="/" onClick={() => this.setState({ hasError: false })}>
             Go to Homepage
           </Link>

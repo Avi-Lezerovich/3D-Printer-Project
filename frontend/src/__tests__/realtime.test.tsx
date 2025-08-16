@@ -4,10 +4,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
 
 vi.mock('socket.io-client', () => {
-  const onHandlers: Record<string, Function[]> = {};
+  type Handler = (payload?: unknown) => void;
+  const onHandlers: Record<string, Handler[]> = {};
   const socket = {
-    on: (name: string, fn: Function) => { (onHandlers[name] ||= []).push(fn); return socket; },
-    emit: (name: string, payload?: any) => { (onHandlers[name]||[]).forEach(fn=>fn(payload)); },
+    on: (name: string, fn: Handler) => { (onHandlers[name] ||= []).push(fn); return socket; },
+    emit: (name: string, payload?: unknown) => { (onHandlers[name]||[]).forEach(fn=>fn(payload)); },
     disconnect: () => {},
   };
   return { io: () => socket };
