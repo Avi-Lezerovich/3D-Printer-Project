@@ -39,6 +39,7 @@ export interface BudgetExpense {
   date: string;
   receiptUrl?: string;
   vendor?: string;
+  tags: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -123,8 +124,8 @@ export const taskAPI = {
 // Budget Management API
 export const budgetAPI = {
   async getCategories(): Promise<BudgetCategory[]> {
-  const data = await apiFetch('/api/v1/project-management/budget/categories') as { categories: BudgetCategory[] };
-  return data.categories;
+    const data = await apiFetch('/api/v1/project-management/budget/categories') as { categories: BudgetCategory[] };
+    return data.categories;
   },
 
   async createCategory(categoryData: Omit<BudgetCategory, 'id' | 'createdAt' | 'updatedAt'>): Promise<BudgetCategory> {
@@ -135,10 +136,46 @@ export const budgetAPI = {
     return data.category;
   },
 
+  async updateCategory(id: string, categoryData: Partial<Omit<BudgetCategory, 'id' | 'createdAt' | 'updatedAt'>>): Promise<BudgetCategory> {
+    const data = await apiFetch(`/api/v1/project-management/budget/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(categoryData),
+    }) as { category: BudgetCategory };
+    return data.category;
+  },
+
+  async deleteCategory(id: string): Promise<void> {
+    await apiFetch(`/api/v1/project-management/budget/categories/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
   async getExpenses(categoryId?: string): Promise<BudgetExpense[]> {
     const params = categoryId ? `?categoryId=${categoryId}` : '';
-  const data = await apiFetch(`/api/v1/project-management/budget/expenses${params}`) as { expenses: BudgetExpense[] };
-  return data.expenses;
+    const data = await apiFetch(`/api/v1/project-management/budget/expenses${params}`) as { expenses: BudgetExpense[] };
+    return data.expenses;
+  },
+
+  async createExpense(expenseData: Omit<BudgetExpense, 'id' | 'createdAt' | 'updatedAt'>): Promise<BudgetExpense> {
+    const data = await apiFetch('/api/v1/project-management/budget/expenses', {
+      method: 'POST',
+      body: JSON.stringify(expenseData),
+    }) as { expense: BudgetExpense };
+    return data.expense;
+  },
+
+  async updateExpense(id: string, expenseData: Partial<Omit<BudgetExpense, 'id' | 'createdAt' | 'updatedAt'>>): Promise<BudgetExpense> {
+    const data = await apiFetch(`/api/v1/project-management/budget/expenses/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(expenseData),
+    }) as { expense: BudgetExpense };
+    return data.expense;
+  },
+
+  async deleteExpense(id: string): Promise<void> {
+    await apiFetch(`/api/v1/project-management/budget/expenses/${id}`, {
+      method: 'DELETE',
+    });
   }
 };
 

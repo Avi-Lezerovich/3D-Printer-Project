@@ -1,6 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
+// Vendor fullscreen API typings to avoid implicit any usage
+interface FullscreenDocument extends Document {
+  readonly webkitFullscreenElement?: Element | null;
+  readonly msFullscreenElement?: Element | null;
+  webkitExitFullscreen?: () => Promise<void>;
+  msExitFullscreen?: () => Promise<void>;
+}
+
+interface FullscreenElement extends HTMLElement {
+  webkitRequestFullscreen?: () => Promise<void>;
+  msRequestFullscreen?: () => Promise<void>;
+}
+
 const WebcamSection = () => {
   const [isStreaming, setIsStreaming] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -9,10 +22,9 @@ const WebcamSection = () => {
   // Listen for fullscreen changes
   useEffect(() => {
     const handleFullscreenChange = () => {
+      const doc = document as FullscreenDocument;
       const isCurrentlyFullscreen = Boolean(
-        document.fullscreenElement ||
-        (document as any).webkitFullscreenElement ||
-        (document as any).msFullscreenElement
+        doc.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement
       );
       setIsFullscreen(isCurrentlyFullscreen);
     };
@@ -38,22 +50,24 @@ const WebcamSection = () => {
     try {
       if (!isFullscreen) {
         // Enter fullscreen
-        if (containerRef.current.requestFullscreen) {
-          await containerRef.current.requestFullscreen();
-        } else if ((containerRef.current as any).webkitRequestFullscreen) {
-          await (containerRef.current as any).webkitRequestFullscreen();
-        } else if ((containerRef.current as any).msRequestFullscreen) {
-          await (containerRef.current as any).msRequestFullscreen();
+        const el = containerRef.current as FullscreenElement;
+        if (typeof el.requestFullscreen === 'function') {
+          await el.requestFullscreen();
+        } else if (typeof el.webkitRequestFullscreen === 'function') {
+          await el.webkitRequestFullscreen();
+        } else if (typeof el.msRequestFullscreen === 'function') {
+          await el.msRequestFullscreen();
         }
         setIsFullscreen(true);
       } else {
         // Exit fullscreen
-        if (document.exitFullscreen) {
-          await document.exitFullscreen();
-        } else if ((document as any).webkitExitFullscreen) {
-          await (document as any).webkitExitFullscreen();
-        } else if ((document as any).msExitFullscreen) {
-          await (document as any).msExitFullscreen();
+        const doc = document as FullscreenDocument;
+        if (typeof doc.exitFullscreen === 'function') {
+          await doc.exitFullscreen();
+        } else if (typeof doc.webkitExitFullscreen === 'function') {
+          await doc.webkitExitFullscreen();
+        } else if (typeof doc.msExitFullscreen === 'function') {
+          await doc.msExitFullscreen();
         }
         setIsFullscreen(false);
       }

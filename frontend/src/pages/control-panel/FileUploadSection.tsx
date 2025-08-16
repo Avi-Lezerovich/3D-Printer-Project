@@ -38,7 +38,8 @@ const FileUploadSection = () => {
     );
 
     if (validFiles.length === 0) {
-      alert('Please select valid .gcode or .stl files');
+      // Replace alert with non-blocking notification placeholder
+      console.info('Invalid file types. Accepts: .gcode, .stl');
       return;
     }
 

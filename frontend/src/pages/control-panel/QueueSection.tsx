@@ -6,23 +6,25 @@ const QueueSection = () => {
     queue: state.queue,
   }));
 
-  const handleMoveUp = (id: string, index: number) => {
+  const handleMoveUp = (_id: string, index: number) => {
+    void _id; // reference to avoid unused var lint until reorder logic implemented
     if (index > 0) {
       // Logic to reorder queue items would go here
-      console.log('Move up', id);
+  // TODO: implement queue reorder (move up)
     }
   };
 
-  const handleMoveDown = (id: string, index: number) => {
+  const handleMoveDown = (_id: string, index: number) => {
+    void _id; // reference to avoid unused var lint until reorder logic implemented
     if (index < queue.length - 1) {
       // Logic to reorder queue items would go here
-      console.log('Move down', id);
+  // TODO: implement queue reorder (move down)
     }
   };
 
-  const handleRemove = (id: string) => {
+  const handleRemove = () => {
     // Logic to remove from queue would go here
-    console.log('Remove', id);
+  // TODO: implement queue removal
   };
 
   const getStatusIcon = (status: string) => {
@@ -121,7 +123,7 @@ const QueueSection = () => {
                       )}
                       <motion.button
                         className="queue-btn queue-btn-remove"
-                        onClick={() => handleRemove(item.id)}
+                        onClick={() => handleRemove()}
                         disabled={item.status === 'running'}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
