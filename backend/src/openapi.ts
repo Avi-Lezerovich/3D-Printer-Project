@@ -4,7 +4,34 @@ export const openapiSpec = {
   info: {
     title: '3D Printer Project API',
     version: process.env.npm_package_version || '0.1.0',
-    description: 'API documentation for the 3D Printer Project backend.'
+    description: `
+      # 3D Printer Project API
+      
+      This API provides comprehensive project management capabilities for 3D printing projects,
+      including task management, inventory tracking, budget management, and real-time collaboration.
+      
+      ## Authentication
+      
+      The API uses JWT-based authentication with HTTP-only cookies for security.
+      Most endpoints require authentication except for login, register, and health checks.
+      
+      ## Rate Limiting
+      
+      - Authentication endpoints: 5 requests per minute per IP
+      - General API endpoints: 100 requests per minute per user
+      
+      ## Real-time Updates
+      
+      The API supports WebSocket connections for real-time updates on tasks, projects, and notifications.
+    `,
+    contact: {
+      name: 'API Support',
+      email: 'support@3dprinterproject.com'
+    },
+    license: {
+      name: 'MIT',
+      url: 'https://opensource.org/licenses/MIT'
+    }
   },
   servers: [
     { url: '/api/v1', description: 'Current version' }

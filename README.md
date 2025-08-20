@@ -2,6 +2,26 @@
 
 Full‑stack 3D printer management & project hub. React + Vite + TypeScript frontend, Express + TypeScript backend, real‑time (Socket.io), Redis cache, Postgres (Prisma option), and containerized deployment. Architecture follows clear domain separation guided by the Frontend / Backend Development Deep Dive documents.
 
+## 📚 Enhanced Documentation & Code Structure
+
+### Recent Improvements
+
+- **Comprehensive API Documentation**: Enhanced OpenAPI specification with detailed endpoint documentation, examples, and error responses
+- **Development Guides**: Added detailed frontend and backend development guides with best practices and code examples
+- **Architecture Documentation**: Complete architectural decision records and design patterns guide
+- **Setup & Deployment Guide**: Step-by-step instructions for development and production deployment
+- **Code Quality**: Fixed linting issues, improved error handling patterns, and enhanced validation
+
+### Documentation Structure
+
+- **[Setup Guide](docs/SETUP.md)**: Complete setup and deployment instructions
+- **[API Documentation](docs/API.md)**: Comprehensive API endpoint documentation
+- **[Architecture Guide](docs/ARCHITECTURE.md)**: Architectural decisions and best practices
+- **[Frontend Guide](docs/FRONTEND.md)**: React development best practices and patterns
+- **[Backend Guide](docs/BACKEND.md)**: Node.js API development guidelines
+- **[Security Guide](docs/SECURITY.md)**: Security implementation and best practices
+- **[Testing Strategy](docs/TESTING.md)**: Testing approaches and guidelines
+
 ## 🆕 Recent Improvements (Phase 1 Initiation)
 
 - Added shared Zod schemas (`shared/src/schemas`) for projects, users, and auth payloads

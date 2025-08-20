@@ -240,7 +240,10 @@ router.post('/tasks', validateTask, (req: Request, res: Response) => {
   };
 
   tasks.set(task.id, task);
-  try { req.app.get('io')?.emit?.('task.created', task) } catch {}
+  try { req.app.get('io')?.emit?.('task.created', task) } catch (error) {
+    // Socket emission failed, log but don't fail the request
+    console.warn('Failed to emit task.created event:', error);
+  }
   res.status(201).json({ task });
 });
 
@@ -269,7 +272,10 @@ router.put('/tasks/:id', param('id').isUUID(), validateTask, (req: Request, res:
   };
 
   tasks.set(req.params?.id || '', updatedTask);
-  try { req.app.get('io')?.emit?.('task.updated', updatedTask) } catch {}
+  try { req.app.get('io')?.emit?.('task.updated', updatedTask) } catch (error) {
+    // Socket emission failed, log but don't fail the request
+    console.warn('Failed to emit task.updated event:', error);
+  }
   res.json({ task: updatedTask });
 });
 
@@ -283,7 +289,10 @@ router.delete('/tasks/:id', param('id').isUUID(), (req: Request, res: Response) 
   if (!deleted) {
     return res.status(404).json({ message: 'Task not found' });
   }
-  try { req.app.get('io')?.emit?.('task.deleted', req.params?.id) } catch {}
+  try { req.app.get('io')?.emit?.('task.deleted', req.params?.id) } catch (error) {
+    // Socket emission failed, log but don't fail the request
+    console.warn('Failed to emit task.deleted event:', error);
+  }
   res.status(204).send();
 });
 
