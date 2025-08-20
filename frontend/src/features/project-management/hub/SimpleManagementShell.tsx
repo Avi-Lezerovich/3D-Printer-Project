@@ -6,8 +6,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AnalyticsDashboard } from '../../../pages/project-management/components/ImprovedAnalyticsDashboard';
+import { TasksView } from './components/TasksView';
+import { BudgetView } from './components/BudgetView';
 
-type SimpleTab = 'analytics' | 'tasks' | 'budget';
+type SimpleTab = 'analytics' | 'tasks' | 'budget' | 'inventory' | 'timeline';
 
 export const SimpleManagementShell: React.FC = () => {
   const [active, setActive] = useState<SimpleTab>('analytics');
@@ -28,9 +30,37 @@ export const SimpleManagementShell: React.FC = () => {
       case 'analytics':
         return <AnalyticsDashboard />;
       case 'tasks':
-        return <div className="coming-soon">Tasks view coming soon...</div>;
+        return <TasksView />;
       case 'budget':
-        return <div className="coming-soon">Budget view coming soon...</div>;
+        return <BudgetView />;
+      case 'inventory':
+        return (
+          <div className="feature-preview">
+            <div className="preview-icon">📦</div>
+            <h3>Inventory Management</h3>
+            <p>Track filaments, spare parts, and project materials</p>
+            <div className="preview-features">
+              <div className="feature-item">✅ Material tracking</div>
+              <div className="feature-item">✅ Stock level alerts</div>
+              <div className="feature-item">✅ Supplier management</div>
+            </div>
+            <p className="preview-note">Coming in the next update</p>
+          </div>
+        );
+      case 'timeline':
+        return (
+          <div className="feature-preview">
+            <div className="preview-icon">📅</div>
+            <h3>Project Timeline</h3>
+            <p>Visualize project milestones and deadlines</p>
+            <div className="preview-features">
+              <div className="feature-item">✅ Gantt chart view</div>
+              <div className="feature-item">✅ Milestone tracking</div>
+              <div className="feature-item">✅ Dependency mapping</div>
+            </div>
+            <p className="preview-note">Coming in the next update</p>
+          </div>
+        );
       default:
         return <AnalyticsDashboard />;
     }
@@ -74,6 +104,18 @@ export const SimpleManagementShell: React.FC = () => {
             onClick={() => setActive('budget')}
           >
             💰 Budget
+          </button>
+          <button 
+            className={`nav-button ${active === 'inventory' ? 'active' : ''}`}
+            onClick={() => setActive('inventory')}
+          >
+            📦 Inventory
+          </button>
+          <button 
+            className={`nav-button ${active === 'timeline' ? 'active' : ''}`}
+            onClick={() => setActive('timeline')}
+          >
+            📅 Timeline
           </button>
         </nav>
       </header>
