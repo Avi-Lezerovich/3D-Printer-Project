@@ -19,7 +19,8 @@
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
-    "@dnd-kit/utilities": "^3.2.2",
+  "@dnd-kit/utilities": "^3.2.2",
+  "@tanstack/react-virtual": "^3.1.2",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
     "@tanstack/react-query": "^5.85.3",
@@ -33,7 +34,8 @@
     "socket.io-client": "^4.8.1",
     "three": "^0.164.1",
     "three-stdlib": "^2.30.4",
-    "zustand": "^4.5.5"
+  "zustand": "^4.5.5",
+  "lucide-react": "^0.469.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

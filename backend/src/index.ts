@@ -97,6 +97,8 @@ let io: any | undefined
 			const hb = setInterval(() => { socket.emit('heartbeat', { t: Date.now() }) }, 5000)
 			socket.on('disconnect', () => clearInterval(hb))
 		})
+		// Expose on app for route handlers to emit domain events
+		;(app as any).set('io', io)
 		// Project domain event forwarding (versioned payloads)
 		eventBus.on('project.created', (payload: any) => io?.emit('project.created', payload))
 		eventBus.on('project.updated', (payload: any) => io?.emit('project.updated', payload))
@@ -350,6 +352,10 @@ app.use('/api/v1/projects', authenticateJWT, (req, res, next) => {
   next()
 }, projectsRouter)
 app.use('/api/v1/project-management', authenticateJWT, projectManagementRouter)
+// Temporary compatibility alias for early frontend prototype expecting /api/tasks
+app.get('/api/tasks', authenticateJWT, (req, res, next) => {
+	;(projectManagementRouter as any).handle({ ...req, url: '/tasks', path: '/tasks', method: 'GET' }, res, next)
+})
 // V2 draft routes
 app.use('/api/v2/projects', v2ProjectsRouter)
 // Back-compat temporary mounts (to be removed after clients migrate)

@@ -4,3 +4,6 @@ export * from './events.js'
 export * from '../schemas/api.schemas.js'
 export * from '../schemas/project.schemas.js'
 export * from '../schemas/user.schemas.js'
+export * from '../schemas/task.schemas.js'
+export { taskSchema, taskTemplateSchema, timeEntrySchema, commentSchema, attachmentMetaSchema, taskDependencySchema, listTasksResponseSchema }
+	from '../schemas/task.schemas.js'

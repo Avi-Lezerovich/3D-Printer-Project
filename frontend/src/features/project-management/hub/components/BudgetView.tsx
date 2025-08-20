@@ -317,24 +317,23 @@ export const BudgetView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'categories' | 'expenses'>('categories');
 
   const handleEditCategory = (category: BudgetCategory) => {
-    console.log('Edit category:', category);
-    // TODO: Implement edit modal
+    // TODO: Implement edit modal (logging suppressed for lint cleanliness)
+    void category
   };
 
   const handleAddExpense = (categoryId: string) => {
-    console.log('Add expense for category:', categoryId);
     // TODO: Implement add expense modal
+    void categoryId
   };
 
   const handleEditExpense = (expense: Expense) => {
-    console.log('Edit expense:', expense);
     // TODO: Implement edit modal
+    void expense
   };
 
   const handleDeleteExpense = (id: string) => {
-    if (confirm('Are you sure you want to delete this expense?')) {
-      setExpenses(expenses.filter(expense => expense.id !== id));
-    }
+    // TODO: integrate confirmation modal
+    setExpenses(expenses.filter(expense => expense.id !== id));
   };
 
   const getBudgetOverview = () => {

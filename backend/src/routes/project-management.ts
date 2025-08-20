@@ -8,12 +8,12 @@ interface Task {
   id: string;
   title: string;
   description: string;
-  status: 'todo' | 'in-progress' | 'review' | 'done';
+  status: 'backlog' | 'todo' | 'in_progress' | 'blocked' | 'review' | 'done' | 'archived';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   assignee?: string;
   dueDate?: string;
-  estimatedHours?: number;
-  tags: string[];
+  estimateHours?: number;
+  labels: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -71,12 +71,12 @@ const initializeSampleData = () => {
       id: crypto.randomUUID(),
       title: 'Design 3D printer enclosure',
       description: 'Create a protective enclosure for the 3D printer with temperature control',
-      status: 'in-progress',
+      status: 'in_progress',
       priority: 'high',
       assignee: 'John Doe',
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      estimatedHours: 12,
-      tags: ['design', 'hardware', '3d-printing'],
+      estimateHours: 12,
+      labels: ['design', 'hardware', '3d-printing'],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     },
@@ -86,7 +86,7 @@ const initializeSampleData = () => {
       description: 'Add temperature sensors and monitoring dashboard',
       status: 'todo',
       priority: 'medium',
-      tags: ['software', 'monitoring', 'sensors'],
+      labels: ['software', 'monitoring', 'sensors'],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
@@ -162,15 +162,13 @@ const router = Router();
 // Validation middleware
 const validateTask = [
   body('title').isString().trim().isLength({ min: 1, max: 200 }),
-  body('description').isString().trim().isLength({ max: 1000 }),
-  body('status').optional().isIn(['todo', 'in-progress', 'review', 'done']),
+  body('description').optional().isString().trim().isLength({ max: 2000 }),
+  body('status').optional().isIn(['backlog','todo','in_progress','blocked','review','done','archived']),
   body('priority').optional().isIn(['low', 'medium', 'high', 'urgent']),
   body('assignee').optional().isString().trim().isLength({ max: 100 }),
   body('dueDate').optional().isISO8601(),
-  body('estimatedHours').optional().isFloat({ min: 0 }),
-  body('tags').optional().isArray().custom((tags) => {
-    return tags.every((tag: any) => typeof tag === 'string' && tag.length <= 50);
-  })
+  body('estimateHours').optional().isFloat({ min: 0 }),
+  body('labels').optional().isArray().custom((labels) => Array.isArray(labels) && labels.every((l: any) => typeof l === 'string' && l.length <= 50))
 ];
 
 const validateBudgetCategory = [
@@ -194,21 +192,18 @@ const validateInventoryItem = [
 
 // TASKS ENDPOINTS
 router.get('/tasks', setCache(5), (req, res) => {
-  const { status, priority, assignee } = req.query;
-  let filteredTasks = Array.from(tasks.values());
-
-  if (status) {
-    filteredTasks = filteredTasks.filter(task => task.status === status);
+  const { status, priority, assignee, label, search } = req.query as Record<string,string|undefined>
+  let filtered = Array.from(tasks.values())
+  if (status) filtered = filtered.filter(t => t.status === status)
+  if (priority) filtered = filtered.filter(t => t.priority === priority)
+  if (assignee) filtered = filtered.filter(t => t.assignee === assignee)
+  if (label) filtered = filtered.filter(t => t.labels?.includes(label))
+  if (search) {
+    const q = search.toLowerCase()
+    filtered = filtered.filter(t => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q))
   }
-  if (priority) {
-    filteredTasks = filteredTasks.filter(task => task.priority === priority);
-  }
-  if (assignee) {
-    filteredTasks = filteredTasks.filter(task => task.assignee === assignee);
-  }
-
-  res.json({ tasks: filteredTasks });
-});
+  res.json({ tasks: filtered })
+})
 
 router.get('/tasks/:id', param('id').isUUID(), (req: Request, res: Response) => {
   const errors = validationResult(req);
@@ -233,18 +228,19 @@ router.post('/tasks', validateTask, (req: Request, res: Response) => {
   const task: Task = {
     id: crypto.randomUUID(),
     title: req.body.title.trim(),
-    description: req.body.description.trim(),
+    description: req.body.description?.trim() || '',
     status: req.body.status || 'todo',
     priority: req.body.priority || 'medium',
     assignee: req.body.assignee?.trim(),
     dueDate: req.body.dueDate,
-    estimatedHours: req.body.estimatedHours,
-    tags: req.body.tags || [],
+    estimateHours: req.body.estimateHours,
+    labels: req.body.labels || [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
 
   tasks.set(task.id, task);
+  try { req.app.get('io')?.emit?.('task.created', task) } catch {}
   res.status(201).json({ task });
 });
 
@@ -267,12 +263,13 @@ router.put('/tasks/:id', param('id').isUUID(), validateTask, (req: Request, res:
     priority: req.body.priority || existingTask.priority,
     assignee: req.body.assignee?.trim() || existingTask.assignee,
     dueDate: req.body.dueDate || existingTask.dueDate,
-    estimatedHours: req.body.estimatedHours || existingTask.estimatedHours,
-    tags: req.body.tags || existingTask.tags,
+    estimateHours: req.body.estimateHours ?? existingTask.estimateHours,
+    labels: req.body.labels || existingTask.labels,
     updatedAt: new Date().toISOString()
   };
 
   tasks.set(req.params?.id || '', updatedTask);
+  try { req.app.get('io')?.emit?.('task.updated', updatedTask) } catch {}
   res.json({ task: updatedTask });
 });
 
@@ -286,7 +283,7 @@ router.delete('/tasks/:id', param('id').isUUID(), (req: Request, res: Response) 
   if (!deleted) {
     return res.status(404).json({ message: 'Task not found' });
   }
-
+  try { req.app.get('io')?.emit?.('task.deleted', req.params?.id) } catch {}
   res.status(204).send();
 });
 

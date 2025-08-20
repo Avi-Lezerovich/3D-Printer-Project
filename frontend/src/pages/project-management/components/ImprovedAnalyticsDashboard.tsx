@@ -256,7 +256,7 @@ export const AnalyticsDashboard: React.FC = () => {
           </div>
           <h3>Analytics Dashboard</h3>
           <p className="error-message">
-            We're currently using demonstration data as our analytics services are being optimized.
+            We&amp;apos;re currently using demonstration data as our analytics services are being optimized.
             Your actual project data will be displayed once the backend services are fully configured.
           </p>
           <div className="error-hint">
