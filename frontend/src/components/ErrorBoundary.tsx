@@ -20,7 +20,11 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error("Uncaught error:", error, info);
+    console.error("ErrorBoundary caught an error:", error, info);
+    // Log to external service in production
+    if (process.env.NODE_ENV === 'production') {
+      // TODO: Send to logging service
+    }
   }
 
   public render() {

@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Environment, Float } from '@react-three/drei'
+import { OrbitControls, Float } from '@react-three/drei'
 import { Suspense, useRef } from 'react'
 import { Group } from 'three'
 import { useFrame } from '@react-three/fiber'
@@ -79,9 +79,11 @@ function Scene3D() {
     <div style={{ width: '100%', height: '500px', borderRadius: '12px', overflow: 'hidden' }}>
       <Canvas camera={{ position: [5, 3, 5], fov: 50 }}>
         <Suspense fallback={null}>
-          <Environment preset="city" />
-          <ambientLight intensity={0.4} />
-          <directionalLight position={[10, 10, 5]} intensity={1} />
+          {/* Simple gradient background instead of HDR environment to avoid loading issues */}
+          <color attach="background" args={['#0b1620']} />
+          <ambientLight intensity={0.6} />
+          <directionalLight position={[10, 10, 5]} intensity={1.2} />
+          <directionalLight position={[-5, 5, -5]} intensity={0.3} color="#00aef0" />
           <Printer3D />
           <OrbitControls 
             enablePan={false} 
