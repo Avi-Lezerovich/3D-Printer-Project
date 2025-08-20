@@ -52,13 +52,19 @@ const SAMPLE_NOTIFICATIONS: Notification[] = [
         id: 'reorder',
         label: 'Reorder Now',
         type: 'primary',
-        action: () => console.log('Reordering filament')
+        action: () => {
+          // TODO: Implement reorder functionality
+          console.info('Reordering filament');
+        }
       },
       {
         id: 'snooze',
         label: 'Snooze 1 Day',
         type: 'secondary',
-        action: () => console.log('Snoozing notification')
+        action: () => {
+          // TODO: Implement snooze functionality
+          console.info('Snoozing notification');
+        }
       }
     ]
   },

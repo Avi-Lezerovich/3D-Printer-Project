@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import AnimatedCounter from './AnimatedCounter';
 import Spinner from '../../components/Spinner';
+import Scene3DErrorBoundary from '../../components/Scene3DErrorBoundary';
 import { achievements } from './data';
 
 const Scene3D = React.lazy(() => import('../../components/Scene3D'));
@@ -111,9 +112,11 @@ const Hero = () => {
           transition={{ duration: 1.2, delay: 0.5, ease: 'easeOut' }}
         >
           <figure aria-label="3D preview of restored printer">
-            <Suspense fallback={<Spinner label="Loading 3D preview…" />}> 
-              <Scene3D />
-            </Suspense>
+            <Scene3DErrorBoundary>
+              <Suspense fallback={<Spinner label="Loading 3D preview…" />}> 
+                <Scene3D />
+              </Suspense>
+            </Scene3DErrorBoundary>
             <figcaption className="visually-hidden">Interactive 3D view. Decorative only.</figcaption>
           </figure>
         </motion.div>

@@ -98,7 +98,7 @@ export const SettingsPanel: React.FC = () => {
   const updateSetting = <K extends keyof ProjectSettings>(
     section: K,
     key: keyof ProjectSettings[K],
-    value: any
+    value: ProjectSettings[K][keyof ProjectSettings[K]]
   ) => {
     setSettings(prev => ({
       ...prev,
@@ -114,14 +114,14 @@ export const SettingsPanel: React.FC = () => {
     section: K,
     nestedKey: keyof ProjectSettings[K],
     key: string,
-    value: any
+    value: string | boolean | number
   ) => {
     setSettings(prev => ({
       ...prev,
       [section]: {
         ...prev[section],
         [nestedKey]: {
-          ...(prev[section][nestedKey] as any),
+          ...(prev[section][nestedKey] as Record<string, unknown>),
           [key]: value
         }
       }
@@ -131,7 +131,7 @@ export const SettingsPanel: React.FC = () => {
 
   const saveSettings = () => {
     // Here you would typically save to backend/localStorage
-    console.log('Saving settings:', settings);
+    console.info('Saving settings:', settings);
     setUnsavedChanges(false);
   };
 

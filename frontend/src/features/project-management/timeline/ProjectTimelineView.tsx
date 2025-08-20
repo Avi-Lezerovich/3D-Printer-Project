@@ -3,7 +3,7 @@
  * Visual timeline showing project milestones, deadlines, and progress
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface Milestone {
