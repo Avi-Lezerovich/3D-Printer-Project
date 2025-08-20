@@ -12,11 +12,29 @@ vi.mock('../features/projects/useProjects', () => ({
   ] }})
 }));
 
+// Mock recharts to avoid chart rendering issues in tests
+vi.mock('recharts', () => ({
+  ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="chart-container" style={{ width: '100%', height: '220px' }}>
+      {children}
+    </div>
+  ),
+  BarChart: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="bar-chart">{children}</div>
+  ),
+  Bar: () => <div data-testid="bar" />,
+  XAxis: () => <div data-testid="x-axis" />,
+  YAxis: () => <div data-testid="y-axis" />,
+  Tooltip: () => <div data-testid="tooltip" />,
+}));
+
 describe('ProjectsAnalyticsPanel', () => {
   it('renders stats list', async () => {
     const qc = new QueryClient();
     render(<QueryClientProvider client={qc}><ProjectsAnalyticsPanel /></QueryClientProvider>);
+    
     await waitFor(()=> screen.getByText(/Total Projects: 4/));
     expect(screen.getByText(/in_progress/i)).toBeInTheDocument();
+    expect(screen.getByTestId('chart-container')).toBeInTheDocument();
   });
 });
