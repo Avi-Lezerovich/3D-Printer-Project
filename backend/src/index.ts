@@ -34,6 +34,8 @@ import { processProjectAudit } from './queues/processors/projectAuditProcessor.j
 import { deepSanitize } from './security/sanitization/sanitize.js'
 import { redisSlidingWindowLimiter } from './middleware/rateLimiter.js'
 import { listFlags, flagEnabled } from './config/flags.js'
+import { requestLoggingMiddleware } from './middleware/requestLoggingMiddleware.js'
+import { performanceMonitoringMiddleware, getPerformanceStats } from './middleware/performanceMiddleware.js'
 import jwt from 'jsonwebtoken'
 import { securityConfig } from './config/index.js'
 import { eventBus } from './realtime/eventBus.js'
@@ -134,7 +136,7 @@ registerProcessor('project.audit', processProjectAudit)
 
 // (Prometheus metrics now initialized in telemetry/metrics)
 
-// Request ID then metrics middleware (after app created)
+// Request ID then request logging then performance monitoring then metrics middleware (after app created)
 app.use((req, res, next) => {
 	const incoming = (req.headers['x-request-id'] as string | undefined)?.slice(0, 100)
 	const id = incoming || randomUUID()
@@ -142,6 +144,14 @@ app.use((req, res, next) => {
 	res.setHeader('X-Request-Id', id)
 	next()
 })
+
+// Request logging middleware
+app.use(requestLoggingMiddleware)
+
+// Performance monitoring middleware
+app.use(performanceMonitoringMiddleware)
+
+// Metrics middleware 
 app.use((req, res, next) => {
 	metrics.reqTotal++
 	metrics.reqActive++
@@ -362,6 +372,35 @@ app.use('/api/v2/projects', v2ProjectsRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/projects', authenticateJWT, projectsRouter)
 app.get('/api/v1/flags', (_req, res) => { res.json({ flags: listFlags() }) })
+
+// Health and performance monitoring endpoints
+app.get('/api/v1/health', (_req, res) => {
+	const stats = getPerformanceStats()
+	res.json({
+		success: true,
+		data: {
+			status: 'healthy',
+			timestamp: new Date().toISOString(),
+			version: process.env.npm_package_version || '0.0.0',
+			uptime: stats.uptime,
+			environment: process.env.NODE_ENV || 'development',
+			memory: stats.memoryUsage,
+			requests: {
+				active: stats.activeRequests,
+				total: stats.totalRequests,
+				averageDuration: Math.round(stats.averageRequestDuration)
+			}
+		}
+	})
+})
+
+app.get('/api/v1/performance', (_req, res) => {
+	const stats = getPerformanceStats()
+	res.json({
+		success: true,
+		data: stats
+	})
+})
 
 // 404 + error handlers
 app.use(notFoundHandler)
