@@ -41,6 +41,8 @@ import { securityConfig } from './config/index.js'
 import { eventBus } from './realtime/eventBus.js'
 import { startBackgroundJobs, setBackgroundRepositories, getCleanupStats } from './background/jobs.js'
 import v2ProjectsRouter from './api/v2/projects.js'
+import v2AuthRouter from './api/v2/auth.js'
+import v2ProjectManagementRouter from './api/v2/project-management.js'
 import { getSpans } from './telemetry/tracing/tracer.js'
 // Simple in-memory metrics (initialized after app instantiation below)
 const metrics = { reqTotal: 0, reqActive: 0 }
@@ -344,9 +346,22 @@ if (process.env.SERVE_FRONTEND === 'true') {
 	})
 }
 
-// Routes (versioned)
-app.use('/api/v1/auth', authRouter)
+// Routes (v2 - preferred)
+app.use('/api/v2/auth', v2AuthRouter)
+app.use('/api/v2/projects', v2ProjectsRouter) 
+app.use('/api/v2/project-management', v2ProjectManagementRouter)
+
+// V1 routes (deprecated - add deprecation headers)
+app.use('/api/v1/auth', (req, res, next) => {
+  res.setHeader('X-API-Deprecated', 'true')
+  res.setHeader('X-API-Deprecation-Info', 'This API version is deprecated. Please use /api/v2/auth')
+  next()
+}, authRouter)
+
 app.use('/api/v1/projects', authenticateJWT, (req, res, next) => {
+  res.setHeader('X-API-Deprecated', 'true')
+  res.setHeader('X-API-Deprecation-Info', 'This API version is deprecated. Please use /api/v2/projects')
+  
   // Wrap res.json to add weak ETag for project list responses
   const originalJson = res.json.bind(res)
   res.json = (body: any) => {
@@ -361,17 +376,77 @@ app.use('/api/v1/projects', authenticateJWT, (req, res, next) => {
   }
   next()
 }, projectsRouter)
-app.use('/api/v1/project-management', authenticateJWT, projectManagementRouter)
+
+app.use('/api/v1/project-management', authenticateJWT, (req, res, next) => {
+  res.setHeader('X-API-Deprecated', 'true')
+  res.setHeader('X-API-Deprecation-Info', 'This API version is deprecated. Please use /api/v2/project-management')
+  next()
+}, projectManagementRouter)
+
+// Legacy compatibility aliases (to be removed in future versions)
 // Temporary compatibility alias for early frontend prototype expecting /api/tasks
 app.get('/api/tasks', authenticateJWT, (req, res, next) => {
-	;(projectManagementRouter as any).handle({ ...req, url: '/tasks', path: '/tasks', method: 'GET' }, res, next)
+  res.setHeader('X-API-Deprecated', 'true')
+  res.setHeader('X-API-Deprecation-Info', 'This endpoint is deprecated. Please use /api/v2/project-management/tasks')
+  ;(v2ProjectManagementRouter as any).handle({ ...req, url: '/tasks', path: '/tasks', method: 'GET' }, res, next)
 })
-// V2 draft routes
-app.use('/api/v2/projects', v2ProjectsRouter)
+
 // Back-compat temporary mounts (to be removed after clients migrate)
-app.use('/api/auth', authRouter)
-app.use('/api/projects', authenticateJWT, projectsRouter)
+app.use('/api/auth', (req, res, next) => {
+  res.setHeader('X-API-Deprecated', 'true') 
+  res.setHeader('X-API-Deprecation-Info', 'This API version is deprecated. Please use /api/v2/auth')
+  next()
+}, authRouter)
+
+app.use('/api/projects', authenticateJWT, (req, res, next) => {
+  res.setHeader('X-API-Deprecated', 'true')
+  res.setHeader('X-API-Deprecation-Info', 'This API version is deprecated. Please use /api/v2/projects')
+  next()
+}, projectsRouter)
 app.get('/api/v1/flags', (_req, res) => { res.json({ flags: listFlags() }) })
+
+// API version information endpoint
+app.get('/api', (_req, res) => {
+  res.json({
+    name: '3D Printer Project API',
+    version: process.env.npm_package_version || '0.0.0',
+    availableVersions: {
+      'v2': {
+        status: 'current',
+        baseUrl: '/api/v2',
+        endpoints: [
+          'GET /api/v2/auth/me',
+          'POST /api/v2/auth/login',
+          'POST /api/v2/auth/register', 
+          'POST /api/v2/auth/refresh',
+          'POST /api/v2/auth/logout',
+          'GET /api/v2/projects',
+          'POST /api/v2/projects',
+          'GET /api/v2/project-management/tasks',
+          'POST /api/v2/project-management/tasks',
+          'GET /api/v2/project-management/tasks/:id',
+          'PUT /api/v2/project-management/tasks/:id',
+          'DELETE /api/v2/project-management/tasks/:id',
+          'GET /api/v2/project-management/budget/categories',
+          'GET /api/v2/project-management/budget/expenses',
+          'GET /api/v2/project-management/inventory'
+        ]
+      },
+      'v1': {
+        status: 'deprecated',
+        baseUrl: '/api/v1', 
+        deprecationNotice: 'V1 API is deprecated and will be removed. Please migrate to V2.',
+        endpoints: [
+          'GET /api/v1/auth/me (deprecated)',
+          'POST /api/v1/auth/login (deprecated)',
+          'GET /api/v1/projects (deprecated)',
+          'POST /api/v1/projects (deprecated)'
+        ]
+      }
+    },
+    documentation: '/api/v1/docs'
+  })
+})
 
 // Health and performance monitoring endpoints
 app.get('/api/v1/health', (_req, res) => {
