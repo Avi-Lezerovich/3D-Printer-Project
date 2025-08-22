@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { validateBody, validateQuery, validateParams } from '../validate';
+import { validateBody, validateQuery, validateParams } from '../validate.js';
 
 // Mock AppError
 vi.mock('../../errors/AppError.js', () => ({

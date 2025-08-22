@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeString, deepSanitize } from '../sanitize';
+import { sanitizeString, deepSanitize } from '../sanitize.js';
 
 describe('Sanitization Functions', () => {
   describe('sanitizeString', () => {
