@@ -2,7 +2,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useAppStore } from '../../shared/store';
 import TemperatureControls from '../../components/control-panel/TemperatureControls';
+import ActionButtons from '../../components/control-panel/ActionButtons';
 import Modal from '../../components/Modal';
+import { Settings, Home, Wrench } from 'lucide-react';
 
 const ControlsSection = () => {
   const {
@@ -31,7 +33,11 @@ const ControlsSection = () => {
   };
 
   const handlePrint = () => {
-    setStatus('printing');
+    if (status === 'paused') {
+      setStatus('printing');
+    } else {
+      setStatus('printing');
+    }
   };
 
   const handleStop = () => {
@@ -42,8 +48,9 @@ const ControlsSection = () => {
     setStatus('paused');
   };
 
-  const handleResume = () => {
-    setStatus('printing');
+  const confirmStop = () => {
+    setStatus('idle');
+    setShowStop(false);
   };
 
   const containerVariants = {
@@ -71,20 +78,12 @@ const ControlsSection = () => {
   };
 
   return (
-    <motion.section 
-      className="panel controls-section"
+    <motion.div 
+      className="controls-section-enhanced"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      <motion.div className="controls-header" variants={itemVariants}>
-        <h2>🎛️ Printer Controls</h2>
-        <div className="connection-badge">
-          <div className={`connection-dot ${connected ? 'connected' : 'disconnected'}`} />
-          {connected ? 'Online' : 'Offline'}
-        </div>
-      </motion.div>
-
       <motion.div variants={itemVariants}>
         <TemperatureControls
           hotend={hotend}
@@ -96,81 +95,97 @@ const ControlsSection = () => {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <div className="action-section">
-          <h3>Print Actions</h3>
-          <div className="action-buttons-enhanced">
-            {status === 'idle' && (
-              <button 
-                className="btn btn-primary action-btn" 
-                onClick={handlePrint} 
-                disabled={!connected}
-              >
-                <span className="btn-icon">▶️</span>
-                Start Print
-              </button>
-            )}
-            
-            {status === 'printing' && (
-              <>
-                <button 
-                  className="btn btn-warning action-btn" 
-                  onClick={handlePause} 
-                  disabled={!connected}
-                >
-                  <span className="btn-icon">⏸️</span>
-                  Pause
-                </button>
-                <button 
-                  className="btn btn-danger action-btn" 
-                  onClick={handleStop} 
-                  disabled={!connected}
-                >
-                  <span className="btn-icon">⏹️</span>
-                  Stop
-                </button>
-              </>
-            )}
-            
-            {status === 'paused' && (
-              <>
-                <button 
-                  className="btn btn-primary action-btn" 
-                  onClick={handleResume} 
-                  disabled={!connected}
-                >
-                  <span className="btn-icon">▶️</span>
-                  Resume
-                </button>
-                <button 
-                  className="btn btn-danger action-btn" 
-                  onClick={handleStop} 
-                  disabled={!connected}
-                >
-                  <span className="btn-icon">⏹️</span>
-                  Stop
-                </button>
-              </>
-            )}
-          </div>
-        </div>
+        <ActionButtons
+          onPrint={handlePrint}
+          onStop={handleStop}
+          onPause={handlePause}
+          disabled={!connected}
+          status={status}
+        />
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <div className="manual-controls">
-          <h3>Manual Control</h3>
-          <div className="manual-buttons">
-            <button className="btn btn-secondary btn-small" disabled={!connected}>
-              🏠 Home All
-            </button>
-            <button className="btn btn-secondary btn-small" disabled={!connected}>
-              📐 Auto Level
-            </button>
-            <button className="btn btn-secondary btn-small" disabled={!connected}>
-              🔧 Load Filament
-            </button>
-            <button className="btn btn-secondary btn-small" disabled={!connected}>
-              🔧 Unload Filament
-            </button>
+        <div className="manual-controls-section">
+          <div className="section-header">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500/20 to-indigo-500/20">
+                <Settings className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">Manual Controls</h3>
+                <p className="text-sm text-slate-400">Direct printer operations</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="manual-controls-grid">
+            <motion.button 
+              className="manual-control-btn"
+              disabled={!connected}
+              whileHover={{ scale: !connected ? 1 : 1.02 }}
+              whileTap={{ scale: !connected ? 1 : 0.98 }}
+            >
+              <div className="manual-btn-content">
+                <div className="manual-btn-icon bg-blue-500/20">
+                  <Home className="w-5 h-5 text-blue-400" />
+                </div>
+                <div className="manual-btn-text">
+                  <div className="manual-btn-title">Home All</div>
+                  <div className="manual-btn-subtitle">Move to origin</div>
+                </div>
+              </div>
+            </motion.button>
+
+            <motion.button 
+              className="manual-control-btn"
+              disabled={!connected}
+              whileHover={{ scale: !connected ? 1 : 1.02 }}
+              whileTap={{ scale: !connected ? 1 : 0.98 }}
+            >
+              <div className="manual-btn-content">
+                <div className="manual-btn-icon bg-green-500/20">
+                  <Settings className="w-5 h-5 text-green-400" />
+                </div>
+                <div className="manual-btn-text">
+                  <div className="manual-btn-title">Auto Level</div>
+                  <div className="manual-btn-subtitle">Calibrate bed</div>
+                </div>
+              </div>
+            </motion.button>
+
+            <motion.button 
+              className="manual-control-btn"
+              disabled={!connected}
+              whileHover={{ scale: !connected ? 1 : 1.02 }}
+              whileTap={{ scale: !connected ? 1 : 0.98 }}
+            >
+              <div className="manual-btn-content">
+                <div className="manual-btn-icon bg-orange-500/20">
+                  <Wrench className="w-5 h-5 text-orange-400" />
+                </div>
+                <div className="manual-btn-text">
+                  <div className="manual-btn-title">Load Filament</div>
+                  <div className="manual-btn-subtitle">Insert material</div>
+                </div>
+              </div>
+            </motion.button>
+
+            <motion.button 
+              className="manual-control-btn"
+              disabled={!connected}
+              whileHover={{ scale: !connected ? 1 : 1.02 }}
+              whileTap={{ scale: !connected ? 1 : 0.98 }}
+            >
+              <div className="manual-btn-content">
+                <div className="manual-btn-icon bg-red-500/20">
+                  <Wrench className="w-5 h-5 text-red-400" />
+                </div>
+                <div className="manual-btn-text">
+                  <div className="manual-btn-title">Unload Filament</div>
+                  <div className="manual-btn-subtitle">Remove material</div>
+                </div>
+              </div>
+            </motion.button>
           </div>
         </div>
       </motion.div>
@@ -180,15 +195,12 @@ const ControlsSection = () => {
         onClose={() => setShowStop(false)}
         title="⚠️ Stop Print Job"
         confirmText="Stop Print"
-        onConfirm={() => {
-          setStatus('idle');
-          setShowStop(false);
-        }}
+        onConfirm={confirmStop}
       >
         <p>Are you sure you want to stop the current print job?</p>
         <p className="warning-text">This action cannot be undone and will waste the current print.</p>
       </Modal>
-    </motion.section>
+    </motion.div>
   );
 };
 

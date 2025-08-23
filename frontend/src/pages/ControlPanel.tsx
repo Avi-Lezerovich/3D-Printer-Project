@@ -81,36 +81,29 @@ export default function ControlPanel() {
     switch (activeTab) {
       case 'overview':
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-slate-700/30 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                <Activity className="w-5 h-5 text-blue-400 mr-2" />
-                Printer Status
-              </h3>
-              <StatusSection />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
+                <StatusSection />
+              </div>
+              <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
+                <ControlsSection />
+              </div>
             </div>
-            <div className="bg-slate-700/30 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                <Settings className="w-5 h-5 text-blue-400 mr-2" />
-                Quick Controls
-              </h3>
-              <ControlsSection />
+            <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
+              <WebcamSection />
             </div>
           </div>
         );
       case 'controls':
         return (
-          <div className="bg-slate-700/30 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-              <Settings className="w-5 h-5 text-blue-400 mr-2" />
-              Printer Controls
-            </h3>
+          <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
             <ControlsSection />
           </div>
         );
       case 'files':
         return (
-          <div className="bg-slate-700/30 rounded-lg p-6">
+          <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
               <Upload className="w-5 h-5 text-blue-400 mr-2" />
               File Management
@@ -120,7 +113,7 @@ export default function ControlPanel() {
         );
       case 'queue':
         return (
-          <div className="bg-slate-700/30 rounded-lg p-6">
+          <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
               <Clock className="w-5 h-5 text-blue-400 mr-2" />
               Print Queue
@@ -130,7 +123,7 @@ export default function ControlPanel() {
         );
       case 'monitor':
         return (
-          <div className="bg-slate-700/30 rounded-lg p-6">
+          <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
               <Camera className="w-5 h-5 text-blue-400 mr-2" />
               Live Monitor
@@ -140,7 +133,7 @@ export default function ControlPanel() {
         );
       case 'charts':
         return (
-          <div className="bg-slate-700/30 rounded-lg p-6">
+          <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
               <Monitor className="w-5 h-5 text-blue-400 mr-2" />
               Temperature Charts
@@ -155,71 +148,68 @@ export default function ControlPanel() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Fixed Navigation */}
+      {/* Fixed Top Navigation */}
       <div 
         className={`fixed top-0 z-50 bg-slate-800/80 backdrop-blur-md border-b border-slate-700/50 transition-all duration-300 ${
           sidebarCollapsed ? 'left-[70px] right-0' : 'left-[280px] right-0'
         } max-lg:left-0 max-lg:right-0`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent flex items-center">
-                <Monitor className="w-7 h-7 text-blue-400 mr-3" />
-                3D Printer Control Panel
-              </h1>
-              <p className="text-slate-400 text-sm">Monitor and control your 3D printer remotely</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex items-center justify-between">
+            {/* Navigation Tabs */}
+            <div className="flex space-x-1 bg-slate-800/50 backdrop-blur-sm p-1 rounded-xl border border-slate-700/50">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ${
+                      activeTab === tab.id
+                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 shadow-lg shadow-blue-500/10'
+                        : 'text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="hidden sm:block text-sm">{tab.label}</span>
+                  </button>
+                );
+              })}
             </div>
-            <div className="flex items-center space-x-4">
+
+            {/* Right Side Controls */}
+            <div className="flex items-center space-x-3">
               <button 
-                className="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 transition-colors"
+                className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 transition-colors group"
                 title="Refresh connection"
               >
-                <RefreshCw className="w-5 h-5 text-slate-300" />
+                <RefreshCw className="w-5 h-5 text-slate-300 group-hover:text-blue-400 transition-colors" />
               </button>
               <button 
-                className="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 transition-colors"
+                className="p-2.5 rounded-lg bg-slate-700/50 hover:bg-red-500/20 transition-colors group"
                 title="Emergency stop"
               >
-                <Power className="w-5 h-5 text-red-400" />
+                <Power className="w-5 h-5 text-red-400 group-hover:text-red-300 transition-colors" />
               </button>
-              <div className="flex items-center space-x-2 text-sm">
+              <div className="flex items-center space-x-2 text-sm px-3 py-2 bg-slate-700/30 rounded-lg border border-slate-600/30">
                 <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`}></div>
-                <span className="text-slate-300">{connected ? 'Connected' : 'Disconnected'}</span>
+                <span className={`font-medium ${connected ? 'text-green-300' : 'text-red-300'}`}>
+                  {connected ? 'Connected' : 'Disconnected'}
+                </span>
               </div>
             </div>
-          </div>
-          
-          <div className="flex space-x-1 bg-slate-800/50 backdrop-blur-sm p-1 rounded-xl border border-slate-700/50">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 shadow-lg shadow-blue-500/10'
-                      : 'text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="hidden sm:block">{tab.label}</span>
-                </button>
-              );
-            })}
           </div>
         </div>
       </div>
 
       {/* Content */}
       <motion.div 
-        className="pt-36 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8"
+        className="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        {/* Quick Stats */}
+        {/* Enhanced Quick Stats */}
         <motion.div 
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
           variants={itemVariants}
@@ -227,37 +217,68 @@ export default function ControlPanel() {
           {quickStats.map((stat, index) => {
             const IconComponent = stat.icon;
             const colorClasses = {
-              green: 'text-green-400 bg-green-500/10 border-green-500/20',
-              red: 'text-red-400 bg-red-500/10 border-red-500/20',
-              blue: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
-              orange: 'text-orange-400 bg-orange-500/10 border-orange-500/20'
+              green: 'text-green-400 bg-green-500/10 border-green-500/20 shadow-green-500/10',
+              red: 'text-red-400 bg-red-500/10 border-red-500/20 shadow-red-500/10',
+              blue: 'text-blue-400 bg-blue-500/10 border-blue-500/20 shadow-blue-500/10',
+              orange: 'text-orange-400 bg-orange-500/10 border-orange-500/20 shadow-orange-500/10'
             };
 
             return (
-              <div
+              <motion.div
                 key={index}
-                className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-lg p-6"
+                className="stats-card-enhanced"
+                whileHover={{ y: -4, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <div className="flex items-center justify-between">
-                  <div className={`p-3 rounded-lg ${colorClasses[stat.color as keyof typeof colorClasses]}`}>
-                    <IconComponent className="w-6 h-6" />
+                <div className="stats-card-glow" />
+                <div className="stats-card-content">
+                  <div className="stats-icon-container">
+                    <div className={`stats-icon ${colorClasses[stat.color as keyof typeof colorClasses]}`}>
+                      <IconComponent className="w-6 h-6" />
+                    </div>
+                    <div className="stats-pulse-ring" />
                   </div>
-                  <div className="text-right">
-                    <p className="text-slate-400 text-sm">{stat.label}</p>
-                    <p className="text-white text-xl font-semibold">{stat.value}</p>
+                  <div className="stats-info">
+                    <p className="stats-label">{stat.label}</p>
+                    <p className="stats-value">{stat.value}</p>
+                    <div className="stats-trend">
+                      {stat.color === 'green' && <span className="trend-up">↗ Optimal</span>}
+                      {stat.color === 'blue' && connected && <span className="trend-stable">● Stable</span>}
+                      {stat.color === 'red' && !connected && <span className="trend-down">↓ Offline</span>}
+                      {stat.color === 'orange' && <span className="trend-warning">⚡ Active</span>}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </motion.div>
 
-        {/* Main Content */}
+        {/* Enhanced Main Content */}
         <motion.div 
-          className="bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6"
+          className="main-content-container"
           variants={itemVariants}
         >
-          {renderContent()}
+          <div className="content-wrapper">
+            <div className="content-header">
+              <div className="content-breadcrumb">
+                <span className="breadcrumb-item">Control Panel</span>
+                <span className="breadcrumb-separator">›</span>
+                <span className="breadcrumb-item active">{tabs.find(t => t.id === activeTab)?.label}</span>
+              </div>
+              <div className="content-actions">
+                <button className="action-btn-mini refresh">
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+                <button className="action-btn-mini settings">
+                  <Settings className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <div className="content-body">
+              {renderContent()}
+            </div>
+          </div>
         </motion.div>
       </motion.div>
     </div>
