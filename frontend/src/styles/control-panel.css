@@ -689,23 +689,27 @@
 
 .temperature-controls-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin: 1.5rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.75rem;
+  margin: 1.75rem 0;
 }
 
 .temperature-card {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(71, 85, 105, 0.3);
-  border-radius: 16px;
-  padding: 1.5rem;
-  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+  border-radius: 20px;
+  padding: 1.75rem;
+  backdrop-filter: blur(12px);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .temperature-card:hover {
-  border-color: rgba(59, 130, 246, 0.4);
-  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(15, 23, 42, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
 
 .temp-card-header {
@@ -936,25 +940,27 @@
 
 .action-buttons-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
 }
 
 .action-btn {
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid rgba(71, 85, 105, 0.3);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 0;
   cursor: pointer;
   transition: all 0.3s ease;
   overflow: hidden;
   backdrop-filter: blur(8px);
+  min-height: 80px;
 }
 
 .action-btn:hover:not(:disabled) {
   background: rgba(15, 23, 42, 0.8);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
 
 .action-btn:disabled {
@@ -1195,27 +1201,28 @@
 
 .manual-controls-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
   margin-top: 1.5rem;
 }
 
 .manual-control-btn {
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid rgba(71, 85, 105, 0.3);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 0;
   cursor: pointer;
   transition: all 0.3s ease;
   overflow: hidden;
   backdrop-filter: blur(8px);
+  min-height: 85px;
 }
 
 .manual-control-btn:hover:not(:disabled) {
   background: rgba(15, 23, 42, 0.8);
   border-color: rgba(59, 130, 246, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
 
 .manual-control-btn:disabled {
@@ -2361,6 +2368,12 @@
 @media (max-width: 768px) {
   .action-buttons-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .manual-controls-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }
 
@@ -2368,6 +2381,12 @@
 @media (max-width: 768px) {
   .temperature-controls-grid {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin: 1.25rem 0;
+  }
+  
+  .temperature-card {
+    padding: 1.5rem;
   }
   
   .preset-buttons {
@@ -2377,6 +2396,11 @@
   .preset-btn-enhanced {
     min-width: 60px;
     font-size: 0.75rem;
+  }
+  
+  .chart-metrics {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
   }
 }
 
@@ -3123,24 +3147,26 @@
 .chart-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(123, 182, 230, 0.1);
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(123, 182, 230, 0.15);
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .chart-header h2 {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
 }
 
 .chart-controls {
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .chart-type-selector,
@@ -3222,25 +3248,28 @@
 
 .chart-metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
 }
 
 .metric-card {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: rgba(11, 22, 32, 0.5);
-  border: 1px solid rgba(123, 182, 230, 0.15);
-  border-radius: 12px;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(11, 22, 32, 0.6);
+  border: 1px solid rgba(123, 182, 230, 0.2);
+  border-radius: 16px;
   transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
 }
 
 .metric-card:hover {
   background: rgba(11, 22, 32, 0.8);
-  border-color: rgba(123, 182, 230, 0.3);
-  transform: translateY(-1px);
+  border-color: rgba(123, 182, 230, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .metric-icon {
