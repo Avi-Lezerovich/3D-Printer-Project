@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   Wifi, WifiOff, Activity, Clock, Thermometer, 
-  Zap, AlertCircle, CheckCircle, Play, Pause 
+  Zap, AlertCircle, CheckCircle, Play, Pause, Flame
 } from 'lucide-react';
 
 interface StatusDisplayProps {
@@ -126,7 +126,7 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
         >
           <div className="status-card-header">
             <div className={`status-icon ${getTemperatureColor(hotend, 300)}`}>
-              <Thermometer className="w-5 h-5" />
+              <Flame className="w-5 h-5" />
             </div>
             <div className="status-label">Hotend</div>
           </div>
