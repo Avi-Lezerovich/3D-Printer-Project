@@ -30,6 +30,8 @@ const StatusSection = () => {
         connected={connected}
         hotend={hotend}
         bed={bed}
+        hotendTarget={status === 'printing' ? 210 : 200}
+        bedTarget={status === 'printing' ? 65 : 60}
         progress={status === 'printing' ? 35 : 0}
         timeRemaining={status === 'printing' ? '01:25:43' : '--:--'}
       />

@@ -1395,6 +1395,7 @@
   border-radius: 2px;
   overflow: hidden;
   margin-top: 0.5rem;
+  position: relative;
 }
 
 .temp-fill {
@@ -4225,4 +4226,50 @@
 
 .btn-emergency .lucide {
   flex-shrink: 0;
+}
+
+/* Temperature Slider */
+.temp-slider {
+  flex: 1;
+  margin: 0 0.5rem;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(71, 85, 105, 0.3);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.temp-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--info);
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.temp-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--info);
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.temp-slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.temp-input-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }

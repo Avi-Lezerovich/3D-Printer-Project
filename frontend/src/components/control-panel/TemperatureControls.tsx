@@ -189,6 +189,19 @@ const TemperatureControl: React.FC<TemperatureControlProps> = ({
           -1
         </button>
         <input
+          type="range"
+          className="temp-slider"
+          min="0"
+          max={maxTemp}
+          value={targetTemp}
+          onChange={(e) => {
+            const value = parseInt(e.target.value);
+            onTargetChange(value);
+            setInputValue(value.toString());
+          }}
+          disabled={disabled}
+        />
+        <input
           type="number"
           className="temp-input"
           value={inputValue}
