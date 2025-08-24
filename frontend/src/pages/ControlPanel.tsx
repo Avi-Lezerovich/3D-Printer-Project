@@ -4,7 +4,7 @@ import { useAppStore } from '../shared/store';
 import { 
   Monitor, Thermometer, Play, Upload, Clock, Camera, 
   Activity, Wifi, WifiOff, AlertCircle, CheckCircle,
-  Settings, RefreshCw, Power
+  Settings, RefreshCw, Power, Flame, Zap
 } from 'lucide-react';
 import StatusSection from './control-panel/StatusSection';
 import ControlsSection from './control-panel/ControlsSection';
@@ -52,27 +52,34 @@ export default function ControlPanel() {
 
   const quickStats = [
     {
-      label: 'Connection',
+      label: '', // Remove text label for connection, icon only
       value: connected ? 'Online' : 'Offline',
       icon: connected ? Wifi : WifiOff,
-      color: connected ? 'green' : 'red'
+      color: connected ? 'green' : 'red',
+      showLabel: false // Special flag for connection
     },
     {
       label: 'Status',
-      value: status === 'idle' ? 'Ready' : status.charAt(0).toUpperCase() + status.slice(1),
-      icon: status === 'printing' ? Play : status === 'error' ? AlertCircle : CheckCircle,
+      value: status === 'idle' ? 'Ready' : 
+             status === 'printing' ? 'Printing' :
+             status === 'error' ? 'Error' :
+             status === 'paused' ? 'Paused' : 'Ready', // Simplified without redundant "Optimal"
+      icon: status === 'printing' ? Play : 
+            status === 'error' ? AlertCircle : 
+            status === 'paused' ? AlertCircle :
+            CheckCircle,
       color: status === 'printing' ? 'blue' : status === 'error' ? 'red' : 'green'
     },
     {
       label: 'Hotend',
       value: `${hotend}°C`,
-      icon: Thermometer,
+      icon: Flame, // Use flame icon instead of thermometer
       color: hotend > 180 ? 'red' : hotend > 50 ? 'orange' : 'blue'
     },
     {
       label: 'Bed',
       value: `${bed}°C`,
-      icon: Thermometer,
+      icon: Zap, // Use bed/heating icon instead of thermometer  
       color: bed > 60 ? 'red' : bed > 30 ? 'orange' : 'blue'
     }
   ];
@@ -239,13 +246,18 @@ export default function ControlPanel() {
                     <div className="stats-pulse-ring" />
                   </div>
                   <div className="stats-info">
-                    <p className="stats-label">{stat.label}</p>
+                    {stat.showLabel !== false && <p className="stats-label">{stat.label}</p>}
                     <p className="stats-value">{stat.value}</p>
                     <div className="stats-trend">
-                      {stat.color === 'green' && <span className="trend-up">↗ Optimal</span>}
-                      {stat.color === 'blue' && connected && <span className="trend-stable">● Stable</span>}
-                      {stat.color === 'red' && !connected && <span className="trend-down">↓ Offline</span>}
-                      {stat.color === 'orange' && <span className="trend-warning">⚡ Active</span>}
+                      {stat.color === 'green' && index === 1 && <span className="trend-up">● Ready</span>}
+                      {stat.color === 'blue' && index === 1 && <span className="trend-stable">● Active</span>}
+                      {stat.color === 'blue' && connected && index === 0 && <span className="trend-stable">● Connected</span>}
+                      {stat.color === 'red' && !connected && index === 0 && <span className="trend-down">● Disconnected</span>}
+                      {stat.color === 'red' && index === 1 && <span className="trend-down">⚠ Error</span>}
+                      {stat.color === 'orange' && index > 1 && <span className="trend-warning">⚡ Heating</span>}
+                      {stat.color === 'green' && index > 1 && <span className="trend-up">● Ready</span>}
+                      {stat.color === 'blue' && index > 1 && <span className="trend-stable">● Cool</span>}
+                      {stat.color === 'red' && index > 1 && <span className="trend-warning">🔥 Hot</span>}
                     </div>
                   </div>
                 </div>

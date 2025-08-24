@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   Wifi, WifiOff, Activity, Clock, Thermometer, 
-  Zap, AlertCircle, CheckCircle, Play, Pause 
+  Zap, AlertCircle, CheckCircle, Play, Pause, Flame
 } from 'lucide-react';
 
 interface StatusDisplayProps {
@@ -11,6 +11,8 @@ interface StatusDisplayProps {
   connected: boolean;
   hotend: number;
   bed: number;
+  hotendTarget?: number;
+  bedTarget?: number;
   progress?: number;
   timeRemaining?: string;
 }
@@ -21,6 +23,8 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
   connected,
   hotend,
   bed,
+  hotendTarget = 0,
+  bedTarget = 0,
   progress = 0,
   timeRemaining = '--:--'
 }) => {
@@ -126,7 +130,7 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
         >
           <div className="status-card-header">
             <div className={`status-icon ${getTemperatureColor(hotend, 300)}`}>
-              <Thermometer className="w-5 h-5" />
+              <Flame className="w-5 h-5" />
             </div>
             <div className="status-label">Hotend</div>
           </div>
@@ -134,15 +138,34 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
             <span className={getTemperatureColor(hotend, 300)}>
               {hotend}°C
             </span>
+            {hotendTarget > 0 && (
+              <span className="text-slate-400 text-sm">
+                /{hotendTarget}°C
+              </span>
+            )}
           </div>
           <div className="temp-indicator-mini">
             <div 
               className="temp-fill" 
               style={{ 
-                width: `${(hotend / 300) * 100}%`,
-                background: hotend > 200 ? '#ef4444' : hotend > 100 ? '#f97316' : '#3b82f6'
+                width: `${Math.max((hotend / 300) * 100, (hotendTarget / 300) * 100)}%`,
+                background: hotend > 200 ? '#ef4444' : hotend > 100 ? '#f97316' : '#3b82f6',
+                opacity: hotend < hotendTarget ? 0.6 : 1
               }}
             />
+            {hotendTarget > 0 && hotend !== hotendTarget && (
+              <div 
+                className="temp-target-line"
+                style={{ 
+                  left: `${(hotendTarget / 300) * 100}%`,
+                  position: 'absolute',
+                  width: '2px',
+                  height: '100%',
+                  background: '#ffffff',
+                  opacity: 0.8
+                }}
+              />
+            )}
           </div>
         </motion.div>
 
@@ -161,15 +184,34 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
             <span className={getTemperatureColor(bed, 120)}>
               {bed}°C
             </span>
+            {bedTarget > 0 && (
+              <span className="text-slate-400 text-sm">
+                /{bedTarget}°C
+              </span>
+            )}
           </div>
           <div className="temp-indicator-mini">
             <div 
               className="temp-fill" 
               style={{ 
-                width: `${(bed / 120) * 100}%`,
-                background: bed > 80 ? '#ef4444' : bed > 40 ? '#f97316' : '#3b82f6'
+                width: `${Math.max((bed / 120) * 100, (bedTarget / 120) * 100)}%`,
+                background: bed > 80 ? '#ef4444' : bed > 40 ? '#f97316' : '#3b82f6',
+                opacity: bed < bedTarget ? 0.6 : 1
               }}
             />
+            {bedTarget > 0 && bed !== bedTarget && (
+              <div 
+                className="temp-target-line"
+                style={{ 
+                  left: `${(bedTarget / 120) * 100}%`,
+                  position: 'absolute',
+                  width: '2px',
+                  height: '100%',
+                  background: '#ffffff',
+                  opacity: 0.8
+                }}
+              />
+            )}
           </div>
         </motion.div>
 

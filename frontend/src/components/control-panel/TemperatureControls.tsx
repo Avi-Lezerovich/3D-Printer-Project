@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Thermometer, Flame, AlertTriangle } from 'lucide-react';
+import { Thermometer, Flame, AlertTriangle, Leaf, Droplets, Zap as Lightning, Waves } from 'lucide-react';
 
 interface TemperatureControlsProps {
   hotend: number;
@@ -18,9 +18,10 @@ interface MaterialPreset {
   bgColor: string;
   borderColor: string;
   description: string;
+  icon: React.ReactNode;
 }
 
-const materialPresets: { [key: string]: MaterialPreset } = {
+const materialPresets: { [key: string]: MaterialPreset & { icon: React.ReactNode } } = {
   PLA: { 
     name: 'PLA',
     hotend: 200, 
@@ -28,7 +29,8 @@ const materialPresets: { [key: string]: MaterialPreset } = {
     color: 'var(--success)',
     bgColor: 'rgba(34, 197, 94, 0.1)',
     borderColor: 'rgba(34, 197, 94, 0.3)',
-    description: 'Easy to print, biodegradable' 
+    description: 'Easy to print, biodegradable',
+    icon: <Leaf className="w-4 h-4" />
   },
   PETG: { 
     name: 'PETG',
@@ -37,7 +39,8 @@ const materialPresets: { [key: string]: MaterialPreset } = {
     color: 'var(--info)',
     bgColor: 'rgba(59, 130, 246, 0.1)',
     borderColor: 'rgba(59, 130, 246, 0.3)',
-    description: 'Strong, chemical resistant' 
+    description: 'Strong, chemical resistant',
+    icon: <Droplets className="w-4 h-4" />
   },
   ABS: { 
     name: 'ABS',
@@ -46,7 +49,8 @@ const materialPresets: { [key: string]: MaterialPreset } = {
     color: 'var(--warning)',
     bgColor: 'rgba(245, 158, 11, 0.1)',
     borderColor: 'rgba(245, 158, 11, 0.3)',
-    description: 'High strength, impact resistant' 
+    description: 'High strength, impact resistant',
+    icon: <Lightning className="w-4 h-4" />
   },
   TPU: {
     name: 'TPU',
@@ -55,7 +59,8 @@ const materialPresets: { [key: string]: MaterialPreset } = {
     color: 'var(--purple)',
     bgColor: 'rgba(147, 51, 234, 0.1)',
     borderColor: 'rgba(147, 51, 234, 0.3)',
-    description: 'Flexible, durable elastomer'
+    description: 'Flexible, durable elastomer',
+    icon: <Waves className="w-4 h-4" />
   }
 };
 
@@ -184,6 +189,19 @@ const TemperatureControl: React.FC<TemperatureControlProps> = ({
           -1
         </button>
         <input
+          type="range"
+          className="temp-slider"
+          min="0"
+          max={maxTemp}
+          value={targetTemp}
+          onChange={(e) => {
+            const value = parseInt(e.target.value);
+            onTargetChange(value);
+            setInputValue(value.toString());
+          }}
+          disabled={disabled}
+        />
+        <input
           type="number"
           className="temp-input"
           value={inputValue}
@@ -253,14 +271,14 @@ const TemperatureControls: React.FC<TemperatureControlsProps> = ({
       <div className="temp-control-header">
         <h3>Temperature Control</h3>
         <motion.button
-          className={`btn ${showEmergencyConfirm ? 'btn-danger-confirm' : 'btn-danger'}`}
+          className={`btn btn-emergency ${showEmergencyConfirm ? 'btn-danger-confirm' : 'btn-danger'}`}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleEmergencyStop}
           disabled={disabled}
         >
-          <AlertTriangle size={16} />
-          {showEmergencyConfirm ? 'Confirm Stop' : 'Emergency Stop'}
+          <AlertTriangle size={20} />
+          {showEmergencyConfirm ? 'CONFIRM STOP' : 'EMERGENCY STOP'}
         </motion.button>
       </div>
 
@@ -281,9 +299,12 @@ const TemperatureControls: React.FC<TemperatureControlsProps> = ({
                 '--preset-border': preset.borderColor,
               } as React.CSSProperties}
             >
-              <div className="preset-material-name">{preset.name}</div>
+              <div className="preset-material-name">
+                {preset.icon}
+                {preset.name}
+              </div>
               <div className="preset-temps">
-                H: {preset.hotend}° B: {preset.bed}°
+                Hotend: {preset.hotend}°C / Bed: {preset.bed}°C
               </div>
             </motion.button>
           ))}
