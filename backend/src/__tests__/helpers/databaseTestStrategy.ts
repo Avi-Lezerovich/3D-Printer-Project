@@ -1,116 +1,90 @@
 /**
  * Database Testing Strategy
- * Comprehensive patterns for testing with Prisma and test databases
+ * Comprehensive patterns for testing with repositories and test databases
  */
 
-import { PrismaClient } from '@prisma/client'
 import { beforeAll, afterAll, beforeEach, describe, it, expect } from 'vitest'
+import { initializeRepositories } from '../../repositories/factory.js'
+import type { Repositories } from '../../repositories/types.js'
 
 export class DatabaseTestStrategy {
-  private static prisma: PrismaClient
-  private static readonly TEST_DATABASE_URL = process.env.TEST_DATABASE_URL || 
-    (process.env.DATABASE_URL?.replace(/[^/]+$/, 'test_3d_printer') || 
-     'postgresql://user:password@localhost:5432/test_3d_printer')
+  private static repositories: Repositories
+  private static driver: string
 
   /**
-   * Initialize test database connection
+   * Initialize test database connection using repository pattern
    */
-  static async initialize(): Promise<PrismaClient> {
-    if (!this.prisma) {
-      this.prisma = new PrismaClient()
-      
-      await this.prisma.$connect()
-      
-      // Verify database connection
-      await this.prisma.$queryRaw`SELECT 1`
+  static async initialize(): Promise<Repositories> {
+    if (!this.repositories) {
+      const result = await initializeRepositories()
+      this.repositories = result.repos
+      this.driver = result.driver
     }
     
-    return this.prisma
+    return this.repositories
   }
 
   /**
    * Clean all test data while preserving schema
    */
   static async cleanDatabase(): Promise<void> {
-    if (!this.prisma) return
+    if (!this.repositories) return
 
-    // Delete in proper order to respect foreign key constraints
-    await this.prisma.refreshToken.deleteMany({})
-    await this.prisma.project.deleteMany({})
-    await this.prisma.user.deleteMany({})
-    
-    // Reset auto-increment sequences if using PostgreSQL
-    try {
-      await this.prisma.$executeRaw`
-        SELECT setval(pg_get_serial_sequence('"User"', 'id'), 1, false);
-      `
-      await this.prisma.$executeRaw`
-        SELECT setval(pg_get_serial_sequence('"Project"', 'id'), 1, false);
-      `
-    } catch {
-      // Ignore if not PostgreSQL or sequences don't exist
-    }
+    // Note: Memory repositories clean themselves automatically between tests
+    // This method is mainly for consistency and future Prisma repository support
+    // If using Prisma repositories, specific cleanup logic would be implemented here
   }
 
   /**
    * Seed database with test data
    */
   static async seedTestData(): Promise<{
-    users: Array<{ id: string; email: string; role: string }>
+    users: Array<{ email: string; role: string }>
     projects: Array<{ id: string; name: string; status: string }>
   }> {
     const bcrypt = await import('bcryptjs')
     
-    // Create test users
+    if (!this.repositories) {
+      await this.initialize()
+    }
+    
+    // Create test users using repository pattern
     const users = await Promise.all([
-      this.prisma.user.create({
-        data: {
-          email: 'admin@test.com',
-          passwordHash: await bcrypt.hash('admin123', 10),
-          role: 'admin'
-        }
+      this.repositories.users.create({
+        email: 'admin@test.com',
+        passwordHash: await bcrypt.hash('admin123', 10),
+        role: 'admin'
       }),
-      this.prisma.user.create({
-        data: {
-          email: 'user1@test.com',
-          passwordHash: await bcrypt.hash('user123', 10),
-          role: 'user'
-        }
+      this.repositories.users.create({
+        email: 'user1@test.com',
+        passwordHash: await bcrypt.hash('user123', 10),
+        role: 'user'
       }),
-      this.prisma.user.create({
-        data: {
-          email: 'user2@test.com',
-          passwordHash: await bcrypt.hash('user123', 10),
-          role: 'user'
-        }
+      this.repositories.users.create({
+        email: 'user2@test.com',
+        passwordHash: await bcrypt.hash('user123', 10),
+        role: 'user'
       })
     ])
 
-    // Create test projects
+    // Create test projects using repository pattern
     const projects = await Promise.all([
-      this.prisma.project.create({
-        data: {
-          name: 'Test Project 1',
-          status: 'todo'
-        }
+      this.repositories.projects.create({
+        name: 'Test Project 1',
+        status: 'todo'
       }),
-      this.prisma.project.create({
-        data: {
-          name: 'Test Project 2',
-          status: 'in-progress'
-        }
+      this.repositories.projects.create({
+        name: 'Test Project 2',
+        status: 'in-progress'
       }),
-      this.prisma.project.create({
-        data: {
-          name: 'Test Project 3',
-          status: 'done'
-        }
+      this.repositories.projects.create({
+        name: 'Test Project 3',
+        status: 'done'
       })
     ])
 
     return {
       users: users.map(u => ({ 
-        id: u.id, 
         email: u.email, 
         role: u.role 
       })),
@@ -120,6 +94,14 @@ export class DatabaseTestStrategy {
         status: p.status 
       }))
     }
+  }
+
+  static get client(): Repositories {
+    return this.repositories
+  }
+
+  static get repositoryDriver(): string {
+    return this.driver || 'memory'
   }
 
   /**
