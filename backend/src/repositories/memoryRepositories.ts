@@ -6,10 +6,21 @@ class InMemoryUserRepo implements UserRepository {
   private refreshTokens = new Map<string, { userEmail: string; hash: string; expiresAt: Date; revoked: boolean }>()
   private failedLogins = new Map<string, { attempts: number; lockedUntil?: Date }>()
 
+  // Add a clear method for test cleanup
+  clear() {
+    this.users.clear()
+    this.refreshTokens.clear()
+    this.failedLogins.clear()
+  }
+
   async findByEmail(email: string) {
     return this.users.get(email) || null
   }
   async create(data: Pick<UserRecord, 'email' | 'passwordHash' | 'role'>) {
+    // Check for existing user (simulate database unique constraint)
+    if (this.users.has(data.email)) {
+      throw new Error(`User with email ${data.email} already exists`)
+    }
     const record: UserRecord = { ...data, createdAt: new Date() }
     this.users.set(record.email, record)
     return record
@@ -55,6 +66,11 @@ class InMemoryUserRepo implements UserRepository {
 
 class InMemoryProjectRepo implements ProjectRepository {
   private projects = new Map<string, ProjectRecord>()
+
+  // Add a clear method for test cleanup
+  clear() {
+    this.projects.clear()
+  }
 
   async list() {
     return Array.from(this.projects.values())
