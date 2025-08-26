@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import request from 'supertest'
 import app from '../../index.js'
 
@@ -9,8 +9,7 @@ import app from '../../index.js'
 
 describe('V2 API Integration Tests', () => {
   let accessToken: string
-  let refreshTokenCookie: string
-  let agent: request.SuperAgentTest
+  let agent: any
   let csrfToken: string
 
   // Helper function to setup CSRF token
@@ -112,7 +111,7 @@ describe('V2 API Integration Tests', () => {
           password: 'wrongpassword'
         })
         .expect(401)
-        .then(res => {
+        .then((res: any) => {
           expect(res.body).toMatchObject({
             success: false,
             error: {
@@ -221,7 +220,7 @@ describe('V2 API Integration Tests', () => {
           status: 'invalid_status'
         })
         .expect(400)
-        .then(res => {
+        .then((res: any) => {
           expect(res.body).toMatchObject({
             success: false,
             error: {
@@ -340,7 +339,7 @@ describe('V2 API Integration Tests', () => {
         .get(`/api/v2/project-management/tasks/${taskId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404)
-        .then(res => {
+        .then((res: any) => {
           expect(res.body).toMatchObject({
             success: false,
             error: {
@@ -427,7 +426,7 @@ describe('V2 API Integration Tests', () => {
           priority: 'invalid_priority'
         })
         .expect(400)
-        .then(res => {
+        .then((res: any) => {
           expect(res.body).toMatchObject({
             success: false,
             error: {

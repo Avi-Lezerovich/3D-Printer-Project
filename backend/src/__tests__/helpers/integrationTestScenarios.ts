@@ -20,7 +20,7 @@ export interface IntegrationTestUser {
 export class IntegrationTestScenarios {
   private app: Express
   private wsHelper: any
-  private serverUrl: string
+  private serverUrl: string = ''
 
   constructor(app: Express) {
     this.app = app
@@ -40,7 +40,6 @@ export class IntegrationTestScenarios {
    */
   createUserAuthenticationFlow() {
     return describe('User Authentication Integration', () => {
-      let testUsers: IntegrationTestUser[]
       let agent: any
 
       beforeAll(async () => {
@@ -54,15 +53,15 @@ export class IntegrationTestScenarios {
 
       beforeEach(async () => {
         await TestDatabase.cleanup()
-        testUsers = []
       })
 
       it('should complete full user registration workflow', async () => {
         // Step 1: Register new user
-        const userData = TestDataFactory.userData({
+        const userData = {
           email: 'integration@example.com',
-          password: 'SecurePassword123!'
-        })
+          password: 'SecurePassword123!',
+          role: 'user'
+        }
 
         const registerResponse = await agent
           .post('/api/auth/register')
@@ -207,7 +206,8 @@ export class IntegrationTestScenarios {
 
         const createResponse = await ApiTestHelper.authenticatedRequest(
           agent, 'POST', '/api/projects', projectData, regularUser.email
-        ).expect(201)
+        )
+        expect(createResponse.status).toBe(201)
 
         const projectId = createResponse.body.project.id
         expect(createResponse.body.project).toMatchObject(projectData)
@@ -226,7 +226,8 @@ export class IntegrationTestScenarios {
         
         const updateResponse = await ApiTestHelper.authenticatedRequest(
           agent, 'PATCH', `/api/projects/${projectId}`, updateData, regularUser.email
-        ).expect(200)
+        )
+        expect(updateResponse.status).toBe(200)
 
         expect(updateResponse.body.project.status).toBe('in-progress')
 
@@ -247,14 +248,16 @@ export class IntegrationTestScenarios {
         // Step 6: Project completion workflow
         const completeResponse = await ApiTestHelper.authenticatedRequest(
           agent, 'PATCH', `/api/projects/${projectId}`, { status: 'completed' }, regularUser.email
-        ).expect(200)
+        )
+        expect(completeResponse.status).toBe(200)
 
         expect(completeResponse.body.project.status).toBe('completed')
 
         // Step 7: Project archival (admin only)
-        await ApiTestHelper.authenticatedRequest(
+        const archiveResponse = await ApiTestHelper.authenticatedRequest(
           agent, 'PATCH', `/api/admin/projects/${projectId}/archive`, {}, adminUser.email
-        ).expect(200)
+        )
+        expect(archiveResponse.status).toBe(200)
       })
 
       it('should handle concurrent project operations', async () => {
@@ -337,7 +340,6 @@ export class IntegrationTestScenarios {
 
         // Step 1: Create a project via HTTP API
         const agent = request.agent(this.app)
-        const token = TestUser.createValidJWT('creator@example.com')
         
         const projectData = TestDataFactory.projectData({
           name: 'WebSocket Test Project'
@@ -345,7 +347,8 @@ export class IntegrationTestScenarios {
 
         const createResponse = await ApiTestHelper.authenticatedRequest(
           agent, 'POST', '/api/projects', projectData, 'creator@example.com'
-        ).expect(201)
+        )
+        expect(createResponse.status).toBe(201)
 
         projectId = createResponse.body.project.id
 
@@ -362,9 +365,10 @@ export class IntegrationTestScenarios {
         })
 
         // Step 3: Update project via HTTP API
-        await ApiTestHelper.authenticatedRequest(
+        const updateResponse = await ApiTestHelper.authenticatedRequest(
           agent, 'PATCH', `/api/projects/${projectId}`, { status: 'in-progress' }, 'creator@example.com'
-        ).expect(200)
+        )
+        expect(updateResponse.status).toBe(200)
 
         // Step 4: Wait for WebSocket events
         await new Promise(resolve => setTimeout(resolve, 100))
@@ -389,7 +393,8 @@ export class IntegrationTestScenarios {
           })
           expect(false).toBe(true) // Should not reach this
         } catch (error) {
-          expect(error.message).toContain('Failed to connect')
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          expect(errorMessage).toContain('Failed to connect')
         }
 
         // Test successful connection with valid token
@@ -434,7 +439,8 @@ export class IntegrationTestScenarios {
 
         const projectResponse = await ApiTestHelper.authenticatedRequest(
           agent, 'POST', '/api/projects', projectData, 'uploader@example.com'
-        ).expect(201)
+        )
+        expect(projectResponse.status).toBe(201)
 
         const projectId = projectResponse.body.project.id
 
@@ -473,7 +479,8 @@ export class IntegrationTestScenarios {
       it('should reject invalid file types and sizes', async () => {
         const projectResponse = await ApiTestHelper.authenticatedRequest(
           agent, 'POST', '/api/projects', TestDataFactory.projectData(), 'uploader@example.com'
-        ).expect(201)
+        )
+        expect(projectResponse.status).toBe(201)
 
         const projectId = projectResponse.body.project.id
 
@@ -526,7 +533,8 @@ export class IntegrationTestScenarios {
           agent, 'POST', '/api/projects', 
           TestDataFactory.projectData({ name: 'Consistency Test' }),
           'consistency@example.com'
-        ).expect(201)
+        )
+        expect(projectResponse.status).toBe(201)
 
         const projectId = projectResponse.body.project.id
 

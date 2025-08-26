@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Wifi, WifiOff, Activity, Clock, Thermometer, 
+  Wifi, WifiOff, Activity, Clock, 
   Zap, AlertCircle, CheckCircle, Play, Pause, Flame
 } from 'lucide-react';
 

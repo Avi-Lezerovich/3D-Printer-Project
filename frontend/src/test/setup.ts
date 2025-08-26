@@ -62,16 +62,16 @@ const mockCanvasCtx = {
 
 // Mock @react-three/fiber Canvas and Three.js components
 const mockThreeComponents = {
-	Canvas: function MockCanvas({ children, ...props }: any) {
+	Canvas: function MockCanvas({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) {
 		return React.createElement('div', { 'data-testid': 'mock-canvas', ...props }, children);
 	},
-	Mesh: function MockMesh({ children, ...props }: any) {
+	Mesh: function MockMesh({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) {
 		return React.createElement('div', { 'data-testid': 'mock-mesh', ...props }, children);
 	},
-	Box: function MockBox(props: any) {
+	Box: function MockBox(props: Record<string, unknown>) {
 		return React.createElement('div', { 'data-testid': 'mock-box', ...props });
 	},
-	Sphere: function MockSphere(props: any) {
+	Sphere: function MockSphere(props: Record<string, unknown>) {
 		return React.createElement('div', { 'data-testid': 'mock-sphere', ...props });
 	},
 };

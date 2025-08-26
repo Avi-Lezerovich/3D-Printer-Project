@@ -3,9 +3,9 @@
  * Centralizes test environment setup, database management, and common utilities
  */
 
-import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
+import { beforeAll, afterAll, beforeEach, expect } from 'vitest'
 import { PrismaClient } from '@prisma/client'
-import jwt from 'jsonwebtoken'
+import jwt, { SignOptions } from 'jsonwebtoken'
 import { securityConfig } from '../../config/index.js'
 import type { UserRecord } from '../../repositories/types.js'
 
@@ -15,9 +15,7 @@ export class TestDatabase {
 
   static async initialize(): Promise<PrismaClient> {
     if (!this.prisma) {
-      this.prisma = new PrismaClient({
-        datasourceUrl: process.env.TEST_DATABASE_URL || process.env.DATABASE_URL
-      })
+      this.prisma = new PrismaClient()
       await this.prisma.$connect()
     }
     return this.prisma
@@ -49,7 +47,7 @@ export class TestUser {
     return jwt.sign(
       { email, role, sub: email },
       securityConfig.jwt.secret,
-      { expiresIn }
+      { expiresIn } as SignOptions
     )
   }
 
@@ -247,14 +245,15 @@ export class ErrorTestHelper {
       throw new Error('Expected function to throw an error')
     } catch (error) {
       if (expectedMessage) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
         if (typeof expectedMessage === 'string') {
-          expect(error.message).toContain(expectedMessage)
+          expect(errorMessage).toContain(expectedMessage)
         } else {
-          expect(error.message).toMatch(expectedMessage)
+          expect(errorMessage).toMatch(expectedMessage)
         }
       }
-      if (expectedCode && 'code' in error) {
-        expect(error.code).toBe(expectedCode)
+      if (expectedCode && error instanceof Error && 'code' in error) {
+        expect((error as any).code).toBe(expectedCode)
       }
       return error as Error
     }

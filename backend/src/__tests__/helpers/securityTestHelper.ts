@@ -150,7 +150,7 @@ export class SecurityTestHelper {
   async testRateLimit(
     endpoint: string,
     maxRequests: number = 100,
-    windowMs: number = 60000
+    _windowMs: number = 60000
   ): Promise<SecurityTestResult> {
     const requests = []
     const startTime = Date.now()
@@ -327,7 +327,7 @@ export class SecurityTestHelper {
     // Test 2: Secure cookie attributes
     if (sessionCookie2) {
       const cookieString = sessionCookie2[0] || ''
-      const hasSecure = cookieString.includes('Secure')
+      cookieString.includes('Secure')
       const hasHttpOnly = cookieString.includes('HttpOnly')
       const hasSameSite = cookieString.includes('SameSite')
 
@@ -481,10 +481,11 @@ export class SecurityTestHelper {
         const results = await testSuite()
         allResults.push(...results)
       } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
         allResults.push({
           passed: false,
-          message: `Test suite failed: ${error.message}`,
-          details: { error: error.message }
+          message: `Test suite failed: ${errorMessage}`,
+          details: { error: errorMessage }
         })
       }
     }
@@ -494,10 +495,11 @@ export class SecurityTestHelper {
       const rateLimitResult = await this.testRateLimit('/api/health')
       allResults.push(rateLimitResult)
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
       allResults.push({
         passed: false,
-        message: `Rate limit test failed: ${error.message}`,
-        details: { error: error.message }
+        message: `Rate limit test failed: ${errorMessage}`,
+        details: { error: errorMessage }
       })
     }
 

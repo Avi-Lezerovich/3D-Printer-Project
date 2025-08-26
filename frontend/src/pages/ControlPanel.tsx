@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAppStore } from '../shared/store';
 import { 
-  Monitor, Thermometer, Play, Upload, Clock, Camera, 
+  Monitor, Play, Upload, Clock, Camera, 
   Activity, Wifi, WifiOff, AlertCircle, CheckCircle,
   Settings, RefreshCw, Power, Flame, Zap
 } from 'lucide-react';

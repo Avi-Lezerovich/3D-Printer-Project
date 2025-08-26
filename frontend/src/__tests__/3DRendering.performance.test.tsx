@@ -28,9 +28,9 @@ vi.mock('@react-three/fiber', () => ({
   Canvas: ({ children, ...props }: any) => {
     return <div data-testid="threejs-canvas" {...props}>{children}</div>;
   },
-  useFrame: (callback: Function) => {
+  useFrame: (callback: (state: any, delta: number) => void) => {
     // Simulate frame callback for animations
-    const intervalId = setInterval(callback, 16); // ~60fps
+    const intervalId = setInterval(() => callback({}, 0.016), 16); // ~60fps
     return () => clearInterval(intervalId);
   },
   useThree: () => ({
@@ -61,9 +61,9 @@ vi.mock('@react-three/fiber', () => ({
   Canvas: ({ children, ...props }: any) => {
     return <div data-testid="threejs-canvas" {...props}>{children}</div>;
   },
-  useFrame: (callback: Function) => {
+  useFrame: (callback: (state: any, delta: number) => void) => {
     // Simulate frame callback for animations
-    const intervalId = setInterval(callback, 16); // ~60fps
+    const intervalId = setInterval(() => callback({}, 0.016), 16); // ~60fps
     return () => clearInterval(intervalId);
   },
   useThree: () => ({

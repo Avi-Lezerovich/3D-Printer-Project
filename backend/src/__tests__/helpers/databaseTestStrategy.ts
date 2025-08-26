@@ -4,12 +4,12 @@
  */
 
 import { PrismaClient } from '@prisma/client'
-import { beforeAll, afterAll, beforeEach, afterEach, describe, it, expect } from 'vitest'
+import { beforeAll, afterAll, beforeEach, describe, it, expect } from 'vitest'
 
 export class DatabaseTestStrategy {
   private static prisma: PrismaClient
   private static readonly TEST_DATABASE_URL = process.env.TEST_DATABASE_URL || 
-    (process.env.DATABASE_URL?.replace(/\/[^\/]+$/, '/test_3d_printer') || 
+    (process.env.DATABASE_URL?.replace(/[^/]+$/, 'test_3d_printer') || 
      'postgresql://user:password@localhost:5432/test_3d_printer')
 
   /**
@@ -17,10 +17,7 @@ export class DatabaseTestStrategy {
    */
   static async initialize(): Promise<PrismaClient> {
     if (!this.prisma) {
-      this.prisma = new PrismaClient({
-        datasourceUrl: this.TEST_DATABASE_URL,
-        log: process.env.NODE_ENV === 'test' ? [] : ['error'],
-      })
+      this.prisma = new PrismaClient()
       
       await this.prisma.$connect()
       
@@ -50,7 +47,7 @@ export class DatabaseTestStrategy {
       await this.prisma.$executeRaw`
         SELECT setval(pg_get_serial_sequence('"Project"', 'id'), 1, false);
       `
-    } catch (error) {
+    } catch {
       // Ignore if not PostgreSQL or sequences don't exist
     }
   }
@@ -131,26 +128,27 @@ export class DatabaseTestStrategy {
   static async testTransaction<T>(
     operation: (prisma: PrismaClient) => Promise<T>,
     shouldRollback: boolean = false
-  ): Promise<{ result?: T; error?: Error }> {
+  ): Promise<{ result?: T; error?: Error } | undefined> {
     try {
       if (shouldRollback) {
         // Use a transaction that we intentionally roll back
-        await this.prisma.$transaction(async (tx) => {
-          const result = await operation(tx)
+        await this.prisma.$transaction(async (tx: any) => {
+          await operation(tx)
           throw new Error('ROLLBACK_TEST') // Force rollback
         })
       } else {
-        const result = await this.prisma.$transaction(async (tx) => {
+        const result = await this.prisma.$transaction(async (tx: any) => {
           return await operation(tx)
         })
         return { result }
       }
     } catch (error) {
-      if (shouldRollback && error.message === 'ROLLBACK_TEST') {
+      if (shouldRollback && error instanceof Error && error.message === 'ROLLBACK_TEST') {
         return {} // Expected rollback
       }
-      return { error }
+      return { error: error instanceof Error ? error : new Error(String(error)) }
     }
+    return undefined
   }
 
   /**
@@ -168,7 +166,7 @@ export class DatabaseTestStrategy {
         const result = await operation(this.prisma)
         return { success: true, result }
       } catch (error) {
-        return { success: false, error }
+        return { success: false, error: error instanceof Error ? error : new Error(String(error)) }
       }
     })
 
@@ -278,7 +276,8 @@ export class DatabaseTestStrategy {
         }
       } catch (error) {
         if (!test.shouldFail) {
-          throw new Error(`Expected ${test.name} to succeed but it failed: ${error.message}`)
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          throw new Error(`Expected ${test.name} to succeed but it failed: ${errorMessage}`)
         }
       }
     }
@@ -383,7 +382,7 @@ export function createDatabaseTestSuite() {
     /**
      * Test CRUD operations for a model
      */
-    testCRUD: <T>(
+    testCRUD: (
       modelName: string,
       createData: any,
       updateData: any,
@@ -452,9 +451,9 @@ export function createDatabaseTestSuite() {
           expect(page2).toHaveLength(Math.min(pageSize, Math.max(0, seedData.length - pageSize)))
           
           // Ensure no overlap
-          const page1Ids = page1.map(item => item.id)
-          const page2Ids = page2.map(item => item.id)
-          const overlap = page1Ids.filter(id => page2Ids.includes(id))
+          const page1Ids = page1.map((item: any) => item.id)
+          const page2Ids = page2.map((item: any) => item.id)
+          const overlap = page1Ids.filter((id: any) => page2Ids.includes(id))
           expect(overlap).toHaveLength(0)
         })
       })

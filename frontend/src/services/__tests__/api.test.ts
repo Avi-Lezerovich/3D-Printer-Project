@@ -10,7 +10,7 @@ describe('API Service', () => {
     
     // Store original fetch and create mock
     originalFetch = global.fetch;
-    mockFetch = vi.fn();
+    const mockFetch = vi.fn() as unknown as typeof fetch
     global.fetch = mockFetch;
   });
 
@@ -141,8 +141,10 @@ describe('API Service', () => {
 
       const error = await apiFetch('/api/test').catch(e => e);
       expect(error).toBeInstanceOf(ApiError);
-      expect(error.status).toBe(404);
-      expect(error.message).toBe('Not found');
+      if (error instanceof ApiError) {
+        expect(error.status).toBe(404);
+        expect(error.message).toBe('Not found');
+      }
     });
   });
 

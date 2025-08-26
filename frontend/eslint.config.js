@@ -38,4 +38,11 @@ export default [
 				'no-empty': ['error', { allowEmptyCatch: true }],
 		},
 	},
+	{
+		name: 'test-files',
+		files: ['**/*.test.{ts,tsx}', '**/test/**/*.{ts,tsx}', '**/__tests__/**/*.{ts,tsx}'],
+		rules: {
+			'@typescript-eslint/no-explicit-any': 'off', // Allow any in test files for mocking
+		},
+	},
 ]

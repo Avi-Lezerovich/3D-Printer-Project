@@ -44,7 +44,7 @@ router.post('/login', validateBody(loginSchema), async (req, res) => {
   
   const authPair = await issueAuthPair(user)
   
-  res.cookie('refreshToken', authPair.refreshToken, {
+  res.cookie('refreshToken', authPair.refresh, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
@@ -53,7 +53,7 @@ router.post('/login', validateBody(loginSchema), async (req, res) => {
   
   res.status(200).json({
     user,
-    accessToken: authPair.accessToken
+    accessToken: authPair.access
   })
 })
 
@@ -63,7 +63,7 @@ router.post('/register', validateBody(registerSchema), async (req, res) => {
   const user = await register(body.email, body.password, body.role)
   const authPair = await issueAuthPair(user)
   
-  res.cookie('refreshToken', authPair.refreshToken, {
+  res.cookie('refreshToken', authPair.refresh, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
@@ -72,7 +72,7 @@ router.post('/register', validateBody(registerSchema), async (req, res) => {
   
   res.status(201).json({
     user,
-    accessToken: authPair.accessToken
+    accessToken: authPair.access
   })
 })
 
@@ -94,7 +94,36 @@ router.post('/refresh', async (req, res) => {
   try {
     const result = await rotateRefreshToken(refreshToken)
     
-    res.cookie('refreshToken', result.refreshToken, {
+    if (!result) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'INVALID_REFRESH_TOKEN',
+          message: 'Invalid or expired refresh token',
+          status: 401,
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+    
+    // Get user info to issue a new access token
+    const user = await getUserByEmail(result.userEmail)
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: 'User not found',
+          status: 401,
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+    
+    // Issue new access token
+    const newAuthPair = await issueAuthPair({ email: user.email, role: user.role })
+    
+    res.cookie('refreshToken', result.refresh, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -102,9 +131,9 @@ router.post('/refresh', async (req, res) => {
     })
     
     res.json({
-      accessToken: result.accessToken
+      accessToken: newAuthPair.access
     })
-  } catch (error) {
+  } catch {
     return res.status(401).json({
       success: false,
       error: {

@@ -267,11 +267,11 @@ export class WebSocketTestHelper {
    * Test rate limiting on WebSocket
    */
   async testRateLimit(
-    client: Socket,
-    event: string,
-    data: any,
-    maxRequests: number,
-    timeWindow: number
+  client: Socket,
+  event: string,
+  data: any,
+  maxRequests: number,
+  _timeWindow: number
   ): Promise<{ successful: number; blocked: number }> {
     let successful = 0
     let blocked = 0

@@ -106,7 +106,28 @@ export class PerformanceTestHelper {
       const requestStart = Date.now()
 
       try {
-        let req = request(this.app)[method.toLowerCase()](endpoint)
+        let req: any
+        const methodLower = method.toLowerCase()
+        
+        switch (methodLower) {
+          case 'get':
+            req = request(this.app).get(endpoint)
+            break
+          case 'post':
+            req = request(this.app).post(endpoint)
+            break
+          case 'put':
+            req = request(this.app).put(endpoint)
+            break
+          case 'patch':
+            req = request(this.app).patch(endpoint)
+            break
+          case 'delete':
+            req = request(this.app).delete(endpoint)
+            break
+          default:
+            req = request(this.app).get(endpoint)
+        }
 
         // Apply headers
         Object.entries(headers).forEach(([key, value]) => {
@@ -148,7 +169,7 @@ export class PerformanceTestHelper {
 
         errors.push({
           timestamp: requestStart,
-          error: error.message
+          error: error instanceof Error ? error.message : String(error)
         })
       } finally {
         activeRequests--
@@ -308,7 +329,7 @@ export class PerformanceTestHelper {
     // Monitor GC events
     const originalGc = global.gc
     if (originalGc) {
-      global.gc = () => {
+      global.gc = async () => {
         gcEvents++
         return originalGc()
       }
@@ -424,7 +445,7 @@ export class PerformanceTestHelper {
   /**
    * WebSocket performance testing
    */
-  async testWebSocketPerformance(config: {
+  async testWebSocketPerformance(_config: {
     concurrentConnections: number
     messagesPerConnection: number
     messageInterval: number

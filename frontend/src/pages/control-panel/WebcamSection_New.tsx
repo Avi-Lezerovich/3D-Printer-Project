@@ -23,7 +23,7 @@ const WebcamSection = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [showControls, setShowControls] = useState(true);
-  const [streamQuality, setStreamQuality] = useState('HD');
+  const [streamQuality] = useState('HD');
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Listen for fullscreen changes
