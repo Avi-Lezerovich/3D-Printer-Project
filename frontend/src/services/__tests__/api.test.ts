@@ -10,8 +10,8 @@ describe('API Service', () => {
     
     // Store original fetch and create mock
     originalFetch = global.fetch;
-    const mockFetch = vi.fn() as unknown as typeof fetch
-    global.fetch = mockFetch;
+    mockFetch = vi.fn() as unknown as typeof fetch;
+    global.fetch = mockFetch as unknown as typeof fetch;
   });
 
   afterEach(() => {
