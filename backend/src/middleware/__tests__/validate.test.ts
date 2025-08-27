@@ -133,7 +133,7 @@ describe('Validation Middleware', () => {
 
       mockReq.query = validQuery;
 
-      const middleware = validateQuery(querySchema as any);
+      const middleware = validateQuery(querySchema as z.ZodTypeAny);
       middleware(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith();
