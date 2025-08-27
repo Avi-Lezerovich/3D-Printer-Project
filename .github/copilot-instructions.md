@@ -14,9 +14,7 @@ This is a full-stack 3D printer management application built as a monorepo with:
 
 ### Prerequisites - ALWAYS Install First
 ```bash
-# Node.js 18+ is REQUIRED - check version
-node --version  # Must be 18+
-npm --version   # Must be 9+
+npm --version   # Must be 8+
 ```
 
 ### Installation - EXACT Commands
