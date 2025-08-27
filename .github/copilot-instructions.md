@@ -183,7 +183,7 @@ The CI pipeline (`.github/workflows/ci.yml`) runs:
 3. **Test** - `npm run test` (Frontend passes, backend partial)
 4. **Build** - `npm run build` (FAILS due to Prisma network dependency)
 
-### **Node.js Version**: Uses Node 22 in CI (works with 18+ locally)
+### **Node.js Version**: Uses Node 22 in CI (Node 22+ is recommended locally for consistency; Node 18+ may work, but 22+ is preferred)
 
 ## 🐳 Docker Deployment - Production Ready
 
