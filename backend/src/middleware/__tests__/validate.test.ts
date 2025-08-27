@@ -133,7 +133,7 @@ describe('Validation Middleware', () => {
 
       mockReq.query = validQuery;
 
-      const middleware = validateQuery(querySchema);
+      const middleware = validateQuery(querySchema as any);
       middleware(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith();
@@ -151,7 +151,7 @@ describe('Validation Middleware', () => {
 
       mockReq.query = validQuery;
 
-      const middleware = validateQuery(querySchema);
+      const middleware = validateQuery(querySchema as any);
       middleware(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith();
@@ -168,7 +168,7 @@ describe('Validation Middleware', () => {
 
       mockReq.query = invalidQuery;
 
-      const middleware = validateQuery(querySchema);
+      const middleware = validateQuery(querySchema as any);
       middleware(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(expect.objectContaining({
@@ -184,7 +184,7 @@ describe('Validation Middleware', () => {
 
       mockReq.query = invalidQuery;
 
-      const middleware = validateQuery(querySchema);
+      const middleware = validateQuery(querySchema as any);
       middleware(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(expect.objectContaining({

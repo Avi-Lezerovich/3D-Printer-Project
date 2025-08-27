@@ -7,9 +7,13 @@ import { beforeAll, afterAll, beforeEach, describe, it, expect } from 'vitest'
 import { initializeRepositories } from '../../repositories/factory.js'
 import type { Repositories } from '../../repositories/types.js'
 
+// Type import for Prisma client when available
+type PrismaClient = any
+
 export class DatabaseTestStrategy {
   private static repositories: Repositories
   private static driver: string
+  private static prisma: any = null // Mock prisma client for testing
 
   /**
    * Initialize test database connection using repository pattern
