@@ -171,19 +171,21 @@ app.use((req, res, next) => {
 // Security headers
 app.use(
 	helmet({
-		contentSecurityPolicy: NODE_ENV === 'production' ? {
-			useDefaults: true,
-			directives: {
-				"default-src": ["'self'"],
-				"connect-src": ["'self'", ...allowedOrigins],
-				"img-src": ["'self'", 'data:', 'blob:'],
-				"script-src": ["'self'"],
-				"style-src": ["'self'", "'unsafe-inline'"],
-				"font-src": ["'self'", 'data:'],
-				"object-src": ["'none'"],
-				"frame-ancestors": ["'self'"],
-			},
-		} : false,
+		contentSecurityPolicy: NODE_ENV === 'production'
+			? {
+				useDefaults: true,
+				directives: {
+					"default-src": ["'self'"],
+					"connect-src": ["'self'", ...allowedOrigins],
+					"img-src": ["'self'", 'data:', 'blob:'],
+					"script-src": ["'self'"],
+					"style-src": ["'self'", "'unsafe-inline'"],
+					"font-src": ["'self'", 'data:'],
+					"object-src": ["'none'"],
+					"frame-ancestors": ["'self'"],
+				},
+			}
+			: { useDefaults: true }, // enable default CSP in non-production
 		crossOriginEmbedderPolicy: false,
 		crossOriginResourcePolicy: { policy: 'cross-origin' },
 		referrerPolicy: { policy: 'no-referrer' },
