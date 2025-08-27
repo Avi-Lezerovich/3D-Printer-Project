@@ -1,113 +1,102 @@
 # 3D Printer Project – Documentation Hub
 
-This folder centralizes living documentation: architecture, security, testing strategy, analyses, and improvement roadmap. The system comprises two primary deployable units (frontend SPA & backend API) plus optional data services (Postgres, Redis) orchestrated via Docker.
+This directory contains comprehensive documentation for the 3D Printer Project, a modern full-stack application demonstrating enterprise-grade development practices.
 
-## 🧱 High-Level Domains
+## 📚 Documentation Guide
 
-Frontend (React + Vite + TypeScript)
-- Portfolio (public showcase / project narrative)
-- Control Panel (printer operations & realtime telemetry UI)
-- Project Management Hub (tasks, inventory, budget, analytics, timeline)
+### Getting Started
+Start with these documents to understand and set up the project:
 
-Backend (Express + TypeScript)
-- Auth / Session / JWT issuance & refresh
-- Project & task domain services
-- Realtime event gateway (Socket.io + optional Redis adapter)
-- Caching, rate limiting, CSRF, validation, audit logging
-- Pluggable persistence (in-memory baseline, Prisma/Postgres optional)
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| [🚀 Setup Guide](SETUP.md) | Installation, development, and deployment | Developers, DevOps |
+| [🏗️ Architecture Guide](ARCHITECTURE.md) | System design, patterns, and best practices | Developers, Architects |
+| [🔒 Security Guide](SECURITY.md) | Security implementation and guidelines | Security Engineers |
 
-## 🔐 Separation of Concerns
-| Layer | Responsibility | Key Directories |
-|-------|----------------|-----------------|
-| UI Composition | Presentational + interaction components | `frontend/src/design-system`, `frontend/src/components` |
-| Feature Logic | Domain-specific state & orchestrations | `frontend/src/features/*` |
-| App Shell | Routing, providers, API typing | `frontend/src/core` |
-| Services (Client) | HTTP client, socket bridge, adapters | `frontend/src/services` |
-| API Transport | HTTP routing, input validation | `backend/src/routes` |
-| Business Logic | Use cases & rules | `backend/src/services` |
-| Data Access | Repository interfaces & drivers | `backend/src/repositories` |
-| Cross-Cutting | Auth, security, caching, logging | `backend/src/middleware`, `backend/src/cache`, `backend/src/utils` |
+### Development Resources
+Technical guides for working with the codebase:
 
-No frontend file imports backend code; contract maintained via OpenAPI → generated TypeScript types (see `frontend` script `generate:api`).
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| [📖 API Documentation](API.md) | REST API endpoints and examples | Frontend/Backend Devs |
+| [🧪 Testing Guide](TESTING.md) | Testing strategies and patterns | QA Engineers, Developers |
+| [📈 Project Status](PROJECT_STATUS.md) | Current state, features, and roadmap | All stakeholders |
 
-## 🚀 Quick Start (Monorepo Root)
+### Additional Resources
+| Document | Purpose |
+|----------|---------|
+| [💡 Improvements Log](IMPROVEMENTS.md) | UI/UX and feature enhancements |
+| [📋 Testing Implementation](TESTING_IMPLEMENTATION_SUMMARY.md) | Detailed testing setup |
 
-```powershell
-# Install all workspaces
+## 🏗️ High-Level System Overview
+
+The system consists of three main deployable units:
+
+**Frontend (React SPA)**
+- Portfolio showcase and project presentation
+- Control panel for printer operations and real-time telemetry
+- Project management hub with tasks, inventory, budget, and analytics
+
+**Backend (Express API)**
+- Authentication and session management
+- Project and task domain services
+- Real-time event gateway with Socket.io
+- Security, caching, validation, and audit logging
+
+**Infrastructure**
+- Containerized deployment with Docker
+- Database layer with Prisma ORM (SQLite dev / PostgreSQL prod)
+- Optional Redis for caching and session scaling
+
+## 🎯 Quick Navigation
+
+### For New Developers
+1. **Start Here**: [Setup Guide](SETUP.md) - Get the project running
+2. **Understand Design**: [Architecture Guide](ARCHITECTURE.md) - System structure
+3. **API Integration**: [API Documentation](API.md) - Backend endpoints
+
+### For DevOps Engineers
+1. **Deployment**: [Setup Guide](SETUP.md) - Production deployment
+2. **Security**: [Security Guide](SECURITY.md) - Security measures
+3. **Monitoring**: [Testing Guide](TESTING.md) - Health checks and testing
+
+### For Technical Interviews
+1. **Project Overview**: [Project Status](PROJECT_STATUS.md) - Features and achievements
+2. **Code Quality**: [Architecture Guide](ARCHITECTURE.md) - Best practices
+3. **Security**: [Security Guide](SECURITY.md) - OWASP compliance
+
+## 🔐 Security & Architecture Highlights
+
+- **Security-First**: JWT authentication, CSRF protection, input validation, security headers
+- **Clean Architecture**: Clear separation of concerns with repository pattern
+- **Modern Stack**: TypeScript, React 18, Express, Prisma, Docker
+- **Real-time**: WebSocket integration for live updates
+- **Testing**: Comprehensive unit, integration, and contract tests
+- **Documentation**: Professional-grade documentation and API specs
+
+## 🚀 Getting Started Commands
+
+```bash
+# Quick setup
+git clone <repository-url>
+cd 3D-Printer-Project
 npm run install:all
-
-# Copy env template (edit values afterward)
-Copy-Item deployment/config/.env.example deployment/config/.env
-
-# Dev (concurrent frontend + backend)
 npm run dev
 
-# Tests (frontend then backend)
-npm test
+# Access points
+# Frontend: http://localhost:5173
+# API Docs: http://localhost:3000/api/v1/docs
+# Health Check: http://localhost:3000/api/health
 ```
 
-Endpoints:
-- Frontend Dev: http://localhost:5173 (or 3000 if configured)
-- API: http://localhost:8080  (health: /api/health, spec: /api/v1/spec)
+## 📞 Support
 
-## 🧪 Testing Overview
-- Backend: Vitest + Supertest (`backend/src/__tests__`) covering auth, projects, openapi contract, security, sockets.
-- Frontend: Vitest + Testing Library (a11y, component, feature interaction tests).
-- Coverage: v8 provider; run `npm run test:coverage` for aggregate.
-
-See `TESTING.md` for detailed patterns and roadmap (SAST/DAST suggestions).
-
-## 🔒 Security Highlights
-Summarized; full detail in `SECURITY.md`.
-- JWT (access + refresh) rotation, short TTL access tokens.
-- CSRF tokens for cookie-based state-changing requests.
-- Helmet + strict headers (CSP, HSTS prod, referrer, frameguard).
-- Rate limiting (global + auth-specific throttling).
-- Input validation (express-validator / zod → OpenAPI schema).
-- Least-privilege role claims in tokens.
-
-## 🏗️ Backend Architectural Notes
-- Repository factory switches between memory and Prisma drivers (`REPO_DRIVER`).
-- Event bus abstraction wraps Socket.io enabling alternate transports.
-- Background jobs placeholder (`background/jobs.ts`) isolates future schedulers.
-- Audit log centralization enables structured compliance trails.
-
-## 🎨 Frontend Architectural Notes
-- Feature slices isolate domain UI and state to minimize global stores.
-- React Query manages server cache; Zustand reserved for lightweight global ephemeral state.
-- Design system ensures consistent tokens (spacing, color, motion durations).
-- Framer Motion leveraged for micro-interactions and staged transitions.
-
-## 🐳 Container / Deployment
-Authoritative compose + Dockerfiles: `deployment/docker/`.
-```powershell
-npm run deploy:local:build
-npm run deploy:local:up
-npm run deploy:local:logs
-```
-Optional dev-only compose duplicate in `backend/docker-compose.yml` (kept temporarily; prefer removal in future cleanup to avoid drift).
-
-Services (toggle via env):
-- backend (Node server)
-- frontend (static build served via lightweight web server)
-- postgres (Prisma driver)
-- redis (cache + socket scaling)
-
-## 🧹 Duplicate / Legacy Artifacts
-- `backend/docker-compose.yml` – superseded by `deployment/docker/docker-compose.yml`.
-- Root `public/` – currently empty; retained only if a static marketing site or docs export is added; otherwise removable.
-
-## 🔄 Future Improvements (See also IMPROVEMENTS.md)
-- Replace in-memory repository usage in production with Prisma by default.
-- Introduce metrics endpoint `/metrics` (prom-client) + Grafana dashboard examples.
-- Add e2e journey tests (Playwright) for critical flows.
-- Refine domain boundaries for analytics vs project management.
-
-## 🧭 Related Documents
-- `FINAL_PROJECT_ANALYSIS.md` – Feature completeness & quality assessment
-- `IMPROVEMENTS.md` – Portfolio / UX enhancement log
-- `SECURITY.md` – Threat model & controls
-- `TESTING.md` – Testing layers and roadmap
+For questions about specific components:
+- **Frontend**: Check the React components in `frontend/src/`
+- **Backend**: Review API routes in `backend/src/routes/`
+- **Database**: See Prisma schema in `backend/prisma/schema.prisma`
+- **Deployment**: Check Docker configs in `deployment/docker/`
 
 ---
-Maintained to reflect actual implementation; update this file alongside structural or architectural changes.
+
+This documentation is maintained to reflect the current implementation. Update relevant files when making architectural or structural changes.

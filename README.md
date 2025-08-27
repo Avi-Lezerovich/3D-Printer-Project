@@ -1,286 +1,117 @@
 # 3D Printer Project
 
-Full‑stack 3D printer management & project hub. React + Vite + TypeScript frontend, Express + TypeScript backend, real‑time (Socket.io), Redis cache, Postgres (Prisma option), and containerized deployment. Architecture follows clear domain separation guided by the Frontend / Backend Development Deep Dive documents.
-
-## 📚 Enhanced Documentation & Code Structure
-
-### Recent Improvements
-
-- **Comprehensive API Documentation**: Enhanced OpenAPI specification with detailed endpoint documentation, examples, and error responses
-- **Development Guides**: Added detailed frontend and backend development guides with best practices and code examples
-- **Architecture Documentation**: Complete architectural decision records and design patterns guide
-- **Setup & Deployment Guide**: Step-by-step instructions for development and production deployment
-- **Code Quality**: Fixed linting issues, improved error handling patterns, and enhanced validation
-
-### Documentation Structure
-
-- **[Setup Guide](docs/SETUP.md)**: Complete setup and deployment instructions
-- **[API Documentation](docs/API.md)**: Comprehensive API endpoint documentation
-- **[Architecture Guide](docs/ARCHITECTURE.md)**: Architectural decisions and best practices
-- **[Frontend Guide](docs/FRONTEND.md)**: React development best practices and patterns
-- **[Backend Guide](docs/BACKEND.md)**: Node.js API development guidelines
-- **[Security Guide](docs/SECURITY.md)**: Security implementation and best practices
-- **[Testing Strategy](docs/TESTING.md)**: Testing approaches and guidelines
-
-## 🆕 Recent Improvements (Phase 1 Initiation)
-
-- Added shared Zod schemas (`shared/src/schemas`) for projects, users, and auth payloads
-- Centralized metrics/Prometheus setup in `backend/src/telemetry/metrics.ts`
-- Refactored `backend/src/index.ts` to consume telemetry module (cleaner separation)
-- Exported schemas via `@3d/shared` so frontend (and future tools) can import single source of truth
-- Introduced test utility scaffold (`backend/src/__tests__/utils/testServer.ts`) for upcoming enhanced test layers
-
-Planned next small steps (Phase 1 wrap / early Phase 2):
-- Enrich `/ready` endpoint with DB & Redis connectivity checks (Redis added; DB next when driver active)
-- Introduce tracing scaffold (OpenTelemetry provider & span helpers) without intrusive changes
-- Begin reorganizing tests into unit/integration/performance folders (non-breaking incremental moves)
-
-## 🔄 Phase 2 Scaffold Added
-
-- Queue system placeholder (`backend/src/queues`) with feature flag `QUEUES_ENABLED`
-- Enhanced readiness: `/ready` returns Redis + queue stats + cache strategy
-- API versioning placeholder: `/api/v2/spec` draft plus mounted `/api/v2/projects` using shared schemas
-- Security: sanitization (`security/sanitization/sanitize.ts`), encryption helper (`security/encryption/crypto.ts`), RBAC permissions map (`security/permissions/rbac.ts`)
-- Cache strategies groundwork (`cacheService.ts`) with future `swr` option & feature flag `CACHE_STRATEGY`
-   - Added invalidation on project CRUD + optional SWR background refresh (Redis-ready placeholder)
-   - Queue processor registered (`project.audit`) and dispatched on project create (feature‑flag controlled)
-   - Tracing scaffold (`telemetry/tracing/tracer.ts`) with spans surfaced in `/api/metrics`
-   - Audit log payload encryption when encryption key present
-
-
-## 📁 Updated Monorepo Structure (Workspace)
-
-```
-3D-Printer-Project/
-│
-├── 📁 shared/                      # Shared types & cross-platform utilities
-│   ├── src/
-│   │   └── types/                 # API contracts, domain models, events
-│   ├── package.json
-│   └── tsconfig.json
-│
-├── 📁 frontend/                    # Frontend SPA (React, UI/UX, 3 domains)
-│   ├── src/
-│   │   ├── design-system/         # Reusable UI primitives (buttons, layout, motion)
-│   │   ├── features/              # Feature slices (tasks, inventory, budget, analytics)
-│   │   │   └── __tests__/         # Feature-level tests (unit + interaction)
-│   │   ├── pages/                 # Route-level components (Portfolio, Control Panel, PM Hub)
-│   │   │   └── __tests__/         # Page-level tests (routing, layout)
-│   │   ├── core/                  # App shell (routing, providers, query, api types)
-│   │   ├── services/              # Client services (api, socket, persistence)
-│   │   ├── hooks/                 # Shared hooks
-│   │   ├── shared/                # Cross-feature utilities/helpers
-│   │   ├── styles/                # Global styles / Tailwind layer extensions
-│   │   └── types/                 # Frontend-specific types (UI-only)
-│   ├── __tests__/                 # Integration tests (cross-feature)
-│   ├── public/                    # Frontend static assets only (served by Vite)
-│   ├── package.json               # Frontend workspace manifest
-│   └── vite.config.ts             # Build & dev config
-│
-├── 📁 backend/                     # API / realtime server
-│   ├── src/
-│   │   ├── routes/                # HTTP route modules (auth, projects, management)
-│   │   │   └── __tests__/         # Route handler tests (validation / responses)
-│   │   ├── services/              # Business logic (authService, projectService)
-│   │   │   └── __tests__/         # Service unit tests (pure logic)
-│   │   ├── repositories/          # Data access abstraction (memory + prisma drivers)
-│   │   │   └── __tests__/         # Repository contract tests (in-memory)
-│   │   ├── middleware/            # Express middleware (auth, rate limit, validation, cache)
-│   │   ├── realtime/              # Event bus + Socket.io integration
-│   │   ├── cache/                 # Redis client + cache service
-│   │   ├── config/                # Runtime flags / security / env config
-│   │   ├── audit/                 # Audit logging
-│   │   ├── background/            # Scheduled / async jobs
-│   │   ├── errors/                # Error classes (AppError)
-│   │   ├── utils/                 # Logger and shared helpers
-│   │   ├── types/                 # Backend-specific + ambient declarations
-│   │   └── openapi.ts             # OpenAPI spec source (zod → schema)
-│   ├── prisma/                    # Prisma schema (optional Postgres driver)
-│   ├── __tests__/                 # API integration / contract tests
-│   ├── dist/                      # Build output (ignored in VCS)
-│   ├── package.json               # Backend workspace manifest
-│   └── tsconfig.json              # TS build configuration
-│
-├── 📁 deployment/                  # Deployment & infra (multi-container, prod focus)
-│   ├── docker/                    # Canonical docker-compose + Dockerfiles
-│   ├── scripts/                   # Cross-platform deploy helpers
-│   └── config/                    # Env templates & overrides
-│
-├── 📁 docs/                        # Architecture, security, testing, analyses
-│
-├── package.json                   # Root workspace orchestrator (workspaces + scripts)
-└── README.md
-```
-
-## 🧩 Architectural Highlights
-
-Key separation of concerns:
-
-1. Frontend never imports backend source – all communication via HTTP/WS (OpenAPI generated types via `generate:api`).
-2. Repository pattern decouples persistence (in‑memory driver default; Prisma/Postgres optional via `REPO_DRIVER=prisma`).
-3. Real‑time events abstracted behind `eventBus` to allow swapping Socket.io with another transport.
-4. Feature folders (frontend) isolate domain UI and local state; global state kept lean using React Query + small stores.
-5. Config & side‑effects centralized (`backend/src/config`, `frontend/src/core`).
-6. OpenAPI spec generated from zod schemas for contract tests.
-
-Cross‑cutting concerns:
-- Security: auth middleware, CSRF, rate limiting, Helmet, validation.
-- Observability: structured logging (pino), basic metrics (prom-client ready for /metrics exposure).
-- Performance: caching layer (Redis) pluggable via middleware.
-
-Duplicate / legacy artifacts:
-- `backend/docker-compose.yml` (dev convenience) vs `deployment/docker/docker-compose.yml` (authoritative) – consider removing the former.
-✅ Root `public/` folder removed to reduce ambiguity.
-
-See detailed rationales in the Deep Dive PDFs (Frontend / Backend Development Deep Dive).
+A modern full-stack 3D printer management platform featuring React frontend, Express backend, and comprehensive project management tools.
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd 3D-Printer-Project
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm run install:all
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   # Copy templates and customize (never commit secrets)
-   cp deployment/config/.env.example .env.local
-   # Optional: create environment-specific overrides
-   # cp deployment/config/.env.development .env.development
-   # cp deployment/config/.env.test .env.test
-   # cp deployment/config/.env.production .env.production
-   ```
-
-### Development
-
-**Start both frontend and backend in development mode:**
 ```bash
+# Clone and install
+git clone https://github.com/Avi-Lezerovich/3D-Printer-Project.git
+cd 3D-Printer-Project
+npm run install:all
+
+# Start development servers
 npm run dev
+
+# Access the application
+# Frontend: http://localhost:5173
+# API: http://localhost:3000/api/v1/docs
 ```
 
-**Or run individually:**
-```bash
-# Frontend only (http://localhost:3000)
-npm run dev:frontend
+## 🏗️ Tech Stack
 
-# Backend only (http://localhost:8080)
-npm run dev:backend
+- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, Framer Motion
+- **Backend**: Express, TypeScript, Socket.io, JWT Authentication
+- **Database**: Prisma ORM with SQLite (dev) / PostgreSQL (prod)
+- **Infrastructure**: Docker, Redis, Nginx
+- **Testing**: Vitest, Testing Library, Supertest
+
+## 📁 Project Structure
+
+```
+3D-Printer-Project/
+├── frontend/          # React SPA with TypeScript
+├── backend/           # Express API server
+├── shared/            # Shared types and utilities  
+├── docs/              # Comprehensive documentation
+└── deployment/        # Docker and deployment configs
 ```
 
-### Building (CI / Production)
+## 📚 Documentation
 
-**Build both applications:**
-```bash
-npm run build
-```
+| Guide | Description |
+|-------|-------------|
+| [Setup Guide](docs/SETUP.md) | Complete installation and deployment guide |
+| [Architecture](docs/ARCHITECTURE.md) | System design and best practices |
+| [API Documentation](docs/API.md) | REST API endpoints and examples |
+| [Security](docs/SECURITY.md) | Security implementation and guidelines |
+| [Testing](docs/TESTING.md) | Testing strategies and patterns |
 
-**Build individually:**
-```bash
-npm run build:frontend
-npm run build:backend
-```
+## ✨ Key Features
 
-## 🐳 Docker / Containerization
+- **Project Management Hub**: Task tracking, budget management, inventory system
+- **3D Printer Control Panel**: Real-time monitoring and control interface  
+- **Portfolio Showcase**: Professional project presentation
+- **Real-time Updates**: WebSocket-based live data synchronization
+- **Comprehensive Security**: JWT auth, CSRF protection, input validation
+- **Modern Architecture**: Monorepo with clear separation of concerns
 
-Preferred (multi-container) compose file lives in `deployment/docker`.
+## 🛠️ Development
 
-```bash
-# Build images
-npm run deploy:local:build
-
-# Start stack
-npm run deploy:local:up
-
-# Tail logs
-npm run deploy:local:logs
-```
-
-Included services (optional based on env):
-- backend (Node 18+ runtime)
-- frontend (Nginx‑served static build)
-- postgres (if using Prisma driver)
-- redis (cache / socket scaling)
-
-## 🧪 Testing & Quality
-
-**Run all tests:**
-```bash
-npm run test
-```
-
-**Run with coverage:**
-```bash
-npm run test:coverage
-```
-
-## 🛠️ Development Scripts (Root)
+### Available Scripts
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start both frontend and backend in dev mode |
-| `npm run build` | Build both applications for production |
+| `npm run dev` | Start development servers (frontend + backend) |
+| `npm run build` | Build all packages for production |
 | `npm run test` | Run all tests |
-| `npm run lint` | Run ESLint on both applications |
-| `npm run format` | Format code with Prettier |
+| `npm run lint` | Lint all packages |
 
-## 📚 Features
+### Development Workflow
 
-### Frontend (React + TypeScript)
-- 🎨 Modern React with TypeScript
-- 🎭 Framer Motion animations
-- 🎯 3D visualization with Three.js
-- 📊 Interactive charts with Recharts
-- 🎨 Responsive design
-- 🧪 Component testing with Vitest
+1. **Feature Development**: Create feature branch and make changes
+2. **Quality Checks**: Run `npm run lint && npm test && npm run build`
+3. **Testing**: Comprehensive unit, integration, and e2e test coverage
 
-### Backend (Express + TypeScript)
-- 🔒 JWT authentication
-- 🛡️ Security middleware (Helmet, CORS, Rate limiting)
-- 📝 Request validation
-- 🧪 API testing with Supertest
-- 📊 Real-time updates with Socket.io
+## 🐳 Deployment
 
-### Infrastructure / DevOps
-- 🐳 Docker containerization
-- 🔄 Hot reload for development
-- 📦 Optimized production builds
-- 🚀 Easy deployment scripts
+### Docker (Recommended)
 
-## 🏗️ Additional Architecture Notes
-Shared Types: Import shared contracts via `@3d/shared`. Keep UI-only or persistence-only shapes local to their layer to avoid accidental coupling.
-Testing Layers: Co-located `__tests__` for unit / small scope; integration & contract tests in top-level `__tests__` folders per package.
+```bash
+# Build and start all services
+npm run deploy:local:build
+npm run deploy:local:up
 
-- Contract Testing: Backend OpenAPI schema validated by test suite (`openapi-contract.test.ts`). Frontend can regenerate types via `npm run generate:api` (frontend workspace) to stay in sync.
-- Authentication: JWT (short‑lived access + refresh) with rotation; CSRF for cookie flow.
-- Rate Limiting: Global + auth endpoints; configurable via env.
-- Caching: Opt‑in per route via middleware; strategy currently TTL-based.
-- Extensibility: Additional repository drivers can be added by implementing defined interfaces in `repositories/types.ts` and wiring through the factory.
+# Monitor logs
+npm run deploy:local:logs
+```
+
+### Manual Deployment
+
+See the [Setup Guide](docs/SETUP.md) for detailed deployment instructions.
+
+## 🔒 Security
+
+The project implements security-by-design with:
+- JWT authentication with refresh token rotation
+- CSRF protection for state-changing requests
+- Input validation and sanitization
+- Security headers (Helmet, CORS, CSP)
+- Rate limiting and request throttling
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests (`npm run test`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+2. Create a feature branch
+3. Make your changes with tests
+4. Submit a pull request
+
+See [Architecture Guide](docs/ARCHITECTURE.md) for coding standards and best practices.
 
 ## 📄 License
 
-MIT – see [LICENSE](LICENSE).
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
-Maintained with an emphasis on clarity, testability, and demonstrable full‑stack practices.
+
+For detailed documentation, see the [docs](docs/) directory.

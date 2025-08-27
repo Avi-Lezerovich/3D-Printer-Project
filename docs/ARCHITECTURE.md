@@ -430,30 +430,171 @@ interface Repository<T, CreateData, UpdateData> {
 ### Naming Conventions
 
 #### 1. Files and Directories
-- **Components**: PascalCase (`TaskCard.tsx`, `UserProfile.tsx`)
-- **Hooks**: camelCase starting with 'use' (`useTaskStore.ts`, `useAuth.ts`)
-- **Utilities**: camelCase (`formatDate.ts`, `validateEmail.ts`)
-- **Constants**: UPPER_SNAKE_CASE (`API_ENDPOINTS.ts`, `ERROR_MESSAGES.ts`)
+
+**Components**: PascalCase with descriptive names
+```typescript
+// ✅ Good
+TaskCard.tsx           // Specific component purpose
+UserProfileModal.tsx   // Clear what it does
+ProjectAnalytics.tsx   // Domain + function
+
+// ❌ Avoid
+card.tsx              // Too generic
+Modal.tsx             // Not descriptive enough
+component1.tsx        // No semantic meaning
+```
+
+**Hooks**: camelCase starting with 'use'
+```typescript
+// ✅ Good
+useTaskStore.ts        // Clear data it manages
+useAuthToken.ts        // Specific auth functionality
+useProjectAnalytics.ts // Domain + purpose
+
+// ❌ Avoid
+useData.ts            // Too generic
+taskHook.ts           // Wrong naming pattern
+useStuff.ts           // Not descriptive
+```
+
+**Utilities**: camelCase with action verbs
+```typescript
+// ✅ Good
+formatDate.ts         // Clear function
+validateEmail.ts      // Specific validation
+calculateProgress.ts  // Action + subject
+
+// ❌ Avoid
+helpers.ts           // Too broad
+utils.ts             // Generic
+stuff.ts             // Meaningless
+```
+
+**Constants**: UPPER_SNAKE_CASE with context
+```typescript
+// ✅ Good
+API_ENDPOINTS.ts      // Clear purpose
+ERROR_MESSAGES.ts     // Specific constants
+TASK_STATUSES.ts      // Domain-specific
+
+// ❌ Avoid
+constants.ts         // Too generic
+CONST.ts            // Abbreviation
+data.ts             // Not descriptive
+```
 
 #### 2. Variables and Functions
+
 ```typescript
-// Variables: camelCase
+// ✅ Variables: camelCase, descriptive nouns
 const userTasks = [];
-const isLoading = false;
+const isAuthenticated = false;
+const taskCompletionRate = 0.85;
+const primaryButtonColor = '#0ea5e9';
 
-// Functions: camelCase, descriptive verbs
-const calculateProgress = () => {};
-const formatTaskDate = () => {};
-const handleTaskCreate = () => {};
+// ❌ Avoid
+const data = []; // Too generic
+const flag = false; // Not descriptive
+const temp = 0.85; // Temporary naming
+const color1 = '#0ea5e9'; // Numbered variables
 
-// Constants: UPPER_SNAKE_CASE
+// ✅ Functions: camelCase, descriptive verbs
+const calculateTaskProgress = (tasks: Task[]) => { ... };
+const formatTaskDate = (date: Date) => { ... };
+const handleTaskCreate = (taskData: TaskData) => { ... };
+const validateUserInput = (input: string) => { ... };
+
+// ❌ Avoid
+const calc = (tasks) => { ... }; // Abbreviated
+const doStuff = () => { ... }; // Not descriptive
+const handler1 = () => { ... }; // Numbered
+const process = () => { ... }; // Too generic
+
+// ✅ Constants: UPPER_SNAKE_CASE with context
 const MAX_TASKS_PER_PAGE = 20;
 const DEFAULT_SORT_ORDER = 'createdAt';
+const API_BASE_URL = process.env.VITE_API_BASE;
+const TASK_PRIORITY_HIGH = 'high';
 
-// Types/Interfaces: PascalCase
-interface TaskData {}
-type ApiResponse = {};
-enum TaskStatus {}
+// ✅ Types/Interfaces: PascalCase, descriptive
+interface TaskData {
+  id: string;
+  title: string;
+  status: TaskStatus;
+}
+
+type ApiResponse<T> = {
+  data: T;
+  success: boolean;
+  message?: string;
+};
+
+enum TaskStatus {
+  TODO = 'todo',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed'
+}
+
+// Custom type guards
+type UserRole = 'admin' | 'user' | 'viewer';
+type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+```
+
+#### 3. Component Props and State
+
+```typescript
+// ✅ Props: Clear interface names
+interface TaskCardProps {
+  task: Task;
+  onEdit: (task: Task) => void;
+  onDelete: (id: string) => void;
+  isSelected?: boolean;
+  className?: string;
+}
+
+interface UserFormData {
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+}
+
+// ✅ State: Descriptive variable names
+const [tasks, setTasks] = useState<Task[]>([]);
+const [isLoading, setIsLoading] = useState(false);
+const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+```
+
+#### 4. API Routes and Database
+
+```typescript
+// ✅ API Routes: RESTful, resource-based
+GET    /api/v1/tasks              // Get all tasks
+GET    /api/v1/tasks/:id          // Get specific task
+POST   /api/v1/tasks              // Create new task
+PUT    /api/v1/tasks/:id          // Update task
+DELETE /api/v1/tasks/:id          // Delete task
+
+GET    /api/v1/projects/:id/tasks // Nested resource
+POST   /api/v1/auth/login         // Action-based for auth
+POST   /api/v1/auth/refresh       // Token operations
+
+// ✅ Database: snake_case for SQL, camelCase for documents
+// SQL Tables
+users
+projects  
+tasks
+budget_categories
+inventory_items
+
+// Document fields
+{
+  userId: "abc123",
+  createdAt: "2024-01-01T00:00:00Z",
+  updatedAt: "2024-01-01T00:00:00Z",
+  isActive: true
+}
 ```
 
 ## 🎯 Performance Best Practices
