@@ -387,46 +387,175 @@ npm run test:watch --workspace=backend
    });
    ```
 
-## 🔍 Debugging and Troubleshooting
+## 🔍 Troubleshooting
 
-### Common Issues
+### Common Issues and Solutions
 
-1. **Build Failures**:
-   ```bash
-   # Clean and rebuild
-   npm run clean --workspace=shared
-   npm run build
-   ```
+#### 1. Build Failures
 
-2. **Port Conflicts**:
-   ```bash
-   # Check what's running on ports
-   lsof -i :3000  # Backend port
-   lsof -i :5173  # Frontend port
-   ```
-
-3. **Dependencies Issues**:
-   ```bash
-   # Clean install
-   rm -rf node_modules package-lock.json
-   npm run install:all
-   ```
-
-### Debug Mode
-
+**Error: TypeScript compilation errors**
 ```bash
-# Backend with debug logging
-DEBUG=app:* npm run dev:backend
+# Clean and rebuild shared package first
+npm run build:shared
+npm run build
 
-# Frontend with verbose logging
-VITE_DEBUG=true npm run dev:frontend
+# If still failing, check for missing dependencies
+npm run install:all
 ```
 
-### Logs Location
+**Error: Module not found errors**
+```bash
+# Ensure shared package is built before other packages
+npm run build:shared
+# Then build individual packages
+npm run build:backend
+npm run build:frontend
+```
 
-- **Development**: Console output
-- **Production**: `/var/log/3d-printer-app/`
-- **Docker**: `docker compose logs`
+#### 2. Port Conflicts
+
+**Error: Port already in use (EADDRINUSE)**
+```bash
+# Check what's using the ports
+lsof -i :5173  # Frontend dev port
+lsof -i :3000  # Backend port
+
+# Kill processes if needed
+kill -9 $(lsof -t -i :5173)
+kill -9 $(lsof -t -i :3000)
+
+# Or use different ports in your .env files
+echo "PORT=3001" >> backend/.env
+echo "VITE_API_BASE=http://localhost:3001" >> frontend/.env
+```
+
+#### 3. Database Connection Issues
+
+**Error: Database connection failed**
+```bash
+# For SQLite (default), ensure the backend can create the database file
+mkdir -p backend/data
+chmod 755 backend/data
+
+# For PostgreSQL, verify connection settings
+# Check DATABASE_URL in backend/.env
+```
+
+#### 4. Docker Issues
+
+**Error: Docker build failures**
+```bash
+# Clean Docker cache
+docker system prune -f
+
+# Rebuild without cache
+npm run deploy:local:build --no-cache
+
+# Check available resources
+docker system df
+```
+
+**Error: Services won't start**
+```bash
+# Check service logs
+docker compose -f deployment/docker/docker-compose.yml logs [service-name]
+
+# Restart specific service
+docker compose -f deployment/docker/docker-compose.yml restart backend
+
+# Full reset
+npm run deploy:local:down
+docker system prune -f
+npm run deploy:local:up
+```
+
+#### 5. Development Server Issues
+
+**Error: Frontend shows API connection errors**
+```bash
+# Verify backend is running
+curl http://localhost:3000/api/health
+
+# Check CORS configuration
+# Ensure ALLOWED_ORIGINS includes http://localhost:5173
+echo "ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000" >> backend/.env
+```
+
+**Error: Hot reload not working**
+```bash
+# For Windows/WSL users
+echo "CHOKIDAR_USEPOLLING=true" >> frontend/.env
+
+# Increase file watcher limits (Linux)
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+```
+
+### Environment-Specific Issues
+
+#### Windows
+
+```powershell
+# Use PowerShell for better script support
+# If npm scripts fail, try running them directly:
+cd frontend && npm run dev
+# In another terminal:
+cd backend && npm run dev
+```
+
+#### macOS
+
+```bash
+# If experiencing permission issues
+sudo chown -R $(whoami) ~/.npm
+sudo chown -R $(whoami) /usr/local/lib/node_modules
+```
+
+#### Linux
+
+```bash
+# If port binding fails
+sudo setcap cap_net_bind_service=+ep $(which node)
+
+# Or run with sudo (not recommended for development)
+sudo npm run dev:backend
+```
+
+### Performance Issues
+
+#### Slow Build Times
+
+```bash
+# Clear all caches
+npm cache clean --force
+rm -rf node_modules package-lock.json
+rm -rf frontend/node_modules frontend/package-lock.json
+rm -rf backend/node_modules backend/package-lock.json
+rm -rf shared/node_modules shared/package-lock.json
+
+# Clean reinstall
+npm run install:all
+```
+
+#### Memory Issues
+
+```bash
+# Increase Node.js heap size
+export NODE_OPTIONS="--max-old-space-size=4096"
+npm run build
+```
+
+### Getting Help
+
+1. **Check logs**: Always check console output and log files
+2. **Verify environment**: Ensure all required environment variables are set
+3. **Test in isolation**: Try running frontend and backend separately
+4. **Clean installation**: When in doubt, clean install dependencies
+
+For additional help:
+- Check the [Architecture Guide](./ARCHITECTURE.md) for system design
+- Review [API Documentation](./API.md) for backend integration
+- See [Testing Guide](./TESTING.md) for testing-related issues
 
 ## 🚀 Performance Optimization
 

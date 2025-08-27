@@ -121,7 +121,7 @@ describe('🚀 Testing Framework Demo - Core Features', () => {
       ]
 
       for (const scenario of errorScenarios) {
-        let request = agent[scenario.method.toLowerCase()](scenario.path)
+        let request = agent[method](scenario.path)
         
         if (scenario.body) {
           request = request.send(scenario.body)
@@ -415,7 +415,7 @@ describe('🏗️ Advanced Testing Patterns', () => {
       ]
 
       for (const testCase of edgeCases) {
-        const response = await agent[testCase.method.toLowerCase()](testCase.path)
+        const response = await (agent as any)[testCase.method.toLowerCase()](testCase.path)
         
         // Should respond with proper HTTP status codes, not crash
         expect(response.status).toBeGreaterThan(0)
