@@ -341,8 +341,17 @@ app.get('/', (_req, res) => {
 if (process.env.SERVE_FRONTEND === 'true') {
 	const distDir = path.resolve(__dirname, '../../frontend/dist')
 	app.use(express.static(distDir))
+
+	// SPA fallback rate limiter (limits wildcard GETs that send index.html)
+	const spaRateLimiter = rateLimit({
+		windowMs: 1 * 60 * 1000, // 1 minute
+		max: 20, // 20 requests per window per IP
+		standardHeaders: true,
+		legacyHeaders: false,
+	});
+
 	// SPA fallback
-	app.get('*', (req, res, next) => {
+	app.get('*', spaRateLimiter, (req, res, next) => {
 		if (req.path.startsWith('/api/')) return next()
 		res.sendFile(path.join(distDir, 'index.html'), err => { if (err) next(err) })
 	})
