@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAppStore } from '../shared/store';
 import { 
   Activity, Settings, Upload, Clock, Camera, TrendingUp,
   Wifi, WifiOff, AlertCircle, CheckCircle, Flame, Thermometer,
-  RefreshCw, Power, Play, Pause
+  RefreshCw, Power, Play, Pause, Keyboard
 } from 'lucide-react';
+import { useControlPanelShortcuts } from '../hooks/useKeyboardShortcuts';
+import KeyboardShortcutsHelp from '../components/ui/KeyboardShortcutsHelp';
 import StatusSection from './control-panel/StatusSection';
 import ControlsSection from './control-panel/ControlsSection';
 import FileUploadSection from './control-panel/FileUploadSection';
@@ -42,6 +44,41 @@ const itemVariants = {
 export default function ControlPanel() {
   const { sidebarCollapsed, connected, status, hotend, bed } = useAppStore();
   const [activeTab, setActiveTab] = useState('overview');
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+
+  const handleRefresh = useCallback(() => {
+    console.log('Refreshing connection and data...');
+    // Add actual refresh logic here
+  }, []);
+
+  const handleToggleConnection = useCallback(() => {
+    console.log('Toggling printer connection...');
+    // Add actual connection toggle logic here
+  }, []);
+
+  const handleEmergencyStop = useCallback(() => {
+    console.log('Emergency stop triggered!');
+    // Add actual emergency stop logic here
+  }, []);
+
+  const handleTabChange = useCallback((tabId: string) => {
+    setActiveTab(tabId);
+  }, []);
+
+  const { shortcuts } = useControlPanelShortcuts(
+    handleRefresh,
+    handleToggleConnection,
+    handleEmergencyStop,
+    handleTabChange,
+    activeTab
+  );
+
+  // Handle keyboard help shortcut
+  useEffect(() => {
+    const handleShowKeyboardHelp = () => setShowKeyboardHelp(true);
+    document.addEventListener('showKeyboardHelp', handleShowKeyboardHelp);
+    return () => document.removeEventListener('showKeyboardHelp', handleShowKeyboardHelp);
+  }, []);
 
   const tabs = [
     { 
@@ -478,6 +515,24 @@ export default function ControlPanel() {
           {renderContent()}
         </motion.div>
       </motion.div>
+
+      {/* Keyboard Shortcuts Help Modal */}
+      <KeyboardShortcutsHelp 
+        isOpen={showKeyboardHelp}
+        onClose={() => setShowKeyboardHelp(false)}
+        shortcuts={shortcuts}
+      />
+
+      {/* Keyboard shortcuts indicator */}
+      <motion.button
+        onClick={() => setShowKeyboardHelp(true)}
+        className="fixed bottom-4 right-4 p-3 rounded-full bg-var(--accent) text-white shadow-lg hover:shadow-xl transition-shadow z-50"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        title="Show keyboard shortcuts (Press ?)"
+      >
+        <Keyboard size={20} />
+      </motion.button>
     </div>
   );
 }

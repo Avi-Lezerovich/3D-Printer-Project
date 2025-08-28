@@ -221,6 +221,88 @@
   
   .fluid-img{max-width:100%;height:auto;display:block}
   .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+  
+  /* Skip link styles */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: var(--accent);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    z-index: 9999;
+    text-decoration: none;
+    transition: top 0.2s ease-in-out;
+    font-weight: 500;
+  }
+  
+  .skip-link:focus {
+    top: 6px;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    :root {
+      --text: #000000;
+      --bg: #ffffff;
+      --border: #000000;
+      --accent: #0000ee;
+    }
+    
+    :root[data-theme='dark'] {
+      --text: #ffffff;
+      --bg: #000000;
+      --border: #ffffff;
+      --accent: #00aaff;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    
+    .loading-skeleton {
+      animation: none;
+      background: rgba(148, 163, 184, 0.2);
+    }
+  }
+
+  /* Focus visible improvements */
+  .focus-ring {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 6px;
+    box-shadow: 0 0 0 1px var(--bg), 0 0 0 4px rgba(102, 204, 255, 0.2);
+  }
+
+  /* Ensure interactive elements have minimum touch target size */
+  button, 
+  [role="button"], 
+  input[type="button"], 
+  input[type="submit"], 
+  input[type="reset"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Improve form field accessibility */
+  input:invalid,
+  textarea:invalid,
+  select:invalid {
+    border-color: var(--bad);
+    box-shadow: 0 0 0 1px var(--bad);
+  }
+
+  input:invalid:focus,
+  textarea:invalid:focus,
+  select:invalid:focus {
+    outline-color: var(--bad);
+  }
 
   /* Design token-based spacing utilities */
   .mt-xs { margin-top: 0.25rem; }
