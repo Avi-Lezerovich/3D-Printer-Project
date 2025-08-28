@@ -3,9 +3,8 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../shared/store';
 import { 
-  Home, Monitor, FolderKanban, Settings, HelpCircle, FileText, 
-  User, ChevronLeft, ChevronRight, ChevronDown, Activity,
-  BarChart3, DollarSign, Package, Printer, Eye
+  Home, Monitor, Settings, HelpCircle, FileText, 
+  User, ChevronLeft, ChevronRight, Printer
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -15,21 +14,11 @@ interface NavigationItem {
   path: string;
   description: string;
   color: string;
-  hasSubMenu?: boolean;
-  subItems?: SubMenuItem[];
   external?: boolean;
-}
-
-interface SubMenuItem {
-  key: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  path: string;
 }
 
 const Sidebar = () => {
   const { sidebarCollapsed, toggleSidebar } = useAppStore();
-  const [projectSubMenuOpen, setProjectSubMenuOpen] = useState(false);
   const location = useLocation();
 
   const navigationItems: NavigationItem[] = [
@@ -96,9 +85,6 @@ const Sidebar = () => {
       green: isActive 
         ? 'bg-green-500/20 text-green-400 border-green-500/30' 
         : 'hover:bg-green-500/10 hover:text-green-400',
-      purple: isActive 
-        ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' 
-        : 'hover:bg-purple-500/10 hover:text-purple-400',
       slate: isActive 
         ? 'bg-slate-500/20 text-slate-300 border-slate-500/30' 
         : 'hover:bg-slate-500/10 hover:text-slate-300',
@@ -111,9 +97,6 @@ const Sidebar = () => {
       pink: isActive 
         ? 'bg-pink-500/20 text-pink-400 border-pink-500/30' 
         : 'hover:bg-pink-500/10 hover:text-pink-400',
-      yellow: isActive 
-        ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' 
-        : 'hover:bg-yellow-500/10 hover:text-yellow-400',
     };
     return colorMap[color] || colorMap.slate;
   };
@@ -138,83 +121,10 @@ const Sidebar = () => {
     }
   };
 
-  const subMenuVariants = {
-    hidden: { 
-      opacity: 0,
-      height: 0,
-      transition: { duration: 0.2 }
-    },
-    visible: { 
-      opacity: 1,
-      height: 'auto',
-      transition: { duration: 0.3, type: "spring", stiffness: 300, damping: 25 }
-    }
-  };
 
   const renderNavigationItem = (item: NavigationItem) => {
-    const isActive = location.pathname === item.path || 
-      (item.hasSubMenu && location.pathname.startsWith('/management'));
+    const isActive = location.pathname === item.path;
     const IconComponent = item.icon;
-
-    if (item.hasSubMenu) {
-      return (
-        <div key={item.key}>
-          <button
-            onClick={() => setProjectSubMenuOpen(!projectSubMenuOpen)}
-            className={`w-full flex items-center justify-between px-3 py-3 rounded-lg text-slate-300 border border-transparent transition-all duration-200 group ${
-              getColorClasses(item.color, isActive)
-            } ${isActive ? 'border-opacity-100' : 'border-opacity-0'}`}
-            title={sidebarCollapsed ? item.label : undefined}
-          >
-            <div className="flex items-center space-x-3">
-              <IconComponent className="w-5 h-5 flex-shrink-0" />
-              {!sidebarCollapsed && (
-                <span className="font-medium truncate">{item.label}</span>
-              )}
-            </div>
-            {!sidebarCollapsed && (
-              <ChevronDown 
-                className={`w-4 h-4 transition-transform duration-200 ${
-                  projectSubMenuOpen ? 'rotate-180' : ''
-                }`} 
-              />
-            )}
-          </button>
-          
-          <AnimatePresence>
-            {!sidebarCollapsed && projectSubMenuOpen && (
-              <motion.div
-                variants={subMenuVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                className="ml-4 mt-1 space-y-1"
-              >
-                {item.subItems?.map((subItem) => {
-                  const SubIconComponent = subItem.icon;
-                  const isSubActive = location.search.includes(subItem.key);
-                  
-                  return (
-                    <NavLink
-                      key={subItem.key}
-                      to={subItem.path}
-                      className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-                        isSubActive 
-                          ? 'bg-slate-700/50 text-white' 
-                          : 'text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
-                      }`}
-                    >
-                      <SubIconComponent className="w-4 h-4" />
-                      <span>{subItem.label}</span>
-                    </NavLink>
-                  );
-                })}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      );
-    }
 
     if (item.external) {
       return (

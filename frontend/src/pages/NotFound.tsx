@@ -32,10 +32,10 @@ const NotFound: React.FC = () => {
   };
 
   const popularPages = [
-    { name: 'Portfolio', path: '/', icon: Home, description: 'View project showcase' },
+    { name: 'Dashboard', path: '/', icon: Home, description: 'Main dashboard & overview' },
     { name: 'Control Panel', path: '/control', icon: Search, description: '3D printer controls' },
-    { name: 'Project Management', path: '/management', icon: Search, description: 'Manage tasks and projects' },
-    { name: 'Help Center', path: '/help', icon: HelpCircle, description: 'Get support and answers' },
+    { name: 'Settings', path: '/settings', icon: Search, description: 'App configuration' },
+    { name: 'Help Center', path: '/help', icon: HelpCircle, description: 'Documentation & support' },
   ];
 
   return (

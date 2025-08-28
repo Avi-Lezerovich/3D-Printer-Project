@@ -1,9 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
 
 const label: Record<string,string> = {
-  '': 'Portfolio',
+  '': 'Dashboard',
   control: 'Control Panel',
-  management: 'Project Management',
   settings: 'Settings',
   help: 'Help'
 }

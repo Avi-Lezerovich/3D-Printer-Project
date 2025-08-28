@@ -4,7 +4,6 @@ export const STATE_SCHEMA_VERSION = 1;
 export const ROUTES = {
   ROOT: '/',
   CONTROL_PANEL: '/control',
-  PROJECT_MANAGEMENT: '/management',
   SETTINGS: '/settings',
   HELP: '/help',
   LOGIN: '/login'

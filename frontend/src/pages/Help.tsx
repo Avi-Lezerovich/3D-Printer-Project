@@ -24,10 +24,10 @@ const faqs = [
   },
   {
     id: 3,
-    question: 'Where can I manage my projects?',
-    answer: 'The Project Management page provides comprehensive tools including task tracking, budget management, inventory overview, and timeline visualization.',
-    category: 'management',
-    icon: BarChart3,
+    question: 'How do I configure system settings?',
+    answer: 'Navigate to Settings to configure printer parameters, temperature thresholds, notification preferences, and system behavior.',
+    category: 'configuration',
+    icon: Settings,
   },
   {
     id: 4,
@@ -59,9 +59,9 @@ const faqs = [
   },
   {
     id: 8,
-    question: 'How do I track project progress?',
-    answer: 'Use the Analytics dashboard in Project Management to view completion rates, budget utilization, task distribution, and timeline milestones.',
-    category: 'management',
+    question: 'How do I monitor print progress?',
+    answer: 'Use the Control Panel to view real-time print progress, temperature monitoring, webcam feed, and detailed print statistics.',
+    category: 'monitoring',
     icon: BarChart3,
   }
 ];
