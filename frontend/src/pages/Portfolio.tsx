@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Monitor, Printer, Activity, FileText, Clock, Settings,
@@ -5,6 +6,7 @@ import {
   BarChart3, Users, Shield, Zap
 } from 'lucide-react';
 import { useAppStore } from '../shared/store';
+import { SkeletonCard, LoadingSpinner } from '../components/ui/LoadingStates';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -121,6 +123,13 @@ const recentActivity = [
 
 export default function Portfolio() {
   const { sidebarCollapsed } = useAppStore();
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate loading for demo purposes
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const getStatColor = (color: string) => {
     switch (color) {
@@ -161,8 +170,13 @@ export default function Portfolio() {
             </div>
             
             <div className="flex items-center space-x-2">
-              <div className="flex items-center space-x-2 px-3 py-2 bg-green-500/10 border border-green-500/30 text-green-400 rounded-lg">
-                <Wifi className="w-4 h-4" />
+              <div 
+                className="flex items-center space-x-2 px-3 py-2 bg-green-500/10 border border-green-500/30 text-green-400 rounded-lg"
+                role="status" 
+                aria-live="polite"
+                aria-label="System status: All systems online"
+              >
+                <Wifi className="w-4 h-4" aria-hidden="true" />
                 <span className="text-sm font-medium">All Systems Online</span>
               </div>
             </div>
@@ -194,9 +208,10 @@ export default function Portfolio() {
         </motion.div>
 
         {/* Quick Stats */}
-        <motion.div 
+        <motion.section 
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
           variants={itemVariants}
+          aria-label="System statistics"
         >
           {quickStats.map((stat, index) => {
             const IconComponent = stat.icon;
@@ -204,10 +219,19 @@ export default function Portfolio() {
               <div
                 key={index}
                 className={`bg-gradient-to-br ${getStatColor(stat.color)} backdrop-blur-md border rounded-xl p-6 hover:bg-opacity-80 transition-all duration-300 cursor-pointer group`}
+                role="button"
+                tabIndex={0}
+                aria-label={`${stat.title}: ${stat.value}, ${stat.change}`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    // Handle click action
+                  }
+                }}
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className={`p-3 bg-gradient-to-br ${getStatColor(stat.color)} rounded-lg group-hover:scale-110 transition-transform duration-300`}>
-                    <IconComponent className="w-6 h-6" />
+                    <IconComponent className="w-6 h-6" aria-hidden="true" />
                   </div>
                   <div className={`text-sm font-medium ${stat.trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
                     {stat.change}
@@ -218,7 +242,7 @@ export default function Portfolio() {
               </div>
             );
           })}
-        </motion.div>
+        </motion.section>
 
         {/* Features Grid */}
         <motion.div 
@@ -255,29 +279,49 @@ export default function Portfolio() {
             </h3>
 
             <div className="space-y-4">
-              {recentActivity.map((activity) => {
-                const IconComponent = activity.icon;
-                return (
-                  <div
-                    key={activity.id}
-                    className="flex items-center space-x-4 p-4 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 transition-colors duration-200"
-                  >
-                    <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400">
-                      <IconComponent className="w-5 h-5" />
+              {isLoading ? (
+                // Loading skeletons for activity items
+                Array.from({ length: 3 }, (_, i) => (
+                  <SkeletonCard key={i} showAvatar lines={2} className="bg-slate-700/30 rounded-lg" />
+                ))
+              ) : (
+                recentActivity.map((activity) => {
+                  const IconComponent = activity.icon;
+                  return (
+                    <div
+                      key={activity.id}
+                      className="flex items-center space-x-4 p-4 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 transition-colors duration-200"
+                    >
+                      <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400">
+                        <IconComponent className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-white font-medium">{activity.title}</h4>
+                        <p className="text-slate-400 text-sm">{activity.time}</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h4 className="text-white font-medium">{activity.title}</h4>
-                      <p className="text-slate-400 text-sm">{activity.time}</p>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
 
             <div className="mt-6 pt-6 border-t border-slate-700/50">
-              <button className="w-full py-3 bg-slate-600/50 hover:bg-slate-600/70 border border-slate-500/50 hover:border-slate-400/50 rounded-lg text-slate-300 font-medium transition-all duration-200 flex items-center justify-center space-x-2">
-                <BarChart3 className="w-5 h-5" />
-                <span>View All Activity</span>
+              <button 
+                className="w-full py-3 bg-slate-600/50 hover:bg-slate-600/70 border border-slate-500/50 hover:border-slate-400/50 rounded-lg text-slate-300 font-medium transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoading}
+                aria-label="View all activity"
+              >
+                {isLoading ? (
+                  <>
+                    <LoadingSpinner size="sm" />
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <>
+                    <BarChart3 className="w-5 h-5" />
+                    <span>View All Activity</span>
+                  </>
+                )}
               </button>
             </div>
           </motion.div>
@@ -290,23 +334,35 @@ export default function Portfolio() {
             <h3 className="text-xl font-semibold text-white mb-6">Quick Actions</h3>
 
             <div className="space-y-3">
-              <button className="w-full p-4 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 hover:border-blue-500/50 rounded-lg text-blue-400 font-medium transition-all duration-200 flex items-center justify-center space-x-2">
-                <Monitor className="w-5 h-5" />
+              <button 
+                className="w-full p-4 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 hover:border-blue-500/50 rounded-lg text-blue-400 font-medium transition-all duration-200 flex items-center justify-center space-x-2"
+                aria-label="Navigate to Control Panel"
+              >
+                <Monitor className="w-5 h-5" aria-hidden="true" />
                 <span>Control Panel</span>
               </button>
 
-              <button className="w-full p-4 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 hover:border-green-500/50 rounded-lg text-green-400 font-medium transition-all duration-200 flex items-center justify-center space-x-2">
-                <FileText className="w-5 h-5" />
+              <button 
+                className="w-full p-4 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 hover:border-green-500/50 rounded-lg text-green-400 font-medium transition-all duration-200 flex items-center justify-center space-x-2"
+                aria-label="Upload new file"
+              >
+                <FileText className="w-5 h-5" aria-hidden="true" />
                 <span>Upload File</span>
               </button>
 
-              <button className="w-full p-4 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-lg text-purple-400 font-medium transition-all duration-200 flex items-center justify-center space-x-2">
-                <BarChart3 className="w-5 h-5" />
+              <button 
+                className="w-full p-4 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 hover:border-purple-500/50 rounded-lg text-purple-400 font-medium transition-all duration-200 flex items-center justify-center space-x-2"
+                aria-label="View analytics dashboard"
+              >
+                <BarChart3 className="w-5 h-5" aria-hidden="true" />
                 <span>Analytics</span>
               </button>
 
-              <button className="w-full p-4 bg-slate-600/50 hover:bg-slate-600/70 border border-slate-500/50 hover:border-slate-400/50 rounded-lg text-slate-300 font-medium transition-all duration-200 flex items-center justify-center space-x-2">
-                <Settings className="w-5 h-5" />
+              <button 
+                className="w-full p-4 bg-slate-600/50 hover:bg-slate-600/70 border border-slate-500/50 hover:border-slate-400/50 rounded-lg text-slate-300 font-medium transition-all duration-200 flex items-center justify-center space-x-2"
+                aria-label="Open settings"
+              >
+                <Settings className="w-5 h-5" aria-hidden="true" />
                 <span>Settings</span>
               </button>
             </div>
