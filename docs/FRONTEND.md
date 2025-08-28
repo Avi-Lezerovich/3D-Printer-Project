@@ -640,7 +640,7 @@ describe('useForm', () => {
 1. **Use Tailwind utilities for styling**:
    ```tsx
    <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm">
-     <h2 className="text-lg font-semibold text-gray-900">Task Title</h2>
+     <h2 className="text-lg font-semibold text-gray-900">Project Title</h2>
      <Button variant="primary" size="sm">Edit</Button>
    </div>
    ```
@@ -648,12 +648,12 @@ describe('useForm', () => {
 2. **Create custom CSS classes for complex patterns**:
    ```css
    /* styles/components.css */
-   .task-card {
+   .project-card {
      @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4;
      @apply hover:shadow-md transition-shadow duration-150;
    }
    
-   .task-card--completed {
+   .project-card--completed {
      @apply opacity-75 bg-gray-50;
    }
    ```
@@ -720,14 +720,14 @@ const expensiveData = useMemo(() => {
 }, [rawData]);
 
 // Memoize callbacks to prevent unnecessary re-renders
-const handleTaskUpdate = useCallback((taskId: string, updates: Partial<Task>) => {
-  updateTaskMutation.mutate({ id: taskId, ...updates });
-}, [updateTaskMutation]);
+const handleProjectUpdate = useCallback((projectId: string, updates: Partial<Project>) => {
+  updateProjectMutation.mutate({ id: projectId, ...updates });
+}, [updateProjectMutation]);
 
 // Memoize components
-const TaskCard = memo<TaskCardProps>(({ task, onUpdate }) => {
+const ProjectCard = memo<ProjectCardProps>(({ project, onUpdate }) => {
   return (
-    <div className="task-card">
+    <div className="project-card">
       {/* Component content */}
     </div>
   );
