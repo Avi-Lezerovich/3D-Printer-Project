@@ -1,6 +1,6 @@
 # Architecture and Best Practices Guide
 
-This document outlines the architectural decisions, coding standards, and best practices for the 3D Printer Project to ensure maintainable, scalable, and high-quality code.
+This document outlines the architectural decisions, coding standards, and best practices for the 3D Printer Control System focusing on simplicity, maintainability, and core functionality.
 
 ## 🏗️ Architecture Overview
 

@@ -1,10 +1,10 @@
 # Frontend Development Guide
 
-This guide provides comprehensive information for developing and maintaining the frontend application of the 3D Printer Project.
+This guide provides information for developing and maintaining the streamlined frontend application of the 3D Printer Control System.
 
 ## 🎯 Frontend Overview
 
-The frontend is a modern React Single Page Application (SPA) built with:
+The frontend is a clean, focused React Single Page Application (SPA) with 4 core pages, built with:
 
 - **React 18**: Modern React with hooks and concurrent features
 - **TypeScript**: Type-safe development

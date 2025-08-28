@@ -1,6 +1,6 @@
-# 3D Printer Project
+# 3D Printer Control System
 
-A modern full-stack 3D printer management platform featuring React frontend, Express backend, and comprehensive project management tools.
+A streamlined 3D printer control system with a clean React interface and essential backend services. Focused on core functionality: monitoring, control, and configuration.
 
 ## 🚀 Quick Start
 
@@ -15,7 +15,8 @@ npm run dev
 
 # Access the application
 # Frontend: http://localhost:5173
-# API: http://localhost:3000/api/v1/docs
+# Backend API: http://localhost:3000/api/v2
+# API Documentation: http://localhost:3000/api/v1/docs
 ```
 
 ## 🏗️ Tech Stack
@@ -49,12 +50,12 @@ npm run dev
 
 ## ✨ Key Features
 
-- **Project Management Hub**: Task tracking, budget management, inventory system
-- **3D Printer Control Panel**: Real-time monitoring and control interface  
-- **Portfolio Showcase**: Professional project presentation
-- **Real-time Updates**: WebSocket-based live data synchronization
-- **Comprehensive Security**: JWT auth, CSRF protection, input validation
-- **Modern Architecture**: Monorepo with clear separation of concerns
+- **3D Printer Control Panel**: Real-time monitoring and print management
+- **Dashboard**: Clean overview with project showcase and system status
+- **Settings Management**: Configuration for printer parameters and preferences  
+- **Help & Documentation**: Comprehensive user guidance and troubleshooting
+- **Secure Authentication**: JWT-based user sessions with refresh token rotation
+- **Modern Architecture**: Clean separation between frontend, backend, and shared types
 
 ## 🛠️ Development
 
