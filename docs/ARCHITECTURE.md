@@ -66,19 +66,19 @@ Each component should have one clear purpose:
 
 ```typescript
 // ✅ Good: Focused component
-const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ project, onEdit, onDelete }) => {
   return (
-    <div className="task-card">
-      <TaskHeader task={task} />
-      <TaskContent task={task} />
-      <TaskActions onEdit={onEdit} onDelete={onDelete} />
+    <div className="project-card">
+      <ProjectHeader project={project} />
+      <ProjectContent project={project} />
+      <ProjectActions onEdit={onEdit} onDelete={onDelete} />
     </div>
   );
 };
 
 // ❌ Bad: Component doing too much
-const TaskManager: React.FC = () => {
-  // Handles fetching, editing, deleting, filtering, sorting, etc.
+const ControlPanel: React.FC = () => {
+  // Handles printer status, file upload, queue management, temperature control, etc.
   // This component is too complex
 };
 ```

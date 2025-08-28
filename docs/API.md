@@ -4,8 +4,8 @@ This document provides documentation for the simplified 3D Printer Control API e
 
 ## 🔗 Base URL
 
-- **Development**: `http://localhost:3000/api/v1`
-- **Production**: `https://your-domain.com/api/v1`
+- **Development**: `http://localhost:3000/api/v2`
+- **Production**: `https://your-domain.com/api/v2`
 
 ## 🔐 Authentication
 
@@ -156,114 +156,61 @@ Create new project.
 }
 ```
 
-### Task Management Endpoints
+### System Monitoring Endpoints
 
-#### `GET /project-management/tasks`
-List all tasks with optional filtering.
-
-**Query Parameters:**
-- `status`: Filter by task status (`todo`, `in-progress`, `done`)
-- `priority`: Filter by priority (`low`, `medium`, `high`)
-- `assignee`: Filter by assignee ID
-- `page`: Page number for pagination (default: 1)
-- `limit`: Items per page (default: 20)
+#### `GET /health`
+System health check endpoint.
 
 **Response (200):**
 ```json
 {
-  "tasks": [
-    {
-      "id": "uuid",
-      "title": "Task Title",
-      "description": "Task description",
-      "status": "todo",
-      "priority": "medium",
-      "assignee": "user-id",
-      "dueDate": "2024-01-01T00:00:00Z",
-      "createdAt": "2024-01-01T00:00:00Z",
-      "updatedAt": "2024-01-01T00:00:00Z"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 100,
-    "totalPages": 5
-  }
+  "status": "ok",
+  "env": "development",
+  "uptime": 3600,
+  "memory": 67108864,
+  "commit": "abc123",
+  "version": "0.1.0"
 }
 ```
 
-#### `POST /project-management/tasks`
-Create new task.
-
-**Request:**
-```json
-{
-  "title": "Task Title",
-  "description": "Task description",
-  "status": "todo",
-  "priority": "medium",
-  "assignee": "user-id",
-  "dueDate": "2024-01-01T00:00:00Z"
-}
-```
-
-**Response (201):**
-```json
-{
-  "task": {
-    "id": "uuid",
-    "title": "Task Title",
-    "description": "Task description",
-    "status": "todo",
-    "priority": "medium",
-    "assignee": "user-id",
-    "dueDate": "2024-01-01T00:00:00Z",
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-01T00:00:00Z"
-  }
-}
-```
-
-#### `PUT /project-management/tasks/:id`
-Update existing task.
-
-**Parameters:**
-- `id`: Task UUID
-
-**Request:**
-```json
-{
-  "title": "Updated Task Title",
-  "status": "in-progress",
-  "priority": "high"
-}
-```
+#### `GET /ready`
+System readiness probe for deployment monitoring.
 
 **Response (200):**
 ```json
 {
-  "task": {
-    "id": "uuid",
-    "title": "Updated Task Title",
-    "description": "Task description",
-    "status": "in-progress",
-    "priority": "high",
-    "assignee": "user-id",
-    "dueDate": "2024-01-01T00:00:00Z",
-    "createdAt": "2024-01-01T00:00:00Z",
-    "updatedAt": "2024-01-01T00:00:00Z"
+  "ready": true,
+  "cache": {
+    "connected": true,
+    "driver": "memory"
+  },
+  "redis": true,
+  "queues": {
+    "active": 0,
+    "pending": 0
   }
 }
 ```
 
-#### `DELETE /project-management/tasks/:id`
-Delete task.
+#### `GET /metrics`
+System metrics and performance data.
 
-**Parameters:**
-- `id`: Task UUID
-
-**Response (204):** No content
+**Response (200):**
+```json
+{
+  "reqTotal": 1250,
+  "reqActive": 3,
+  "memoryRss": 67108864,
+  "cache": {
+    "connected": true,
+    "driver": "memory"
+  },
+  "cleanup": {
+    "at": "2024-01-01T12:00:00Z",
+    "removed": 5
+  }
+}
+```
 
 ## 🛠️ Error Handling
 
@@ -297,9 +244,9 @@ All API endpoints follow consistent error response format:
 
 The API supports real-time updates via WebSocket connections for:
 
-- Task updates (`task.created`, `task.updated`, `task.deleted`)
 - Project updates (`project.created`, `project.updated`, `project.deleted`)
-- System notifications
+- Authentication events (`security.auth.login`, `security.auth.logout`)
+- System notifications and heartbeats
 
 ### WebSocket Events
 
@@ -307,17 +254,22 @@ The API supports real-time updates via WebSocket connections for:
 // Connect to WebSocket
 const socket = io('http://localhost:3000');
 
-// Listen for task updates
-socket.on('task.created', (task) => {
-  console.log('New task created:', task);
+// Listen for project updates
+socket.on('project.created', (project) => {
+  console.log('New project created:', project);
 });
 
-socket.on('task.updated', (task) => {
-  console.log('Task updated:', task);
+socket.on('project.updated', (project) => {
+  console.log('Project updated:', project);
 });
 
-socket.on('task.deleted', (taskId) => {
-  console.log('Task deleted:', taskId);
+socket.on('project.deleted', (projectId) => {
+  console.log('Project deleted:', projectId);
+});
+
+// Listen for security events
+socket.on('security.auth.login', (data) => {
+  console.log('User logged in:', data);
 });
 ```
 
@@ -344,8 +296,8 @@ curl -X POST http://localhost:3000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"password"}'
 
-# Get tasks (with auth token)
-curl -X GET http://localhost:3000/api/v1/project-management/tasks \
+# Get projects (with auth token)
+curl -X GET http://localhost:3000/api/v2/projects \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 

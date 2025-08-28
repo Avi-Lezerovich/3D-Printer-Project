@@ -1,6 +1,6 @@
-# 3D Printer Project – Documentation Hub
+# 3D Printer Control System – Documentation Hub
 
-This directory contains comprehensive documentation for the 3D Printer Project, a modern full-stack application demonstrating enterprise-grade development practices.
+This directory contains documentation for the simplified 3D Printer Control System, focusing on essential 3D printer control functionality with clean architecture.
 
 ## 📚 Documentation Guide
 
@@ -33,15 +33,16 @@ Technical guides for working with the codebase:
 The system consists of three main deployable units:
 
 **Frontend (React SPA)**
-- Portfolio showcase and project presentation
-- Control panel for printer operations and real-time telemetry
-- Project management hub with tasks, inventory, budget, and analytics
+- Dashboard with portfolio showcase and system overview
+- Control panel for 3D printer monitoring and control
+- Settings management for user configuration
+- Help system with comprehensive documentation
 
 **Backend (Express API)**
 - Authentication and session management
-- Project and task domain services
+- Basic project management services
 - Real-time event gateway with Socket.io
-- Security, caching, validation, and audit logging
+- Security, caching, validation, and system monitoring
 
 **Infrastructure**
 - Containerized deployment with Docker

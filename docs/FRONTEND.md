@@ -30,8 +30,8 @@ frontend/src/
 │   │   ├── Sidebar.tsx
 │   │   └── Navigation.tsx
 │   └── common/          # Complex shared components
-│       ├── TaskCard.tsx
-│       ├── ProjectList.tsx
+│       ├── ProjectCard.tsx
+│       ├── ControlPanel.tsx
 │       └── ...
 ├── features/            # Feature-based modules
 │   ├── auth/            # Authentication
@@ -39,17 +39,13 @@ frontend/src/
 │   │   ├── hooks/
 │   │   ├── services/
 │   │   └── types.ts
-│   ├── project-management/ # Project management
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── services/
-│   │   ├── store/
-│   │   └── types.ts
 │   └── portfolio/       # Portfolio features
 ├── pages/               # Route components
 │   ├── Login.tsx
 │   ├── Dashboard.tsx
-│   ├── ProjectManagement.tsx
+│   ├── ControlPanel.tsx
+│   ├── Settings.tsx
+│   ├── Help.tsx
 │   └── ...
 ├── services/            # API clients and utilities
 │   ├── api/
@@ -355,51 +351,33 @@ export const useUiStore = create<UiStore>()(
 Use React Query for all server-side data:
 
 ```typescript
-// src/services/api/tasks.ts
+// src/services/api/projects.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from './client';
-import type { Task, CreateTaskData, UpdateTaskData } from '../../types/api';
+import type { Project, CreateProjectData, UpdateProjectData } from '../../types/api';
 
-const TASKS_KEY = 'tasks';
+const PROJECTS_KEY = 'projects';
 
-export const useTasksQuery = (filters?: TaskFilters) => {
+export const useProjectsQuery = () => {
   return useQuery({
-    queryKey: [TASKS_KEY, filters],
-    queryFn: () => apiClient.get<{ tasks: Task[] }>('/project-management/tasks', {
-      params: filters,
-    }),
-    select: (data) => data.tasks,
+    queryKey: [PROJECTS_KEY],
+    queryFn: () => apiClient.get<{ projects: Project[] }>('/projects'),
+    select: (data) => data.projects,
   });
 };
 
-export const useCreateTaskMutation = () => {
+export const useCreateProjectMutation = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (data: CreateTaskData) =>
-      apiClient.post<{ task: Task }>('/project-management/tasks', data),
+    mutationFn: (data: CreateProjectData) =>
+      apiClient.post<{ project: Project }>('/projects', data),
     onSuccess: (response) => {
       // Optimistically update the cache
-      queryClient.setQueryData([TASKS_KEY], (old: Task[] = []) => [
+      queryClient.setQueryData([PROJECTS_KEY], (old: Project[] = []) => [
         ...old,
-        response.task,
+        response.project,
       ]);
-    },
-  });
-};
-
-export const useUpdateTaskMutation = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ id, ...data }: UpdateTaskData & { id: string }) =>
-      apiClient.put<{ task: Task }>(`/project-management/tasks/${id}`, data),
-    onSuccess: (response) => {
-      queryClient.setQueryData([TASKS_KEY], (old: Task[] = []) =>
-        old.map((task) =>
-          task.id === response.task.id ? response.task : task
-        )
-      );
     },
   });
 };
