@@ -138,7 +138,7 @@ const PrintingApp = () => {
       <main>
         {currentView === 'upload' && <FileUploadView />}
         {currentView === 'projects' && (
-          <ProjectManagementView 
+          <ProjectsView 
             onSelectProject={setSelectedProject}
             selectedProject={selectedProject}
           />
@@ -221,7 +221,7 @@ const FileUploadView = () => {
   );
 };
 
-const ProjectManagementView = ({ 
+const ProjectsView = ({ 
   onSelectProject, 
   selectedProject 
 }: {
@@ -240,7 +240,7 @@ const ProjectManagementView = ({
 
   return (
     <section aria-labelledby="projects-heading">
-      <h1 id="projects-heading">Project Management</h1>
+      <h1 id="projects-heading">Projects</h1>
       
       <button onClick={createNewProject}>
         Create New Project
@@ -663,8 +663,8 @@ describe('End-to-End User Workflow Integration Tests', () => {
     });
   });
 
-  describe('Project Management Integration', () => {
-    it('integrates project management with printing workflow', async () => {
+  describe('Project Integration', () => {
+    it('integrates projects with printing workflow', async () => {
       const user = userEvent.setup();
       
       render(
@@ -676,7 +676,7 @@ describe('End-to-End User Workflow Integration Tests', () => {
       // Navigate to projects
       await user.click(screen.getByRole('button', { name: 'Projects' }));
 
-      expect(screen.getByText(/project management/i)).toBeInTheDocument();
+      expect(screen.getByText(/projects/i)).toBeInTheDocument();
 
       // Create new project
       window.prompt = vi.fn(() => 'Test 3D Print Project');

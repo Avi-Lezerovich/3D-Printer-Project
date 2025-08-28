@@ -50,37 +50,6 @@ const Sidebar = () => {
       color: 'green'
     },
     { 
-      key: 'management', 
-      label: 'Project Management', 
-      icon: FolderKanban, 
-      path: '/management',
-      description: 'Tasks & project tracking',
-      color: 'purple',
-      hasSubMenu: true,
-      subItems: [
-        { key: 'overview', label: 'Task Management', icon: Activity, path: '/management?tab=overview' },
-        { key: 'budget', label: 'Budget Tracker', icon: DollarSign, path: '/management?tab=budget' },
-        { key: 'inventory', label: 'Inventory', icon: Package, path: '/management?tab=inventory' },
-        { key: 'analytics', label: 'Analytics', icon: BarChart3, path: '/management?tab=analytics' },
-      ]
-    },
-    {
-      key: 'projects',
-      label: 'Project Analytics',
-      icon: BarChart3,
-      path: '/projects/analytics',
-      description: 'Project insights & metrics',
-      color: 'cyan'
-    },
-    {
-      key: 'observability',
-      label: 'Observability',
-      icon: Eye,
-      path: '/observability',
-      description: 'System monitoring',
-      color: 'yellow'
-    },
-    { 
       key: 'settings', 
       label: 'Settings', 
       icon: Settings, 
