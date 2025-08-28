@@ -1,6 +1,6 @@
 # API Documentation
 
-This document provides comprehensive documentation for the 3D Printer Project API endpoints, including request/response formats, authentication requirements, and error handling.
+This document provides documentation for the simplified 3D Printer Control API endpoints, focusing on authentication, basic project management, and system monitoring.
 
 ## 🔗 Base URL
 
@@ -9,7 +9,7 @@ This document provides comprehensive documentation for the 3D Printer Project AP
 
 ## 🔐 Authentication
 
-All API endpoints (except health check and authentication endpoints) require JWT authentication via cookies or Authorization header.
+Most API endpoints require JWT authentication via cookies or Authorization header. Health checks and authentication endpoints are public.
 
 ### Authentication Flow
 
@@ -109,7 +109,7 @@ Logout user and invalidate tokens.
 
 **Response (204):** No content
 
-### Project Management Endpoints
+### Project Endpoints
 
 #### `GET /projects`
 List all projects for authenticated user.

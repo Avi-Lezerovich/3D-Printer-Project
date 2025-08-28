@@ -5,10 +5,10 @@ export const openapiSpec = {
     title: '3D Printer Project API',
     version: process.env.npm_package_version || '0.1.0',
     description: `
-      # 3D Printer Project API
+      # 3D Printer Control API
       
-      This API provides comprehensive project management capabilities for 3D printing projects,
-      including task management, inventory tracking, budget management, and real-time collaboration.
+      This API provides essential 3D printer control capabilities including
+      authentication, project management, and monitoring functionality.
       
       ## Authentication
       
@@ -20,9 +20,11 @@ export const openapiSpec = {
       - Authentication endpoints: 5 requests per minute per IP
       - General API endpoints: 100 requests per minute per user
       
-      ## Real-time Updates
+      ## Core Features
       
-      The API supports WebSocket connections for real-time updates on tasks, projects, and notifications.
+      - User authentication and session management
+      - Basic project listing and creation
+      - Health monitoring and status endpoints
     `,
     contact: {
       name: 'API Support',

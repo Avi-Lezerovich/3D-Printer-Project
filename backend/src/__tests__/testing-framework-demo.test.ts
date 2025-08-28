@@ -121,7 +121,7 @@ describe('🚀 Testing Framework Demo - Core Features', () => {
       ]
 
       for (const scenario of errorScenarios) {
-        let request = agent[method](scenario.path)
+        let request = (agent as any)[scenario.method.toLowerCase()](scenario.path)
         
         if (scenario.body) {
           request = request.send(scenario.body)

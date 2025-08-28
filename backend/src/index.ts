@@ -16,7 +16,6 @@ import { setupGracefulShutdown } from './serverLifecycle.js'
 import { authenticateJWT } from './middleware/authMiddleware.js'
 import authRouter from './routes/auth.js'
 import projectsRouter from './routes/projects.js'
-import projectManagementRouter from './routes/project-management.js'
 import { setCache } from './middleware/cacheMiddleware.js'
 import { env, allowedOrigins, serverConfig, isProd, featureFlags } from './config/index.js'
 import { httpLogger, logger } from './utils/logger.js'
@@ -30,7 +29,6 @@ import { initializeRepositories } from './repositories/factory.js'
 import { initCache, cacheStats, setCacheStrategy } from './cache/cacheService.js'
 import redisWrapper from './cache/redisClient.js'
 import { queueStats, registerProcessor } from './queues/index.js'
-import { processProjectAudit } from './queues/processors/projectAuditProcessor.js'
 import { deepSanitize } from './security/sanitization/sanitize.js'
 import { redisSlidingWindowLimiter } from './middleware/rateLimiter.js'
 import { listFlags, flagEnabled } from './config/flags.js'
@@ -42,7 +40,6 @@ import { eventBus } from './realtime/eventBus.js'
 import { startBackgroundJobs, setBackgroundRepositories, getCleanupStats } from './background/jobs.js'
 import v2ProjectsRouter from './api/v2/projects.js'
 import v2AuthRouter from './api/v2/auth.js'
-import v2ProjectManagementRouter from './api/v2/project-management.js'
 import { getSpans } from './telemetry/tracing/tracer.js'
 // Simple in-memory metrics (initialized after app instantiation below)
 const metrics = { reqTotal: 0, reqActive: 0 }
@@ -134,7 +131,7 @@ let io: any | undefined
 ;(async () => { await initCache(); setCacheStrategy(featureFlags.cacheStrategy as any) })()
 
 // Register queue processors
-registerProcessor('project.audit', processProjectAudit)
+// (processors removed for simplified application)
 
 // (Prometheus metrics now initialized in telemetry/metrics)
 
@@ -349,7 +346,6 @@ if (process.env.SERVE_FRONTEND === 'true') {
 // Routes (v2 - preferred)
 app.use('/api/v2/auth', v2AuthRouter)
 app.use('/api/v2/projects', v2ProjectsRouter) 
-app.use('/api/v2/project-management', v2ProjectManagementRouter)
 
 // V1 routes (deprecated - add deprecation headers)
 app.use('/api/v1/auth', (req, res, next) => {
@@ -377,19 +373,8 @@ app.use('/api/v1/projects', authenticateJWT, (req, res, next) => {
   next()
 }, projectsRouter)
 
-app.use('/api/v1/project-management', authenticateJWT, (req, res, next) => {
-  res.setHeader('X-API-Deprecated', 'true')
-  res.setHeader('X-API-Deprecation-Info', 'This API version is deprecated. Please use /api/v2/project-management')
-  next()
-}, projectManagementRouter)
 
-// Legacy compatibility aliases (to be removed in future versions)
-// Temporary compatibility alias for early frontend prototype expecting /api/tasks
-app.get('/api/tasks', authenticateJWT, (req, res, next) => {
-  res.setHeader('X-API-Deprecated', 'true')
-  res.setHeader('X-API-Deprecation-Info', 'This endpoint is deprecated. Please use /api/v2/project-management/tasks')
-  ;(v2ProjectManagementRouter as any).handle({ ...req, url: '/tasks', path: '/tasks', method: 'GET' }, res, next)
-})
+// Legacy compatibility aliases removed for simplified application
 
 // Back-compat temporary mounts (to be removed after clients migrate)
 app.use('/api/auth', (req, res, next) => {
@@ -421,15 +406,7 @@ app.get('/api', (_req, res) => {
           'POST /api/v2/auth/refresh',
           'POST /api/v2/auth/logout',
           'GET /api/v2/projects',
-          'POST /api/v2/projects',
-          'GET /api/v2/project-management/tasks',
-          'POST /api/v2/project-management/tasks',
-          'GET /api/v2/project-management/tasks/:id',
-          'PUT /api/v2/project-management/tasks/:id',
-          'DELETE /api/v2/project-management/tasks/:id',
-          'GET /api/v2/project-management/budget/categories',
-          'GET /api/v2/project-management/budget/expenses',
-          'GET /api/v2/project-management/inventory'
+          'POST /api/v2/projects'
         ]
       },
       'v1': {
