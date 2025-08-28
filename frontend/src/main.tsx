@@ -5,7 +5,7 @@ import './styles/index.css'
 import { AppQueryProvider } from './core/query/QueryProvider'
 import { SocketProvider } from './core/realtime/SocketProvider'
 import { lazy, Suspense } from 'react'
-import Spinner from './components/Spinner'
+import LoadingFallback from './components/LoadingFallback'
 import ErrorBoundary from './components/ErrorBoundary'
 import Layout from './shared/Layout'
 // Restore original rich page implementations pending micro-frontend parity
@@ -16,18 +16,42 @@ const Help = lazy(()=> import('./pages/Help'))
 const Login = lazy(()=> import('./pages/Login'))
 const NotFound = lazy(()=> import('./pages/NotFound'))
 
+const createSuspenseWrapper = (Component: React.ComponentType, message?: string) => (
+  <Suspense fallback={<LoadingFallback message={message} />}>
+    <Component />
+  </Suspense>
+);
+
 const router = createBrowserRouter([
   {
     path: '/',
-  element: <Layout />,
+    element: <Layout />,
     errorElement: <ErrorBoundary />,
     children: [
-  { index: true, element: <Suspense fallback={<Spinner />}><Portfolio /></Suspense> },
-  { path: 'control', element: <Suspense fallback={<Spinner />}><ControlPanel /></Suspense> },
-    { path: 'settings', element: <Suspense fallback={<Spinner />}><Settings /></Suspense> },
-    { path: 'help', element: <Suspense fallback={<Spinner />}><Help /></Suspense> },
-  { path: 'login', element: <Suspense fallback={<Spinner />}><Login /></Suspense> },
-      { path: '*', element: <Suspense fallback={<Spinner />}><NotFound /></Suspense> },
+      { 
+        index: true, 
+        element: createSuspenseWrapper(Portfolio, 'Loading portfolio...') 
+      },
+      { 
+        path: 'control', 
+        element: createSuspenseWrapper(ControlPanel, 'Loading control panel...') 
+      },
+      { 
+        path: 'settings', 
+        element: createSuspenseWrapper(Settings, 'Loading settings...') 
+      },
+      { 
+        path: 'help', 
+        element: createSuspenseWrapper(Help, 'Loading help...') 
+      },
+      { 
+        path: 'login', 
+        element: createSuspenseWrapper(Login, 'Loading login...') 
+      },
+      { 
+        path: '*', 
+        element: createSuspenseWrapper(NotFound, 'Page not found...') 
+      },
     ],
   },
 ])
