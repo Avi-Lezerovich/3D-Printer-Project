@@ -1,4 +1,4 @@
-import Bull from 'bull'
+import Bull, { Job } from 'bull'
 import { logger } from '../utils/logger.js'
 import { Repositories } from '../repositories/types.js'
 
@@ -97,7 +97,7 @@ export class JobProcessor {
 
   private setupWorkers(): void {
     // Token cleanup worker
-    this.queues.get(JobType.CLEANUP_TOKENS)?.process(async (job) => {
+    this.queues.get(JobType.CLEANUP_TOKENS)?.process(async (job: Job) => {
       const { repositoriesFactory } = job.data
       const repos = await repositoriesFactory()
       const removed = await repos.users.cleanupExpiredRefreshTokens()
@@ -107,7 +107,7 @@ export class JobProcessor {
     })
 
     // Email notification worker
-    this.queues.get(JobType.EMAIL_NOTIFICATION)?.process(5, async (job) => {
+    this.queues.get(JobType.EMAIL_NOTIFICATION)?.process(5, async (job: Job) => {
       const { to, subject, template, data } = job.data
       
       // Simulate email sending (replace with actual email service)
@@ -118,7 +118,7 @@ export class JobProcessor {
     })
 
     // Data export worker
-    this.queues.get(JobType.DATA_EXPORT)?.process(2, async (job) => {
+    this.queues.get(JobType.DATA_EXPORT)?.process(2, async (job: Job) => {
       const { userId, exportType, format } = job.data
       
       if (!this.repositories) {
@@ -136,7 +136,7 @@ export class JobProcessor {
     })
 
     // Metrics aggregation worker
-    this.queues.get(JobType.METRICS_AGGREGATION)?.process(3, async (job) => {
+    this.queues.get(JobType.METRICS_AGGREGATION)?.process(3, async (job: Job) => {
       const { timeRange, metrics } = job.data
       
       const aggregated = await this.aggregateMetrics(timeRange, metrics)
@@ -147,7 +147,7 @@ export class JobProcessor {
     })
 
     // Cache warmup worker
-    this.queues.get(JobType.CACHE_WARMUP)?.process(async (job) => {
+    this.queues.get(JobType.CACHE_WARMUP)?.process(async (job: Job) => {
       const { cacheKeys, dataSource } = job.data
       
       const warmedUp = await this.warmupCache(cacheKeys, dataSource)
@@ -157,7 +157,7 @@ export class JobProcessor {
     })
 
     // User analytics worker  
-    this.queues.get(JobType.USER_ANALYTICS)?.process(10, async (job) => {
+    this.queues.get(JobType.USER_ANALYTICS)?.process(10, async (job: Job) => {
       const { userId, event, metadata } = job.data
       
       await this.processUserAnalytics(userId, event, metadata)
@@ -171,19 +171,19 @@ export class JobProcessor {
 
   private setupEventListeners(): void {
     this.queues.forEach((queue, jobType) => {
-      queue.on('completed', (job, result) => {
+      queue.on('completed', (job: Job, result: any) => {
         logger.debug({ jobType, jobId: job.id, result }, 'Job completed')
       })
 
-      queue.on('failed', (job, err) => {
+      queue.on('failed', (job: Job, err: Error) => {
         logger.error({ jobType, jobId: job.id, error: err.message }, 'Job failed')
       })
 
-      queue.on('stalled', (job) => {
+      queue.on('stalled', (job: Job) => {
         logger.warn({ jobType, jobId: job.id }, 'Job stalled')
       })
 
-      queue.on('error', (error) => {
+      queue.on('error', (error: Error) => {
         logger.error({ jobType, error: error.message }, 'Queue error')
       })
     })

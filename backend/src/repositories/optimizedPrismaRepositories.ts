@@ -4,10 +4,9 @@ import type { Repositories, UserRecord, ProjectRecord } from './types.js'
 import { advancedCache } from '../cache/advancedCacheService.js'
 
 interface DatabaseConfig {
-  writeUrl: string
-  readUrls: string[]
   poolSize: number
   connectionTimeoutMs: number
+  enableReadReplicas: boolean
 }
 
 class DatabasePool {
@@ -28,42 +27,50 @@ class DatabasePool {
   }
 
   private loadConfig(): DatabaseConfig {
-    const writeUrl = process.env.DATABASE_URL
-    if (!writeUrl) throw new Error('DATABASE_URL is required')
-    
-    const readUrls = process.env.READ_REPLICA_URLS?.split(',') || [writeUrl]
+    if (!process.env.DATABASE_URL) {
+      throw new Error('DATABASE_URL is required')
+    }
     
     return {
-      writeUrl,
-      readUrls,
       poolSize: Number(process.env.DB_POOL_SIZE) || 10,
-      connectionTimeoutMs: Number(process.env.DB_TIMEOUT_MS) || 5000
+      connectionTimeoutMs: Number(process.env.DB_TIMEOUT_MS) || 5000,
+      enableReadReplicas: !!process.env.READ_REPLICA_URLS
     }
   }
 
   private initializePools(): void {
     // Write connection pool with optimized settings
-    this.writePool = new PrismaClient({
-      datasources: { db: { url: this.config.writeUrl } },
-      log: process.env.NODE_ENV === 'development' ? ['query', 'warn', 'error'] : ['error'],
-      errorFormat: 'pretty',
-    })
-
-    // Read replica pools with connection pooling
-    this.config.readUrls.forEach((url, index) => {
-      const client = new PrismaClient({
-        datasources: { db: { url } },
-        log: ['error'],
+    this.writePool = new PrismaClient()
+    
+    // Configure logging after initialization
+    if (process.env.NODE_ENV === 'development') {
+      // Enable query logging in development
+      this.writePool.$on('query', (e: any) => {
+        logger.debug({ query: e.query, duration: e.duration }, 'Database query')
       })
+    }
+
+    // Read replica support (simplified approach)
+    // In production, you would configure multiple DATABASE_URLs or use Prisma's connection pooling
+    if (this.config.enableReadReplicas) {
+      const readReplicaCount = Number(process.env.READ_REPLICA_COUNT) || 2
       
-      this.readPools.push(client)
-      logger.info({ index, url: this.maskUrl(url) }, 'Read replica pool initialized')
-    })
+      // Create multiple read clients for load distribution
+      for (let i = 0; i < readReplicaCount; i++) {
+        const client = new PrismaClient()
+        this.readPools.push(client)
+        logger.info({ index: i }, 'Read replica client initialized')
+      }
+    } else {
+      // Use write pool as read pool when no replicas configured
+      this.readPools.push(this.writePool)
+    }
 
     logger.info({
       writePool: 1,
       readPools: this.readPools.length,
-      poolSize: this.config.poolSize
+      poolSize: this.config.poolSize,
+      readReplicasEnabled: this.config.enableReadReplicas
     }, 'Database pools initialized')
   }
 

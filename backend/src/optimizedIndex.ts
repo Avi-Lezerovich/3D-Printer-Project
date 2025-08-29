@@ -381,8 +381,7 @@ const csrfProtection = csrf({
     httpOnly: true, 
     sameSite: 'lax', 
     secure: SESSION_SECURE, 
-    path: '/',
-    maxAge: 3600000 // 1 hour
+    path: '/'
   } 
 })
 

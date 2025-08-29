@@ -132,10 +132,10 @@ export function enhancedErrorHandler(
     context,
     performance: performanceData,
     request: {
-      body: req.method !== 'GET' ? this.sanitizeRequestBody(req.body) : undefined,
+      body: req.method !== 'GET' ? sanitizeRequestBody(req.body) : undefined,
       query: Object.keys(req.query).length > 0 ? req.query : undefined,
       params: Object.keys(req.params).length > 0 ? req.params : undefined,
-      headers: this.sanitizeHeaders(req.headers)
+      headers: sanitizeHeaders(req.headers)
     }
   }
 
@@ -174,7 +174,7 @@ export function enhancedErrorHandler(
   // Add retry information for specific error types
   if (status >= 500 && status !== 501) {
     errorResponse.error.retryable = true
-    errorResponse.error.retryAfter = this.calculateRetryAfter(status)
+    errorResponse.error.retryAfter = calculateRetryAfter(status)
   }
 
   // Send response
