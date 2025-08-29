@@ -1,4 +1,4 @@
-import { tokens } from '../design-system';
+import { tokens } from '../../../src/design-system';
 
 export const useAnimations = () => {
   const { duration, easing } = tokens.animation;
