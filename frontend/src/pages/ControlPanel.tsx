@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import { useControlPanelShortcuts } from '../hooks/useKeyboardShortcuts';
 import KeyboardShortcutsHelp from '../components/ui/KeyboardShortcutsHelp';
-import StatusSection from './control-panel/StatusSection';
 import ControlsSection from './control-panel/ControlsSection';
 import FileUploadSection from './control-panel/FileUploadSection';
 import QueueSection from './control-panel/QueueSection';
@@ -43,7 +42,7 @@ const itemVariants = {
 
 export default function ControlPanel() {
   const { sidebarCollapsed, connected, status, hotend, bed } = useAppStore();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('controls');
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
   const handleRefresh = useCallback(() => {
@@ -81,13 +80,6 @@ export default function ControlPanel() {
   }, []);
 
   const tabs = [
-    { 
-      id: 'overview', 
-      label: 'Dashboard', 
-      icon: Activity,
-      description: 'System overview and quick controls',
-      color: 'blue'
-    },
     { 
       id: 'controls', 
       label: 'Controls', 
@@ -198,49 +190,6 @@ export default function ControlPanel() {
     `;
 
     switch (activeTab) {
-      case 'overview':
-        return (
-          <div className={contentWrapperClass}>
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                <div className="xl:col-span-1 space-y-6">
-                  <div className="glass-card p-6">
-                    <StatusSection />
-                  </div>
-                </div>
-                <div className="xl:col-span-2">
-                  <div className="glass-card p-6 h-full">
-                    <ControlsSection />
-                  </div>
-                </div>
-              </div>
-              <div className="glass-card p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-xl bg-green-500/10 border border-green-500/20">
-                      <Camera className="w-5 h-5 text-green-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">Live Monitor</h3>
-                      <p className="text-sm text-slate-400">Real-time printer view</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-xs font-medium ${
-                      connected ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 
-                      'bg-red-500/10 text-red-400 border border-red-500/20'
-                    }`}>
-                      <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
-                      {connected ? 'Live' : 'Offline'}
-                    </div>
-                  </div>
-                </div>
-                <WebcamSection />
-              </div>
-            </div>
-          </div>
-        );
-        
       case 'controls':
         return (
           <div className={contentWrapperClass}>

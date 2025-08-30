@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Camera, CameraOff, Maximize2, Minimize2, Play, Pause,
   Volume2, VolumeX, Settings, RotateCcw, ZoomIn, ZoomOut,
-  Grid3X3, ScanLine, Aperture
+  Grid3X3, ScanLine, Aperture, Download, Circle, Square,
+  Monitor, Wifi, Activity, Eye, Focus
 } from 'lucide-react';
 
 // Vendor fullscreen API typings
@@ -27,6 +28,9 @@ const WebcamSection = () => {
   const [showGrid, setShowGrid] = useState(false);
   const [streamQuality, setStreamQuality] = useState('HD');
   const [zoom, setZoom] = useState(100);
+  const [isRecording, setIsRecording] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [connectionQuality, setConnectionQuality] = useState(85);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Listen for fullscreen changes
@@ -133,212 +137,479 @@ const WebcamSection = () => {
 
   return (
     <motion.div
-      className="space-y-6"
+      className="space-y-8"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      {/* Camera Feed */}
+      {/* Enhanced Camera Feed */}
       <motion.div 
         ref={containerRef}
         variants={itemVariants} 
-        className="glass-card p-6 relative"
+        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-800/50 via-slate-900/40 to-slate-800/30 backdrop-blur-xl border border-white/10 shadow-2xl"
       >
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-            <Camera className="w-5 h-5 text-blue-400" />
-            Live Camera Feed
-          </h3>
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${isStreaming ? 'bg-green-400' : 'bg-red-400'} animate-pulse`} />
-            <span className={`text-sm font-medium ${isStreaming ? 'text-green-400' : 'text-red-400'}`}>
-              {isStreaming ? 'LIVE' : 'OFFLINE'}
-            </span>
-          </div>
-        </div>
-
-        {/* Video Container */}
-        <div className="relative bg-gray-900 rounded-xl overflow-hidden aspect-video">
-          {isStreaming ? (
-            <div 
-              className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center relative"
-              style={{ transform: `scale(${zoom / 100})` }}
-            >
-              {/* Simulated camera feed */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20" />
-              <div className="text-white/60 text-center">
-                <Camera className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p className="text-lg font-medium">Camera Feed Active</p>
-                <p className="text-sm opacity-75">Quality: {streamQuality}</p>
+        <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-blue-500/5" />
+        <div className="relative p-6">
+          {/* Header with Status */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-3 rounded-2xl bg-green-500/10 border border-green-500/20">
+                <Camera className="w-6 h-6 text-green-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">Live Camera Feed</h3>
+                <p className="text-sm text-slate-400">Real-time printer monitoring</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {/* Connection Quality */}
+              <div className="flex items-center space-x-2 px-3 py-2 bg-white/5 rounded-xl border border-white/10">
+                <Wifi className="w-4 h-4 text-green-400" />
+                <span className="text-sm font-medium text-green-400">{connectionQuality}%</span>
               </div>
               
-              {/* Grid Overlay */}
-              {showGrid && (
-                <div className="absolute inset-0 pointer-events-none">
-                  <div className="w-full h-full grid grid-cols-3 grid-rows-3 gap-0">
-                    {Array.from({ length: 9 }).map((_, i) => (
-                      <div key={i} className="border border-white/20" />
-                    ))}
+              {/* Live Indicator */}
+              <div className={`flex items-center space-x-2 px-4 py-2 rounded-full border ${
+                isStreaming 
+                  ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+                  : 'bg-red-500/10 border-red-500/20 text-red-400'
+              }`}>
+                <div className={`w-3 h-3 rounded-full ${
+                  isStreaming ? 'bg-green-400 animate-pulse shadow-lg shadow-green-400/50' : 'bg-red-400'
+                }`} />
+                <span className="text-sm font-bold">
+                  {isStreaming ? 'LIVE' : 'OFFLINE'}
+                </span>
+              </div>
+              
+              {/* Recording Indicator */}
+              {isRecording && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="flex items-center space-x-2 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-full"
+                >
+                  <Circle className="w-4 h-4 text-red-400 animate-pulse fill-current" />
+                  <span className="text-sm font-medium text-red-400">REC</span>
+                </motion.div>
+              )}
+            </div>
+          </div>
+
+          {/* Enhanced Video Container */}
+          <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl overflow-hidden aspect-video border border-white/10 shadow-2xl">
+            {isStreaming ? (
+              <div 
+                className="w-full h-full relative bg-gradient-to-br from-slate-800 to-slate-900"
+                style={{ transform: `scale(${zoom / 100})` }}
+              >
+                {/* Simulated camera feed */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20" />
+                
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <motion.div
+                      className="w-20 h-20 mx-auto mb-6 p-4 rounded-2xl bg-blue-500/20 border border-blue-500/30"
+                      animate={{ 
+                        scale: [1, 1.05, 1],
+                        rotate: [0, 5, 0]
+                      }}
+                      transition={{ 
+                        repeat: Infinity, 
+                        duration: 3,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      <Camera className="w-12 h-12 text-blue-400 mx-auto" />
+                    </motion.div>
+                    <p className="text-xl font-bold text-white mb-2">Camera Feed Active</p>
+                    <div className="flex items-center justify-center space-x-4 text-sm text-slate-300">
+                      <span className="flex items-center space-x-2">
+                        <Monitor className="w-4 h-4" />
+                        <span>{streamQuality}</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
-              )}
-              
-              {/* Crosshair */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-8 h-8 border border-white/40">
-                  <div className="absolute top-1/2 left-1/2 w-full h-px bg-white/40 transform -translate-x-1/2 -translate-y-1/2" />
-                  <div className="absolute top-1/2 left-1/2 h-full w-px bg-white/40 transform -translate-x-1/2 -translate-y-1/2" />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <div className="text-center text-gray-400">
-                <CameraOff className="w-16 h-16 mx-auto mb-4" />
-                <p className="text-lg font-medium">Camera Offline</p>
-                <p className="text-sm">Check connection and try again</p>
-              </div>
-            </div>
-          )}
-
-          {/* Camera Controls Overlay */}
-          {showControls && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
-            >
-              {/* Top Controls */}
-              <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <span className="text-white/80 text-sm bg-black/40 px-2 py-1 rounded">
-                    Zoom: {zoom}%
-                  </span>
-                </div>
                 
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={() => setStreamQuality(streamQuality === 'HD' ? '4K' : streamQuality === '4K' ? 'FHD' : 'HD')}
-                    className="glass-button p-2 text-xs"
+                {/* Enhanced Grid Overlay */}
+                <AnimatePresence>
+                  {showGrid && (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 pointer-events-none"
+                    >
+                      <div className="w-full h-full grid grid-cols-3 grid-rows-3 gap-0">
+                        {Array.from({ length: 9 }).map((_, i) => (
+                          <motion.div 
+                            key={i} 
+                            className="border border-white/30"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: i * 0.05 }}
+                          />
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
+                {/* Enhanced Crosshair */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <motion.div 
+                    className="relative"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                   >
-                    {streamQuality}
-                  </button>
+                    <div className="w-12 h-12 border-2 border-white/40 rounded-full">
+                      <div className="absolute top-1/2 left-1/2 w-6 h-px bg-white/40 transform -translate-x-1/2 -translate-y-1/2" />
+                      <div className="absolute top-1/2 left-1/2 h-6 w-px bg-white/40 transform -translate-x-1/2 -translate-y-1/2" />
+                    </div>
+                  </motion.div>
                 </div>
-              </div>
 
-              {/* Bottom Controls */}
-              <div className="absolute bottom-4 left-4 right-4">
-                <div className="flex justify-center items-center gap-2">
-                  <button
-                    onClick={() => setIsStreaming(!isStreaming)}
-                    className="glass-button p-3"
-                  >
-                    {isStreaming ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                  </button>
-                  
-                  <button
-                    onClick={() => setIsMuted(!isMuted)}
-                    className="glass-button p-3"
-                  >
-                    {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-                  </button>
-                  
-                  <button
-                    onClick={() => setShowGrid(!showGrid)}
-                    className={`glass-button p-3 ${showGrid ? 'bg-blue-500/20' : ''}`}
-                  >
-                    <Grid3X3 className="w-5 h-5" />
-                  </button>
-                  
-                  <button
-                    onClick={() => setZoom(Math.max(50, zoom - 25))}
-                    disabled={zoom <= 50}
-                    className="glass-button p-3 disabled:opacity-50"
-                  >
-                    <ZoomOut className="w-5 h-5" />
-                  </button>
-                  
-                  <button
-                    onClick={() => setZoom(Math.min(200, zoom + 25))}
-                    disabled={zoom >= 200}
-                    className="glass-button p-3 disabled:opacity-50"
-                  >
-                    <ZoomIn className="w-5 h-5" />
-                  </button>
-                  
-                  <button
-                    onClick={toggleFullscreen}
-                    className="glass-button p-3"
-                  >
-                    {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
-                  </button>
+                {/* Live Data Overlay */}
+                <div className="absolute top-4 right-4">
+                  <div className="bg-black/60 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+                    <div className="text-xs text-white/80 space-y-1">
+                      <div className="flex justify-between space-x-4">
+                        <span>Zoom:</span>
+                        <span className="text-blue-400">{zoom}%</span>
+                      </div>
+                      <div className="flex justify-between space-x-4">
+                        <span>Quality:</span>
+                        <span className="text-purple-400">{streamQuality}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </motion.div>
-          )}
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="text-center">
+                  <motion.div
+                    animate={{ 
+                      opacity: [0.5, 1, 0.5]
+                    }}
+                    transition={{ 
+                      repeat: Infinity, 
+                      duration: 2
+                    }}
+                  >
+                    <CameraOff className="w-20 h-20 mx-auto mb-6 text-slate-500" />
+                  </motion.div>
+                  <p className="text-xl font-bold text-white mb-2">Camera Offline</p>
+                  <p className="text-sm text-slate-400">Check connection and try reconnecting</p>
+                  <motion.button
+                    className="mt-4 px-6 py-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl text-blue-400 hover:border-blue-400/50 transition-all"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsStreaming(true)}
+                  >
+                    Reconnect Camera
+                  </motion.button>
+                </div>
+              </div>
+            )}
+
+            {/* Enhanced Camera Controls Overlay */}
+            <AnimatePresence>
+              {showControls && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"
+                >
+                  {/* Top Controls Bar */}
+                  <div className="absolute top-4 right-4">
+                    {/* Settings Toggle */}
+                    <motion.button
+                      onClick={() => setShowSettings(!showSettings)}
+                      className={`p-2 rounded-xl transition-all ${
+                        showSettings 
+                          ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                          : 'bg-black/40 text-white/60 border border-white/20 hover:bg-white/10'
+                      }`}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <Settings className="w-5 h-5" />
+                    </motion.button>
+                  </div>
+
+                  {/* Bottom Controls Bar */}
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="flex justify-center items-center space-x-3">
+                      {/* Primary Controls */}
+                      <div className="flex items-center space-x-2 bg-black/60 backdrop-blur-sm rounded-2xl p-2 border border-white/20">
+                        <motion.button
+                          onClick={() => setIsStreaming(!isStreaming)}
+                          className={`p-3 rounded-xl transition-all ${
+                            isStreaming 
+                              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                              : 'bg-green-500/20 text-green-400 border border-green-500/30'
+                          }`}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          {isStreaming ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                        </motion.button>
+                        
+                        <motion.button
+                          onClick={() => setIsRecording(!isRecording)}
+                          className={`p-3 rounded-xl transition-all ${
+                            isRecording
+                              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                              : 'bg-slate-500/20 text-slate-400 border border-slate-500/30 hover:border-red-500/30 hover:text-red-400'
+                          }`}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          {isRecording ? <Square className="w-5 h-5" /> : <Circle className="w-5 h-5 fill-current" />}
+                        </motion.button>
+                        
+                        <motion.button
+                          className="p-3 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:border-blue-400/50 transition-all"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <Download className="w-5 h-5" />
+                        </motion.button>
+                      </div>
+
+                      {/* Audio & Visual Controls */}
+                      <div className="flex items-center space-x-2 bg-black/60 backdrop-blur-sm rounded-2xl p-2 border border-white/20">
+                        <motion.button
+                          onClick={() => setIsMuted(!isMuted)}
+                          className={`p-3 rounded-xl transition-all ${
+                            isMuted
+                              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                              : 'bg-green-500/20 text-green-400 border border-green-500/30'
+                          }`}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                        </motion.button>
+                        
+                        <motion.button
+                          onClick={() => setShowGrid(!showGrid)}
+                          className={`p-3 rounded-xl transition-all ${
+                            showGrid 
+                              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                              : 'bg-slate-500/20 text-slate-400 border border-slate-500/30 hover:border-blue-500/30 hover:text-blue-400'
+                          }`}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <Grid3X3 className="w-5 h-5" />
+                        </motion.button>
+                        
+                        <motion.button
+                          className="p-3 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 hover:border-purple-400/50 transition-all"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <Focus className="w-5 h-5" />
+                        </motion.button>
+                      </div>
+
+                      {/* Zoom Controls */}
+                      <div className="flex items-center space-x-2 bg-black/60 backdrop-blur-sm rounded-2xl p-2 border border-white/20">
+                        <motion.button
+                          onClick={() => setZoom(Math.max(50, zoom - 25))}
+                          disabled={zoom <= 50}
+                          className="p-3 rounded-xl bg-slate-500/20 text-slate-400 border border-slate-500/30 hover:border-slate-400/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          whileHover={{ scale: zoom > 50 ? 1.1 : 1 }}
+                          whileTap={{ scale: zoom > 50 ? 0.9 : 1 }}
+                        >
+                          <ZoomOut className="w-5 h-5" />
+                        </motion.button>
+                        
+                        <div className="px-3 py-2 bg-white/10 rounded-xl">
+                          <span className="text-xs font-medium text-white">{zoom}%</span>
+                        </div>
+                        
+                        <motion.button
+                          onClick={() => setZoom(Math.min(200, zoom + 25))}
+                          disabled={zoom >= 200}
+                          className="p-3 rounded-xl bg-slate-500/20 text-slate-400 border border-slate-500/30 hover:border-slate-400/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          whileHover={{ scale: zoom < 200 ? 1.1 : 1 }}
+                          whileTap={{ scale: zoom < 200 ? 0.9 : 1 }}
+                        >
+                          <ZoomIn className="w-5 h-5" />
+                        </motion.button>
+                      </div>
+
+                      {/* Fullscreen Toggle */}
+                      <motion.button
+                        onClick={toggleFullscreen}
+                        className="p-3 rounded-xl bg-black/60 backdrop-blur-sm border border-white/20 text-white/80 hover:border-white/40 hover:text-white transition-all"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </motion.div>
 
-      {/* Camera Settings */}
-      <motion.div variants={itemVariants} className="glass-card p-6">
-        <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-          <Settings className="w-5 h-5 text-purple-400" />
-          Camera Settings
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Stream Quality */}
-          <div className="glass-card p-4">
-            <h4 className="font-medium text-white mb-3 flex items-center gap-2">
-              <Aperture className="w-4 h-4 text-blue-400" />
-              Stream Quality
-            </h4>
-            <select 
-              value={streamQuality}
-              onChange={(e) => setStreamQuality(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white"
-            >
-              <option value="HD">HD (720p)</option>
-              <option value="FHD">Full HD (1080p)</option>
-              <option value="4K">4K (2160p)</option>
-            </select>
-          </div>
+      {/* Enhanced Camera Settings */}
+      <AnimatePresence>
+        {showSettings && (
+          <motion.div 
+            variants={itemVariants} 
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-800/50 via-slate-900/40 to-slate-800/30 backdrop-blur-xl border border-white/10 shadow-2xl"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-cyan-500/5" />
+            <div className="relative p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20">
+                    <Settings className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Camera Settings</h3>
+                    <p className="text-sm text-slate-400">Advanced configuration options</p>
+                  </div>
+                </div>
+                <motion.button
+                  onClick={() => setShowSettings(false)}
+                  className="p-2 rounded-xl bg-slate-500/20 text-slate-400 border border-slate-500/30 hover:border-slate-400/50 transition-all"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  ✕
+                </motion.button>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Video Settings */}
+                <div className="space-y-6">
+                  <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                    <h4 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                      <Monitor className="w-5 h-5 text-blue-400" />
+                      <span>Video Quality</span>
+                    </h4>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">Resolution</label>
+                        <select 
+                          value={streamQuality}
+                          onChange={(e) => setStreamQuality(e.target.value)}
+                          className="w-full bg-slate-800/50 border border-slate-600/50 rounded-xl px-4 py-3 text-white focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/25"
+                        >
+                          <option value="HD">HD (720p) - Good Quality</option>
+                          <option value="FHD">Full HD (1080p) - High Quality</option>
+                          <option value="4K">4K (2160p) - Ultra Quality</option>
+                        </select>
+                      </div>
+                      
+                    </div>
+                  </div>
 
-          {/* Frame Rate */}
-          <div className="glass-card p-4">
-            <h4 className="font-medium text-white mb-3 flex items-center gap-2">
-              <ScanLine className="w-4 h-4 text-green-400" />
-              Frame Rate
-            </h4>
-            <select className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white">
-              <option value="30">30 FPS</option>
-              <option value="60">60 FPS</option>
-              <option value="120">120 FPS</option>
-            </select>
-          </div>
-        </div>
-        
-        {/* Camera Actions */}
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="glass-button p-3 flex flex-col items-center gap-2">
-            <Camera className="w-5 h-5 text-blue-400" />
-            <span className="text-xs">Snapshot</span>
-          </button>
-          <button className="glass-button p-3 flex flex-col items-center gap-2">
-            <RotateCcw className="w-5 h-5 text-green-400" />
-            <span className="text-xs">Rotate</span>
-          </button>
-          <button className="glass-button p-3 flex flex-col items-center gap-2">
-            <Settings className="w-5 h-5 text-purple-400" />
-            <span className="text-xs">Advanced</span>
-          </button>
-          <button className="glass-button p-3 flex flex-col items-center gap-2">
-            <ScanLine className="w-5 h-5 text-orange-400" />
-            <span className="text-xs">Calibrate</span>
-          </button>
-        </div>
-      </motion.div>
+                  <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                    <h4 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                      <Activity className="w-5 h-5 text-green-400" />
+                      <span>Performance</span>
+                    </h4>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="flex justify-between text-sm font-medium text-slate-300 mb-2">
+                          <span>Connection Quality</span>
+                          <span className="text-green-400">{connectionQuality}%</span>
+                        </label>
+                        <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                          <motion.div 
+                            className="h-full bg-gradient-to-r from-green-500 to-blue-500"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${connectionQuality}%` }}
+                            transition={{ duration: 1 }}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="text-center p-3 bg-slate-800/50 rounded-xl border border-slate-600/50">
+                          <p className="text-slate-400">Latency</p>
+                          <p className="text-white font-bold">12ms</p>
+                        </div>
+                        <div className="text-center p-3 bg-slate-800/50 rounded-xl border border-slate-600/50">
+                          <p className="text-slate-400">Bandwidth</p>
+                          <p className="text-white font-bold">2.4 Mbps</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Camera Actions */}
+                <div className="space-y-6">
+                  <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+                    <h4 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                      <Camera className="w-5 h-5 text-cyan-400" />
+                      <span>Quick Actions</span>
+                    </h4>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <motion.button 
+                        className="p-4 bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 hover:border-blue-400/50 rounded-xl transition-all flex flex-col items-center space-y-2"
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Camera className="w-6 h-6 text-blue-400" />
+                        <span className="text-sm font-medium text-white">Snapshot</span>
+                      </motion.button>
+
+                      <motion.button 
+                        className="p-4 bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/30 hover:border-green-400/50 rounded-xl transition-all flex flex-col items-center space-y-2"
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <RotateCcw className="w-6 h-6 text-green-400" />
+                        <span className="text-sm font-medium text-white">Rotate</span>
+                      </motion.button>
+
+                      <motion.button 
+                        className="p-4 bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 hover:border-purple-400/50 rounded-xl transition-all flex flex-col items-center space-y-2"
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Focus className="w-6 h-6 text-purple-400" />
+                        <span className="text-sm font-medium text-white">Focus</span>
+                      </motion.button>
+
+                      <motion.button 
+                        className="p-4 bg-gradient-to-br from-orange-500/20 to-orange-600/10 border border-orange-500/30 hover:border-orange-400/50 rounded-xl transition-all flex flex-col items-center space-y-2"
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <ScanLine className="w-6 h-6 text-orange-400" />
+                        <span className="text-sm font-medium text-white">Calibrate</span>
+                      </motion.button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
