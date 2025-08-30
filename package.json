@@ -33,6 +33,7 @@
     "prettier": "^3.6.2"
   },
   "dependencies": {
+    "all": "^0.0.0",
     "zod": "^4.1.3"
   }
 }
