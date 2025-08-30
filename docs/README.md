@@ -25,8 +25,6 @@ Technical guides for working with the codebase:
 ### Additional Resources
 | Document | Purpose |
 |----------|---------|
-| [💡 Improvements Log](IMPROVEMENTS.md) | UI/UX and feature enhancements |
-| [📋 Testing Implementation](TESTING_IMPLEMENTATION_SUMMARY.md) | Detailed testing setup |
 
 ## 🏗️ High-Level System Overview
 
@@ -86,6 +84,7 @@ npm run dev
 
 # Access points
 # Frontend: http://localhost:5173
+# Backend API: http://localhost:3000/api/v2
 # API Docs: http://localhost:3000/api/v1/docs
 # Health Check: http://localhost:3000/api/health
 ```

@@ -87,11 +87,15 @@ npm run dev:backend   # Runs on http://localhost:3000
 │
 ├── 📁 frontend/           # React SPA
 │   ├── src/
-│   │   ├── components/    # Reusable UI components
-│   │   ├── features/      # Feature-specific modules
+│   │   ├── components/    # Shared UI components
+│   │   ├── features/      # Feature-based modules
 │   │   ├── pages/         # Route components
-│   │   ├── services/      # API clients, utilities
-│   │   └── styles/        # Global styles, themes
+│   │   ├── services/      # API clients and services
+│   │   ├── design-system/ # Design system components
+│   │   ├── hooks/         # Custom React hooks
+│   │   ├── shared/        # Shared utilities
+│   │   ├── core/          # Core configurations
+│   │   └── styles/        # Global styles and themes
 │   └── package.json
 │
 ├── 📁 backend/            # Node.js API server
@@ -99,6 +103,13 @@ npm run dev:backend   # Runs on http://localhost:3000
 │   │   ├── routes/        # API route handlers
 │   │   ├── middleware/    # Express middleware
 │   │   ├── services/      # Business logic
+│   │   ├── printer/       # 3D printer integration
+│   │   ├── integration/   # External integrations
+│   │   ├── realtime/      # WebSocket features
+│   │   ├── background/    # Background tasks
+│   │   ├── monitoring/    # Health monitoring
+│   │   ├── cache/         # Caching layer
+│   │   ├── security/      # Security utilities
 │   │   ├── utils/         # Helper functions
 │   │   └── config/        # Configuration management
 │   └── package.json
@@ -165,7 +176,7 @@ npm run deploy:local:down
 ### Services Available
 
 - **Frontend**: http://localhost:3000 (served by backend in production mode)
-- **Backend API**: http://localhost:3000/api/v1
+- **Backend API**: http://localhost:3000/api/v2
 - **Database**: PostgreSQL on port 5432 (internal)
 - **Redis**: Redis on port 6379 (internal)
 

@@ -43,20 +43,24 @@ The application follows a **monorepo architecture** with clear separation of con
 
 ```
 frontend/src/
-├── components/           # Shared UI components
-│   ├── ui/              # Basic UI primitives (Button, Input, etc.)
-│   ├── layout/          # Layout components (Header, Sidebar)
-│   └── common/          # Complex shared components
+├── components/          # Shared UI components and layouts
 ├── features/            # Feature-based modules
-│   ├── auth/            # Authentication feature
-│   ├── project-management/ # Project management feature
-│   └── portfolio/       # Portfolio feature
-├── pages/               # Route components
-├── services/            # API clients and external services
-├── hooks/               # Custom React hooks
-├── types/               # Frontend-specific types
-├── utils/               # Utility functions
-└── styles/              # Global styles and themes
+│   ├── auth/           # Authentication feature
+│   ├── control-panel/  # 3D printer control features
+│   ├── dashboard/      # Dashboard and portfolio features
+│   ├── project/        # Project management features
+│   └── settings/       # Settings and configuration
+├── pages/              # Route components
+├── services/           # API clients and external services
+├── hooks/              # Custom React hooks
+├── shared/             # Shared utilities and types
+├── styles/             # Global styles, themes, and design system
+├── design-system/      # Design system components
+├── core/               # Core utilities and configurations
+├── apps/               # App-specific components
+├── shell/              # Application shell
+├── test-utils/         # Testing utilities
+└── utils/              # General utility functions
 ```
 
 ### Component Design Principles
@@ -203,6 +207,18 @@ backend/src/
 ├── middleware/          # Express middleware
 ├── services/            # Business logic layer
 ├── repositories/        # Data access layer
+├── printer/             # 3D printer integration and control
+├── integration/         # External service integrations
+├── realtime/            # WebSocket and real-time features
+├── background/          # Background tasks and workers
+├── monitoring/          # Performance and health monitoring
+├── cache/               # Caching layer and strategies
+├── queues/              # Queue management and processing
+├── security/            # Security utilities and middleware
+├── telemetry/           # Telemetry and analytics
+├── api/                 # API versioning and documentation
+├── audit/               # Audit logging and compliance
+├── errors/              # Error handling and definitions
 ├── utils/               # Utility functions
 ├── config/              # Configuration management
 ├── types/               # Backend-specific types
