@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useAppStore } from '../../shared/store';
+import { useAppStore } from '../../../shared/store';
 import { 
   Settings, Home, Wrench, Play, Pause, Square, Thermometer,
   Flame, RotateCcw, ArrowUp, ArrowDown, ArrowLeft, ArrowRight,
   Zap, Target, AlertTriangle, TrendingUp, Activity
 } from 'lucide-react';
-import Modal from '../../components/Modal';
+import { Modal } from '../../../shared/components/ui/feedback';
 
 const ControlsSection = () => {
   const {

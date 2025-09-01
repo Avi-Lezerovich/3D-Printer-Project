@@ -12,7 +12,7 @@ import {
   Target
 } from 'lucide-react';
 import TemperatureChart from '../../components/TemperatureChart';
-import { useAppStore } from '../../shared/store';
+import { useAppStore } from "../../../shared/store""';
 
 interface ChartTypeConfig {
   id: 'temperature' | 'progress' | 'speed' | 'health';

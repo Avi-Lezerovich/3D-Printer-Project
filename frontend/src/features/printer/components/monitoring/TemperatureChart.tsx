@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { useAppStore } from '../shared/store'
+import { useAppStore } from "../../../shared/store""'
 
 type Point = { t: number; hotend: number; bed: number }
 

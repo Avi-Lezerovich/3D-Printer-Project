@@ -1,6 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 import { Link } from "react-router-dom";
-import '../styles/error-boundary.css';
+import '../../../styles/error-boundary.css';
 
 interface Props {
   children?: ReactNode;
