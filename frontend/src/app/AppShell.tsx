@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react'
 import { Outlet, NavLink } from 'react-router-dom'
-import Spinner from '../components/Spinner'
+import { Spinner } from '../shared/components/ui/feedback'
 
 export const AppShell: React.FC = () => {
   return (

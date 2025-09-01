@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { useAppStore } from '../shared/store'
+import { useAppStore } from '../../../store'
 
 export default function FileUpload() {
   const [dragOver, setDragOver] = useState(false)

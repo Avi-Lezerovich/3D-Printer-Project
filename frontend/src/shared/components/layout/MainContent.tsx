@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { useAppStore } from '../../shared/store';
+import { useAppStore } from '../../store';
 import './main-content.css';
 
 const MainContent = () => {

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useAppStore } from "../../../shared/store""';
+import { useAppStore } from '../../../shared/store';
 import { 
   Activity, Wifi, WifiOff, Thermometer, Flame, Clock, TrendingUp,
   CheckCircle, AlertCircle, Pause, Play

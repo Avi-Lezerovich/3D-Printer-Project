@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAppStore } from "../../../shared/store""';
+import { useAppStore } from '../../../shared/store';
 import { 
   Clock, FileText, Play, Trash2, ArrowUp, ArrowDown,
   CheckCircle, AlertCircle, Loader2, Calendar, Layers, Timer

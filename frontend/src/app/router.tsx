@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { ErrorBoundary, LoadingFallback } from '../shared/components/common';
+import { ErrorBoundary } from '../shared/components/common';
+import { LoadingFallback } from '../shared/components/ui/feedback';
 import Layout from '../shared/Layout';
 
 // Lazy load pages (thin wrappers)

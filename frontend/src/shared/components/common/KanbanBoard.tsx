@@ -14,8 +14,8 @@ import {
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import {
   SortableItem,
-} from './SortableItem'
-import { useAppStore } from '../shared/store'
+} from '../../../components/SortableItem'
+import { useAppStore } from '../../store'
 
 interface DroppableColumnProps {
   id: string

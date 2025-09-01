@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import Image from './Image'
+import { Image } from '../shared/components/ui/layout'
 import './beforeAfter.css'
 
 type Props = { 

@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAppStore } from '../../shared/store';
+import { useAppStore } from '../../store';
 import { 
   Home, Monitor, Settings, HelpCircle, FileText, 
   User, ChevronLeft, ChevronRight, Printer

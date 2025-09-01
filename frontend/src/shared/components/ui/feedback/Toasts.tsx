@@ -1,4 +1,4 @@
-import { useAppStore, Toast } from '../shared/store';
+import { useAppStore, Toast } from '../../../store';
 
 function ToastItem({ t }: { t: Toast }) {
   const dismiss = useAppStore(s=> s.dismissToast);

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuthStore } from '../state/authStore';
+import { useAuthStore } from '../../shared/store/authStore';
 
 interface SocketContextValue {
   socket: Socket | null;
