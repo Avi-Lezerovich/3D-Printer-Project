@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/skip-to-content.css';
+import './styles/skip-to-content.css';
 
 const SkipToContent: React.FC = () => {
   return (

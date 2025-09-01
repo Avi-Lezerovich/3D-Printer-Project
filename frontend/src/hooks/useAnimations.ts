@@ -1,4 +1,4 @@
-import { tokens } from '../../../src/design-system';
+import { tokens } from '../design-system';
 
 export const useAnimations = () => {
   const { duration, easing } = tokens.animation;
@@ -78,7 +78,7 @@ export const useAnimations = () => {
     }
   };
 
-  const statusIndicator = (status: 'good' | 'warn' | 'bad') => ({
+  const statusIndicator = (_status: 'good' | 'warn' | 'bad' | 'pending' = 'good') => ({
     initial: { scale: 0 },
     animate: { 
       scale: 1,

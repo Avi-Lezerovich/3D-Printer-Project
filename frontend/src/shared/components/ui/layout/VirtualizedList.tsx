@@ -1,5 +1,5 @@
 import React from 'react';
-import { useVirtualList } from '../../hooks/useVirtualList';
+import { useVirtualList } from '../../../../hooks/useVirtualList';
 
 interface VirtualizedListProps<T> {
   items: T[];

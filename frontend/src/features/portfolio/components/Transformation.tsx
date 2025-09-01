@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import BeforeAfter from '../../components/BeforeAfter';
+import BeforeAfter from '../../../components/BeforeAfter';
 
 const Transformation = () => {
   const prefersReducedMotion = useReducedMotion();

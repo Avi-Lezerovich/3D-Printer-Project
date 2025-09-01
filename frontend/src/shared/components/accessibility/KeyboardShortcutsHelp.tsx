@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Keyboard } from 'lucide-react';
-import { KeyboardShortcut } from '../../hooks/useKeyboardShortcuts';
-import { useAnimations } from '../../hooks/useAnimations';
+import { KeyboardShortcut } from '../../../hooks/useKeyboardShortcuts';
+import { useAnimations } from '../../../features/portfolio/hooks/useAnimations';
 
 interface KeyboardShortcutsHelpProps {
   isOpen: boolean;

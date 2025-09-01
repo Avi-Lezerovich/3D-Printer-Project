@@ -1,5 +1,5 @@
 import { motion, HTMLMotionProps } from 'framer-motion';
-import { useAnimations } from '../../hooks/useAnimations';
+import { useAnimations } from '../../../../hooks/useAnimations';
 import { ReactNode } from 'react';
 
 interface AnimatedCardProps extends Omit<HTMLMotionProps<"div">, 'children'> {

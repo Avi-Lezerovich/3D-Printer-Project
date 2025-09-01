@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import { skills } from './data';
+import { skills } from '../services/data';
 
 const Skills = () => {
   const prefersReducedMotion = useReducedMotion();

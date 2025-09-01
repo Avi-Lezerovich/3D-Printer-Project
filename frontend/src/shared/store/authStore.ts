@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { apiClient } from '../api/client';
+import { apiClient } from '../services/api/client';
 
 export interface User { id?: string; email: string; role?: string }
 

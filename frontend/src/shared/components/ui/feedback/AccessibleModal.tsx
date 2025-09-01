@@ -1,8 +1,8 @@
 import { useEffect, useRef, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { trapFocus, announceToScreenReader, generateUniqueId } from '../../utils/accessibility';
-import { useAnimations } from '../../hooks/useAnimations';
+import { trapFocus, announceToScreenReader, generateUniqueId } from '../../../utils/accessibility';
+import { useAnimations } from '../../../../hooks/useAnimations';
 
 interface AccessibleModalProps {
   isOpen: boolean;

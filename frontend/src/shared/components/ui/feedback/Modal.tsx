@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react'
-import { ACCESSIBILITY } from '../core/constants'
+import { ACCESSIBILITY } from '../../../utils/constants'
 
 type ModalProps = {
   open: boolean

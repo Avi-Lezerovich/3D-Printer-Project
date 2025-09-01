@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useAnimations } from '../../hooks/useAnimations';
+import { useAnimations } from '../../../../hooks/useAnimations';
 import { CheckCircle, AlertTriangle, XCircle, Clock } from 'lucide-react';
 
 type StatusType = 'good' | 'warn' | 'bad' | 'pending';
@@ -64,7 +64,7 @@ export default function StatusIndicator({
 
   return (
     <motion.div
-      {...statusIndicator(status)}
+      {...statusIndicator(status === 'pending' ? 'good' : status)}
       {...(pulse ? pulseAnimation : {})}
       className={`inline-flex items-center rounded-lg ${sizeClasses.container}`}
       style={{

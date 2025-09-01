@@ -1,5 +1,5 @@
 import { motion, HTMLMotionProps } from 'framer-motion';
-import { useAnimations } from '../../hooks/useAnimations';
+import { useAnimations } from '../../../../hooks/useAnimations';
 import { ReactNode } from 'react';
 
 interface AnimatedButtonProps extends Omit<HTMLMotionProps<"button">, 'children'> {

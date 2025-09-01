@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import { timeline } from './data';
+import { timeline } from '../services/data';
 
 const Timeline = () => {
   const prefersReducedMotion = useReducedMotion();

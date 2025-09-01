@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
-import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
-import { getOptimizedImageSrc, createImageSrcSet } from '../../utils/performanceOptimization';
+import { useIntersectionObserver } from '../../../../hooks/useIntersectionObserver';
+import { getOptimizedImageSrc, createImageSrcSet } from '../../../utils/performanceOptimization';
 
 interface LazyImageProps {
   src: string;
@@ -33,7 +33,7 @@ export default function LazyImage({
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   
-  const { isVisible } = useIntersectionObserver({
+  const { isVisible, ref: intersectionRef } = useIntersectionObserver({
     threshold: 0.1,
     freezeOnceVisible: true
   });
@@ -53,6 +53,7 @@ export default function LazyImage({
 
   return (
     <div 
+      ref={intersectionRef}
       className={`relative overflow-hidden ${className}`}
       style={{ width, height }}
     >

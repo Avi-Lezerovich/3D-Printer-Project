@@ -1,9 +1,29 @@
 import { forwardRef, ButtonHTMLAttributes } from 'react';
 import { motion, HTMLMotionProps } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import { announceToScreenReader } from '../../utils/accessibility';
+import { announceToScreenReader } from '../../../utils/accessibility';
 
-interface AccessibleButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
+// Type for motion props that excludes conflicting HTML event handlers
+type MotionOnlyProps = Omit<HTMLMotionProps<"button">, 
+  | 'children' 
+  | 'className' 
+  | 'onClick' 
+  | 'disabled' 
+  | 'ref'
+  | 'onDrag'
+  | 'onDragStart' 
+  | 'onDragEnd'
+  | 'onAnimationStart'
+  | 'onAnimationComplete'
+  | keyof ButtonHTMLAttributes<HTMLButtonElement>
+>;
+
+interface AccessibleButtonProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  | 'type'
+  | 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration'
+  | 'onDrag' | 'onDragStart' | 'onDragEnd' | 'onDragOver' | 'onDragEnter' | 'onDragLeave' | 'onDrop'
+> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
@@ -12,7 +32,7 @@ interface AccessibleButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElem
   iconPosition?: 'left' | 'right';
   fullWidth?: boolean;
   announceOnClick?: string;
-  motionProps?: HTMLMotionProps<"button">;
+  motionProps?: MotionOnlyProps;
 }
 
 const AccessibleButton = forwardRef<HTMLButtonElement, AccessibleButtonProps>(

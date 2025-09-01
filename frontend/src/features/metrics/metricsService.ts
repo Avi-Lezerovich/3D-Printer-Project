@@ -1,4 +1,4 @@
-import { apiClient } from '../../core/api/client';
+import { apiClient } from '../../shared/services/api/client';
 
 export interface RuntimeMetrics {
   reqTotal: number;
