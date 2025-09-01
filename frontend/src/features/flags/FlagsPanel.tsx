@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiClient } from '../../core/api/client';
+import { apiClient } from '../../shared/services/api/client';
 
 interface FlagsResponse { flags: Record<string, boolean> }
 interface FeatureFlags { [k: string]: boolean }

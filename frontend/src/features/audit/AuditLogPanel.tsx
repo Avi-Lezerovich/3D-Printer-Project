@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiClient } from '../../core/api/client';
+import { apiClient } from '../../shared/services/api/client';
 
 interface AuditEvent { type: string; at: string; userEmail?: string; ip?: string; version: number; [k: string]: unknown }
 

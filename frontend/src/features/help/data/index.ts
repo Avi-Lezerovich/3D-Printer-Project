@@ -1,0 +1,1 @@
+export { faqs, categories } from './faqData';

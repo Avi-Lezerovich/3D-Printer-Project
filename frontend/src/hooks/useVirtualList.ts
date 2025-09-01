@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { throttle } from '../utils/performanceOptimization';
+import { throttle } from '../shared/utils/performanceOptimization';
 
-interface UseVirtualListOptions {
+interface UseVirtualListOptions<T> {
   itemHeight: number;
   containerHeight: number;
   overscan?: number;
-  items: any[];
+  items: T[];
 }
 
 export function useVirtualList<T>({
@@ -13,7 +13,7 @@ export function useVirtualList<T>({
   containerHeight,
   overscan = 5,
   items
-}: UseVirtualListOptions) {
+}: UseVirtualListOptions<T>) {
   const [scrollTop, setScrollTop] = useState(0);
   const scrollElementRef = useRef<HTMLDivElement>(null);
 
@@ -30,7 +30,7 @@ export function useVirtualList<T>({
   }, [scrollTop, itemHeight, containerHeight, overscan, items.length]);
 
   const visibleItems = useMemo(() => {
-    return items.slice(startIndex, endIndex + 1).map((item, index) => ({
+    return items.slice(startIndex, endIndex + 1).map((item: T, index: number) => ({
       item,
       index: startIndex + index
     }));

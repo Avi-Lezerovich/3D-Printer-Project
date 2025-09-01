@@ -4,7 +4,7 @@ import {
   LogIn, Mail, Lock, Eye, EyeOff, Loader2, CheckCircle, 
   AlertCircle, Monitor, Shield, Zap
 } from 'lucide-react';
-import { useAuthStore } from '../core/state/authStore';
+import { useAuthStore } from '../shared/store/authStore';
 
 function sanitizeInput(v: string) { return v.replace(/[<>"'`]/g, '').trim(); }
 

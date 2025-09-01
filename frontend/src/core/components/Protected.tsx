@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuthStore } from '../state/authStore';
+import { useAuthStore } from '../../shared/store/authStore';
 import { useEffect } from 'react';
 
 export default function Protected({ children }: { children: JSX.Element }) {

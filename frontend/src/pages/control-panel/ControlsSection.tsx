@@ -4,9 +4,9 @@ import { useAppStore } from '../../shared/store';
 import { 
   Settings, Home, Wrench, Play, Pause, Square, Thermometer,
   Flame, RotateCcw, ArrowUp, ArrowDown, ArrowLeft, ArrowRight,
-  Zap, Target, AlertTriangle, TrendingUp, Activity
+  Zap, Target, AlertTriangle, Activity
 } from 'lucide-react';
-import Modal from '../../components/Modal';
+import Modal from '../../shared/components/ui/feedback/Modal';
 
 const ControlsSection = () => {
   const {

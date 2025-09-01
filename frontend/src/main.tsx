@@ -5,8 +5,8 @@ import './styles/index.css'
 import { AppQueryProvider } from './core/query/QueryProvider'
 import { SocketProvider } from './core/realtime/SocketProvider'
 import { lazy, Suspense } from 'react'
-import LoadingFallback from './components/LoadingFallback'
-import ErrorBoundary from './components/ErrorBoundary'
+import { LoadingFallback } from './shared/components/ui/feedback'
+import { ErrorBoundary } from './shared/components/common'
 import Layout from './shared/Layout'
 // Restore original rich page implementations pending micro-frontend parity
 const Portfolio = lazy(()=> import('./pages/Portfolio'))
