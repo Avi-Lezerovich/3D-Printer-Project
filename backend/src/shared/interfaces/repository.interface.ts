@@ -86,7 +86,7 @@ export interface Printer {
   serialNumber: string;
   model: string;
   status: PrinterStatus;
-  metadata: object;
+  metadata: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }

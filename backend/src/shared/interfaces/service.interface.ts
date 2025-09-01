@@ -65,7 +65,7 @@ export interface ServiceError {
   code: string;
   message: string;
   field?: string;
-  details?: Record<string, unknown>;
+  details?: Record<string, unknown> | ValidationError[];
 }
 
 /**
