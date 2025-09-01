@@ -3,11 +3,11 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ErrorBoundary, LoadingFallback } from '../shared/components/common';
 import Layout from '../shared/Layout';
 
-// Lazy load pages
-const Portfolio = lazy(() => import('../pages/Portfolio'));
-const ControlPanel = lazy(() => import('../pages/ControlPanel'));
-const Settings = lazy(() => import('../pages/Settings'));
-const Help = lazy(() => import('../pages/Help'));
+// Lazy load pages (thin wrappers)
+const Portfolio = lazy(() => import('../pages/PortfolioPage'));
+const ControlPanel = lazy(() => import('../pages/ControlPanelPage'));
+const Settings = lazy(() => import('../pages/SettingsPage'));
+const Help = lazy(() => import('../pages/HelpPage'));
 const Login = lazy(() => import('../pages/Login'));
 const NotFound = lazy(() => import('../pages/NotFound'));
 
