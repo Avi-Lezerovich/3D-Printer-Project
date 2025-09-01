@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { useAppStore } from './store';
-import { SkipToContent } from './components/accessibility';
-import { Sidebar, MainContent } from './components/layout';
-import { Toasts } from './components/ui/feedback';
+import SkipToContent from './components/accessibility/SkipToContent';
+import Sidebar from './components/layout/Sidebar';
+import MainContent from './components/layout/MainContent';
+import Toasts from './components/ui/feedback/Toasts';
 import './layout.css';
 import { ConnectionBadge } from '../core/realtime/ConnectionBadge';
 
@@ -24,10 +25,10 @@ export default function Layout() {
   return (
     <div className="app-shell">
       <SkipToContent />
-  <Sidebar />
-  <MainContent />
-  <Toasts />
-  <ConnectionBadge />
+      <Sidebar />
+      <MainContent />
+      <Toasts />
+      <ConnectionBadge />
     </div>
   );
 }

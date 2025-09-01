@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAppStore } from '../../../../shared/store';
+import { useAppStore } from '../../shared/store';
 import { 
   Upload, FileText, Check, X, AlertCircle, Folder, 
   Cloud, HardDrive, RotateCcw, Download, Trash2

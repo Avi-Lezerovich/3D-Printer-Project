@@ -11,8 +11,8 @@ import {
   BarChart3,
   Target
 } from 'lucide-react';
-import TemperatureChart from './TemperatureChart';
-import { useAppStore } from '../../../../shared/store';
+import TemperatureChart from '../../features/printer/components/monitoring/TemperatureChart';
+import { useAppStore } from '../../shared/store';
 
 interface ChartTypeConfig {
   id: 'temperature' | 'progress' | 'speed' | 'health';

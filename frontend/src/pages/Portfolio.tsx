@@ -6,7 +6,7 @@ import {
   BarChart3, Users, Shield, Zap
 } from 'lucide-react';
 import { useAppStore } from '../shared/store';
-import { SkeletonCard, LoadingSpinner } from '../components/ui/LoadingStates';
+import { SkeletonCard, LoadingSpinner } from '../shared/components/ui/feedback';
 
 const containerVariants = {
   hidden: { opacity: 0 },

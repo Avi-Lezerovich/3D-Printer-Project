@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAppStore } from '../shared/store';
 import { 
-  Activity, Settings, Upload, Clock, Camera, TrendingUp,
+  Settings, Upload, Clock, Camera, TrendingUp,
   Wifi, WifiOff, AlertCircle, CheckCircle, Flame, Thermometer,
   RefreshCw, Power, Play, Pause, Keyboard
 } from 'lucide-react';
