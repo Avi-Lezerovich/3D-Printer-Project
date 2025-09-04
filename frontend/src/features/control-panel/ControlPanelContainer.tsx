@@ -1,20 +1,23 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../shared/store';
 import { 
   Settings, Upload, Clock, Camera, TrendingUp,
   Wifi, WifiOff, AlertCircle, CheckCircle, Flame, Thermometer,
-  RefreshCw, Power, Play, Pause, Keyboard
+  RefreshCw, Power, Play, Pause, Keyboard, Activity, Zap,
+  BarChart3, FileText, Monitor, Target
 } from 'lucide-react';
-import { useControlPanelShortcuts } from '../../hooks/useKeyboardShortcuts';
-import KeyboardShortcutsHelp from '../../components/ui/KeyboardShortcutsHelp';
+import { useControlPanelShortcuts } from '../../features/printer/hooks/useKeyboardShortcuts';
+import { KeyboardShortcutsHelp } from '../../shared/components/accessibility';
 
 // Import existing sub-components
 import ControlsSection from '../../pages/control-panel/ControlsSection';
-import FileUploadSection from '../../pages/control-panel/FileUploadSection';
-import QueueSection from '../../pages/control-panel/QueueSection';
-import ChartSection from '../../pages/control-panel/ChartSection';
-import WebcamSection from '../../pages/control-panel/WebcamSection';
+import { 
+  FileUploadSection,
+  QueueSection,
+  ChartSection,
+  WebcamSection
+} from '../../features/printer';
 
 const containerVariants = {
   hidden: { opacity: 0 },
