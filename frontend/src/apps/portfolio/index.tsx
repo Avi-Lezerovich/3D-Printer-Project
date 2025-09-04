@@ -1,6 +1,7 @@
 import React from 'react'
+import Portfolio from '../../pages/Portfolio'
 
 const PortfolioApp: React.FC = () => {
-  return <div>Portfolio Micro-App</div>
+  return <Portfolio />
 }
 export default PortfolioApp
