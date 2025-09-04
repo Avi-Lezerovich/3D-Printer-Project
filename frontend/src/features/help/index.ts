@@ -6,7 +6,6 @@
  */
 
 // Main Container
-export { HelpContainer } from './HelpContainer';
 export { default as HelpContainer } from './HelpContainer';
 
 // Components
