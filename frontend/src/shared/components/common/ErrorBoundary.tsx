@@ -22,7 +22,8 @@ class ErrorBoundary extends Component<Props, State> {
     retryCount: 0,
   };
 
-  public static getDerivedStateFromError(_error: Error): State {
+  public static getDerivedStateFromError(error: Error): State {
+    console.error('ErrorBoundary caught an error:', error);
     return { 
       hasError: true, 
       errorId: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,

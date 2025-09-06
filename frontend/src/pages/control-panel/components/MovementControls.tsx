@@ -7,8 +7,8 @@ export default function MovementControls() {
   const [isHoming, setIsHoming] = useState(false);
 
   const moveAxis = async (axis: string, direction: number) => {
-    
-    // Add actual movement logic here
+    // TODO: Implement actual movement logic here
+    console.info(`Moving ${axis} axis by ${direction * distance}mm`);
   };
 
   const homeAll = async () => {
