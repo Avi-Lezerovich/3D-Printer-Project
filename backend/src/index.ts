@@ -16,6 +16,7 @@ import { setupGracefulShutdown } from './serverLifecycle.js'
 import { authenticateJWT } from './middleware/authMiddleware.js'
 import authRouter from './routes/auth.js'
 import projectsRouter from './routes/projects.js'
+import printerRouter from './routes/printer.js'
 import { setCache } from './middleware/cacheMiddleware.js'
 import { env, allowedOrigins, serverConfig, isProd, featureFlags } from './config/index.js'
 import { httpLogger, logger } from './utils/logger.js'
@@ -372,6 +373,8 @@ app.use('/api/v1/projects', authenticateJWT, (req, res, next) => {
   }
   next()
 }, projectsRouter)
+
+app.use('/api/v1/printer', authenticateJWT, printerRouter)
 
 
 // Legacy compatibility aliases removed for simplified application

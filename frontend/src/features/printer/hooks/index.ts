@@ -1,1 +1,0 @@
-export { useControlPanelShortcuts } from './useKeyboardShortcuts';
