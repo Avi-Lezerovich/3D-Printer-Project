@@ -7,49 +7,71 @@ interface TabButtonProps {
   label: string;
   icon: LucideIcon;
   isActive: boolean;
-  onClick: (id: string) => void;
-  color: string;
+  onClick: (tabId: string) => void;
+  color?: string;
   description?: string;
 }
 
-export const TabButton: React.FC<TabButtonProps> = ({ 
-  id, 
-  label, 
-  icon: Icon, 
-  isActive, 
-  onClick, 
-  color,
-  description 
+export const TabButton: React.FC<TabButtonProps> = ({
+  id,
+  label,
+  icon: Icon,
+  isActive,
+  onClick,
+  color = 'blue',
+  description
 }) => {
+  const getColorClasses = () => {
+    const baseClasses = isActive 
+      ? 'text-white shadow-lg' 
+      : 'text-slate-400 hover:text-white';
+    
+    switch (color) {
+      case 'green':
+        return isActive 
+          ? `${baseClasses} bg-green-500/20 border-green-400/50` 
+          : `${baseClasses} hover:bg-green-500/10`;
+      case 'amber':
+        return isActive 
+          ? `${baseClasses} bg-amber-500/20 border-amber-400/50` 
+          : `${baseClasses} hover:bg-amber-500/10`;
+      case 'purple':
+        return isActive 
+          ? `${baseClasses} bg-purple-500/20 border-purple-400/50` 
+          : `${baseClasses} hover:bg-purple-500/10`;
+      case 'red':
+        return isActive 
+          ? `${baseClasses} bg-red-500/20 border-red-400/50` 
+          : `${baseClasses} hover:bg-red-500/10`;
+      default:
+        return isActive 
+          ? `${baseClasses} bg-blue-500/20 border-blue-400/50` 
+          : `${baseClasses} hover:bg-blue-500/10`;
+    }
+  };
+
   return (
     <motion.button
-      onClick={() => onClick(id)}
       className={`
-        group relative flex items-center space-x-3 px-6 py-4 rounded-2xl 
-        font-semibold transition-all duration-300 text-sm min-w-[140px]
-        ${isActive 
-          ? `bg-${color}-500/20 text-${color}-300 border border-${color}-500/30 shadow-lg shadow-${color}-500/10` 
-          : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
-        }
+        relative px-4 py-2.5 rounded-2xl border transition-all duration-200 
+        flex items-center space-x-2 min-w-[120px] justify-center
+        ${isActive ? 'border-white/20' : 'border-transparent hover:border-white/10'}
+        ${getColorClasses()}
       `}
-      whileHover={{ scale: isActive ? 1 : 1.02 }}
+      onClick={() => onClick(id)}
+      whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       title={description}
     >
-      <Icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${isActive ? 'animate-pulse' : ''}`} />
-      <span className="hidden sm:block">{label}</span>
+      <Icon size={16} className="flex-shrink-0" />
+      <span className="text-sm font-medium">{label}</span>
       
       {isActive && (
         <motion.div
+          className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/5 to-white/10"
           layoutId="activeTab"
-          className="absolute inset-0 bg-gradient-to-r from-white/5 to-white/10 rounded-2xl"
-          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
         />
-      )}
-      
-      {/* Subtle glow effect for active tab */}
-      {isActive && (
-        <div className={`absolute inset-0 rounded-2xl bg-${color}-500/5 blur-xl`} />
       )}
     </motion.button>
   );

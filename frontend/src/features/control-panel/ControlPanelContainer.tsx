@@ -16,7 +16,9 @@ import ChartSection from '../../pages/control-panel/ChartSection';
 import WebcamSection from '../../pages/control-panel/WebcamSection';
 
 // Import new enhanced components
-import { StatusBar, TabButton, QuickActionButton } from './components';
+import { StatusBar } from './components/StatusBar';
+import { TabButton } from './components/TabButton';
+import { QuickActionButton } from './components/QuickActionButton';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -92,8 +94,7 @@ export const ControlPanelContainer: React.FC = () => {
     handleRefresh,
     handleToggleConnection,
     handleEmergencyStop,
-    handleTabChange,
-    activeTab
+    handleTabChange
   );
 
   // Handle keyboard help shortcut
@@ -148,20 +149,29 @@ export const ControlPanelContainer: React.FC = () => {
   ];
 
   const renderContent = () => {
-    const currentTab = tabs.find(tab => tab.id === activeTab);
-    const tabColor = currentTab?.color || 'blue';
-    
     const contentWrapperClass = `
       relative min-h-[600px] rounded-3xl overflow-hidden
       bg-gradient-to-br from-slate-800/50 via-slate-900/40 to-slate-800/30
       backdrop-blur-xl border border-white/20 shadow-2xl shadow-black/20
     `;
 
-    const headerClass = `
-      flex items-center justify-between p-6 pb-4 
-      border-b border-white/10 bg-gradient-to-r 
-      from-${tabColor}-500/10 to-${tabColor}-600/5
-    `;
+    const getHeaderClass = (color: string) => {
+      const baseClass = "flex items-center justify-between p-6 pb-4 border-b border-white/10 bg-gradient-to-r";
+      switch (color) {
+        case 'orange':
+          return `${baseClass} from-orange-500/10 to-orange-600/5`;
+        case 'green':
+          return `${baseClass} from-green-500/10 to-green-600/5`;
+        case 'purple':
+          return `${baseClass} from-purple-500/10 to-purple-600/5`;
+        case 'cyan':
+          return `${baseClass} from-cyan-500/10 to-cyan-600/5`;
+        case 'pink':
+          return `${baseClass} from-pink-500/10 to-pink-600/5`;
+        default:
+          return `${baseClass} from-blue-500/10 to-blue-600/5`;
+      }
+    };
 
     switch (activeTab) {
       case 'controls':
@@ -172,7 +182,7 @@ export const ControlPanelContainer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <div className={headerClass}>
+            <div className={getHeaderClass('orange')}>
               <div className="flex items-center space-x-3">
                 <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
                   <Settings className="w-6 h-6 text-orange-400" />
@@ -204,7 +214,7 @@ export const ControlPanelContainer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <div className={headerClass}>
+            <div className={getHeaderClass('green')}>
               <div className="flex items-center space-x-3">
                 <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20">
                   <Camera className="w-6 h-6 text-green-400" />
@@ -238,7 +248,7 @@ export const ControlPanelContainer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <div className={headerClass}>
+            <div className={getHeaderClass('purple')}>
               <div className="flex items-center space-x-3">
                 <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
                   <TrendingUp className="w-6 h-6 text-purple-400" />
@@ -269,7 +279,7 @@ export const ControlPanelContainer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <div className={headerClass}>
+            <div className={getHeaderClass('cyan')}>
               <div className="flex items-center space-x-3">
                 <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
                   <Upload className="w-6 h-6 text-cyan-400" />
@@ -282,8 +292,7 @@ export const ControlPanelContainer: React.FC = () => {
               <QuickActionButton
                 icon={Upload}
                 label="Upload File"
-                
-                variant="primary"
+                onClick={() => {}}
                 tooltip="Upload new print file"
               />
             </div>
@@ -301,7 +310,7 @@ export const ControlPanelContainer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <div className={headerClass}>
+            <div className={getHeaderClass('pink')}>
               <div className="flex items-center space-x-3">
                 <div className="p-3 rounded-xl bg-pink-500/10 border border-pink-500/20">
                   <TrendingUp className="w-6 h-6 text-pink-400" />
