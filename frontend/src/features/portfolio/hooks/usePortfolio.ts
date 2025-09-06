@@ -12,8 +12,7 @@ import type {
   PortfolioState, 
   QuickStat, 
   ActivityItem, 
-  SystemStatus,
-  PortfolioService 
+  SystemStatus
 } from '../types';
 import { portfolioService } from '../services';
 

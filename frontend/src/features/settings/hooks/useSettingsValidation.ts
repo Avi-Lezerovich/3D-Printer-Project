@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { ValidationState } from '../types';
+import type { UserSettings, PrinterSettings, SystemSettings, ValidationState } from '../types';
 
 const initialValidationState: ValidationState = {
   isValid: true,
@@ -10,7 +10,7 @@ const initialValidationState: ValidationState = {
 export const useSettingsValidation = () => {
   const [validation, setValidation] = useState<ValidationState>(initialValidationState);
 
-  const validateUserSettings = useCallback((settings: any) => {
+  const validateUserSettings = useCallback((settings: UserSettings) => {
     const errors: Record<string, string> = {};
     const warnings: Record<string, string> = {};
 
@@ -31,7 +31,7 @@ export const useSettingsValidation = () => {
     return { errors, warnings };
   }, []);
 
-  const validatePrinterSettings = useCallback((settings: any) => {
+  const validatePrinterSettings = useCallback((settings: PrinterSettings) => {
     const errors: Record<string, string> = {};
     const warnings: Record<string, string> = {};
 
@@ -57,7 +57,7 @@ export const useSettingsValidation = () => {
     return { errors, warnings };
   }, []);
 
-  const validateSystemSettings = useCallback((settings: any) => {
+  const validateSystemSettings = useCallback((settings: SystemSettings) => {
     const errors: Record<string, string> = {};
     const warnings: Record<string, string> = {};
 
@@ -78,7 +78,7 @@ export const useSettingsValidation = () => {
     return { errors, warnings };
   }, []);
 
-  const validateSettings = useCallback((settings: any, type: 'user' | 'printer' | 'system') => {
+  const validateSettings = useCallback((settings: UserSettings | PrinterSettings | SystemSettings, type: 'user' | 'printer' | 'system') => {
     let result = { errors: {}, warnings: {} };
 
     switch (type) {

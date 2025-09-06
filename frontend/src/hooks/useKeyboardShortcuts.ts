@@ -49,8 +49,7 @@ export function useControlPanelShortcuts(
   onRefresh: () => void,
   onToggleConnection: () => void,
   onEmergencyStop: () => void,
-  onTabChange: (tabId: string) => void,
-  activeTab: string
+  onTabChange: (tabId: string) => void
 ) {
   const shortcuts: KeyboardShortcut[] = [
     {

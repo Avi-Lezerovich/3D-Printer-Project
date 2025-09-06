@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Printer, Thermometer } from 'lucide-react';
+import { Printer } from 'lucide-react';
 import ToggleSwitch from './ToggleSwitch';
 import EnhancedInput from './EnhancedInput';
 import CollapsibleSection from './CollapsibleSection';

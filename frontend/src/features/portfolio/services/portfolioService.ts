@@ -15,8 +15,7 @@ import type {
 
 import { 
   Printer, CheckCircle, Clock, TrendingUp, 
-  Monitor, Shield, Zap, Users,
-  Play, FileText, Settings, AlertTriangle, Upload
+  Play, Settings, AlertTriangle, Upload
 } from 'lucide-react';
 
 /**

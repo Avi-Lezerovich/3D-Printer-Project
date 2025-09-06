@@ -7,7 +7,7 @@ interface FAQItem {
   question: string;
   answer: string;
   category: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<unknown>;
 }
 
 interface FAQProps {

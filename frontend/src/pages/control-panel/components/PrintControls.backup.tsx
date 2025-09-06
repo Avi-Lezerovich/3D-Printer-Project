@@ -11,7 +11,7 @@ interface PrintControlsProps {
 
 export default function PrintControls({ status, connected, onStatusChange }: PrintControlsProps) {
   const [showStopConfirm, setShowStopConfirm] = useState(false);
-  const progress = 42; // Mock progress
+  const [progress, setProgress] = useState(42); // Mock progress
 
   const handleStart = () => {
     onStatusChange('printing');
@@ -185,7 +185,7 @@ export default function PrintControls({ status, connected, onStatusChange }: Pri
 
       {/* Stop Confirmation Modal */}
       <Modal
-        open={showStopConfirm}
+        isOpen={showStopConfirm}
         onClose={() => setShowStopConfirm(false)}
         title="Stop Print Job"
         className="max-w-md"
@@ -209,6 +209,87 @@ export default function PrintControls({ status, connected, onStatusChange }: Pri
             <button
               onClick={confirmStop}
               className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+            >
+              Stop Print
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </>
+  );
+}
+          <div className="flex items-center justify-between">
+            <span className="text-gray-300">Status:</span>
+            <span className={`font-semibold capitalize ${getStatusColor()}`}>
+              {status}
+            </span>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <span className="text-gray-300">Connection:</span>
+            <span className={`font-semibold ${connected ? 'text-green-400' : 'text-red-400'}`}>
+              {connected ? 'Connected' : 'Disconnected'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
+            <motion.button
+              onClick={handleStart}
+              disabled={!connected || status === 'printing'}
+              className="px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg flex items-center justify-center transition-colors"
+              whileHover={{ scale: connected && status !== 'printing' ? 1.05 : 1 }}
+              whileTap={{ scale: connected && status !== 'printing' ? 0.95 : 1 }}
+            >
+              <Play className="w-4 h-4 mr-2" />
+              Start
+            </motion.button>
+
+            <motion.button
+              onClick={handlePause}
+              disabled={!connected || status === 'idle'}
+              className="px-4 py-3 bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg flex items-center justify-center transition-colors"
+              whileHover={{ scale: connected && status !== 'idle' ? 1.05 : 1 }}
+              whileTap={{ scale: connected && status !== 'idle' ? 0.95 : 1 }}
+            >
+              <Pause className="w-4 h-4 mr-2" />
+              {status === 'printing' ? 'Pause' : 'Resume'}
+            </motion.button>
+
+            <motion.button
+              onClick={handleStop}
+              disabled={!connected}
+              className="px-4 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg flex items-center justify-center transition-colors"
+              whileHover={{ scale: connected ? 1.05 : 1 }}
+              whileTap={{ scale: connected ? 0.95 : 1 }}
+            >
+              <Square className="w-4 h-4 mr-2" />
+              Stop
+            </motion.button>
+          </div>
+        </div>
+      </div>
+
+      <Modal 
+        isOpen={showStopConfirm}
+        onClose={() => setShowStopConfirm(false)}
+        title="Confirm Stop"
+      >
+        <div className="p-6">
+          <div className="flex items-center mb-4">
+            <AlertTriangle className="w-8 h-8 text-red-500 mr-3" />
+            <p className="text-lg">Are you sure you want to stop the print?</p>
+          </div>
+          <p className="text-gray-600 mb-6">This action cannot be undone.</p>
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={() => setShowStopConfirm(false)}
+              className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmStop}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
             >
               Stop Print
             </button>

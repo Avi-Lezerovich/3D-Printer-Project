@@ -46,15 +46,15 @@ export default function ControlPanelPage() {
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
   const handleRefresh = useCallback(() => {
-    console.log('Refreshing connection and data...');
+    
   }, []);
 
   const handleToggleConnection = useCallback(() => {
-    console.log('Toggling printer connection...');
+    
   }, []);
 
   const handleEmergencyStop = useCallback(() => {
-    console.log('Emergency stop triggered!');
+    
   }, []);
 
   const handleTabChange = useCallback((tabId: string) => {

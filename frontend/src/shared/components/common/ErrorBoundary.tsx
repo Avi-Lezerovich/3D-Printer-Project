@@ -22,7 +22,7 @@ class ErrorBoundary extends Component<Props, State> {
     retryCount: 0,
   };
 
-  public static getDerivedStateFromError(error: Error): State {
+  public static getDerivedStateFromError(_error: Error): State {
     return { 
       hasError: true, 
       errorId: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -84,7 +84,7 @@ class ErrorBoundary extends Component<Props, State> {
         <div className="error-boundary-container">
           <div className="error-content">
             <h1>Something went wrong</h1>
-            <p>We're sorry for the inconvenience. The application encountered an unexpected error.</p>
+            <p>We&apos;re sorry for the inconvenience. The application encountered an unexpected error.</p>
             
             {errorId && (
               <details className="error-details">

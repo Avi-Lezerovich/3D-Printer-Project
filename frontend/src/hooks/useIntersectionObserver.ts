@@ -45,7 +45,7 @@ export function useIntersectionObserver({
     observer.observe(element);
 
     return () => observer.disconnect();
-  }, [elementRef.current, JSON.stringify(threshold), root, rootMargin]);
+  }, [updateEntry, threshold, root, rootMargin]);
 
   return {
     ref: elementRef,

@@ -2,7 +2,16 @@ import { useCallback } from 'react';
 import { settingsService } from '../services';
 import type { UserSettings, PrinterSettings, SystemSettings } from '../types';
 
-export const useSettingsOperations = (dispatch: any) => {
+type Action =
+  | { type: 'LOAD_REQUEST' }
+  | { type: 'LOAD_SUCCESS'; payload: UserSettings & PrinterSettings & SystemSettings }
+  | { type: 'LOAD_ERROR'; error: string }
+  | { type: 'UPDATE_USER_SETTINGS'; payload: Partial<UserSettings> }
+  | { type: 'UPDATE_PRINTER_SETTINGS'; payload: Partial<PrinterSettings> }
+  | { type: 'UPDATE_SYSTEM_SETTINGS'; payload: Partial<SystemSettings> }
+  | { type: 'RESET_SETTINGS' };
+
+export const useSettingsOperations = (dispatch: (action: Action) => void) => {
   const loadSettings = useCallback(async () => {
     dispatch({ type: 'LOAD_REQUEST' });
     try {

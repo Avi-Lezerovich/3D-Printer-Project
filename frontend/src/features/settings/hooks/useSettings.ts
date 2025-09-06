@@ -18,7 +18,7 @@ export const useSettings = () => {
   // Load settings on mount
   useEffect(() => {
     operations.loadSettings();
-  }, [operations.loadSettings]);
+  }, [operations]);
 
   return {
     // State

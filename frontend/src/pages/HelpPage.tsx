@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAppStore } from '../shared/store';
+
 import { 
-  HelpCircle, Search, MessageSquare, 
+  HelpCircle, MessageSquare, 
   Mail, ExternalLink, Book, Lightbulb
 } from 'lucide-react';
 import {

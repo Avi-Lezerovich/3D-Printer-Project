@@ -127,7 +127,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           animate={{ opacity: 1, y: 0 }}
           className="mt-3 text-center text-sm text-slate-400"
         >
-          Searching for "{localQuery}"...
+          Searching for &quot;{localQuery}&quot;...
         </motion.div>
       )}
     </motion.div>

@@ -21,7 +21,7 @@ const WebcamSection: React.FC = () => {
   // Settings state
   const [showSettings, setShowSettings] = useState(false);
   const [streamQuality, setStreamQuality] = useState('HD');
-  const [connectionQuality, setConnectionQuality] = useState(85);
+  const [connectionQuality] = useState(85);
   
   // Controls visibility
   const [showControls, setShowControls] = useState(true);
@@ -69,7 +69,7 @@ const WebcamSection: React.FC = () => {
 
   const handleTakeSnapshot = () => {
     // Add snapshot logic here
-    console.log('Taking snapshot...');
+    
   };
 
   return (
