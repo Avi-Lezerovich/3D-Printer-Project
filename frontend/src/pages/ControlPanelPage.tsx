@@ -1,10 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useAppStore } from '../shared/store';
 import { 
-  Activity, Settings, Upload, Clock, Camera, TrendingUp,
-  Wifi, WifiOff, AlertCircle, CheckCircle, Flame, Thermometer,
-  RefreshCw, Power, Play, Pause, Keyboard
+  Activity, RefreshCw, Keyboard, Wifi, WifiOff
 } from 'lucide-react';
 import { 
   ControlsSection,
@@ -43,20 +41,33 @@ const itemVariants = {
 };
 
 export default function ControlPanelPage() {
-  const { sidebarCollapsed, connected, status, hotend, bed } = useAppStore();
+  const { sidebarCollapsed, connected } = useAppStore();
   const [activeTab, setActiveTab] = useState('controls');
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
   const handleRefresh = useCallback(() => {
-    console.log('Refreshing connection and data...');
-    // Add actual refresh logic here
+    
   }, []);
 
-  // Set up keyboard shortcuts
-  useControlPanelShortcuts({
-    onRefresh: handleRefresh,
-    onShowHelp: () => setShowKeyboardHelp(true),
-  });
+  const handleToggleConnection = useCallback(() => {
+    
+  }, []);
+
+  const handleEmergencyStop = useCallback(() => {
+    
+  }, []);
+
+  const handleTabChange = useCallback((tabId: string) => {
+    setActiveTab(tabId);
+  }, []);
+
+  const { shortcuts } = useControlPanelShortcuts(
+    handleRefresh,
+    handleToggleConnection,
+    handleEmergencyStop,
+    handleTabChange,
+    activeTab
+  );
 
   return (
     <div className={`control-panel ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
@@ -128,6 +139,8 @@ export default function ControlPanelPage() {
 
       {showKeyboardHelp && (
         <KeyboardShortcutsHelp
+          isOpen={showKeyboardHelp}
+          shortcuts={shortcuts}
           onClose={() => setShowKeyboardHelp(false)}
         />
       )}

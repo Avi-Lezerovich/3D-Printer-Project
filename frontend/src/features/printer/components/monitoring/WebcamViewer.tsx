@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { Camera, CameraOff, Maximize2, Grid3X3 } from 'lucide-react';
+import React, { useRef } from 'react';
+import { CameraOff, Maximize2, Grid3X3 } from 'lucide-react';
 
 interface WebcamViewerProps {
   isStreaming: boolean;

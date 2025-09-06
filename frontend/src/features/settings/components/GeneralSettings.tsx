@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Bell } from 'lucide-react';
+import { User } from 'lucide-react';
 import ToggleSwitch from './ToggleSwitch';
 import EnhancedInput from './EnhancedInput';
 import CollapsibleSection from './CollapsibleSection';

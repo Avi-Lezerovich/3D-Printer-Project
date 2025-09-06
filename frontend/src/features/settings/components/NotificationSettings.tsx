@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Mail } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import ToggleSwitch from './ToggleSwitch';
 import EnhancedInput from './EnhancedInput';
 import CollapsibleSection from './CollapsibleSection';

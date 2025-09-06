@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Camera, CameraOff, Maximize2, Minimize2, Play, Pause,
   Volume2, VolumeX, Settings, RotateCcw, ZoomIn, ZoomOut,
-  Grid3X3, ScanLine, Aperture, Download, Circle, Square,
-  Monitor, Wifi, Activity, Eye, Focus
+  Grid3X3, ScanLine, Download, Circle, Square,
+  Monitor, Wifi, Activity, Focus
 } from 'lucide-react';
 
 // Vendor fullscreen API typings
@@ -30,7 +30,7 @@ const WebcamSection = () => {
   const [zoom, setZoom] = useState(100);
   const [isRecording, setIsRecording] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [connectionQuality, setConnectionQuality] = useState(85);
+  const [connectionQuality] = useState(85);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Listen for fullscreen changes

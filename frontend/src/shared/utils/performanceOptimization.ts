@@ -1,7 +1,7 @@
 import { lazy } from 'react';
 
 // Utility for creating preloaded lazy components
-export const createPreloadableLazy = <T extends React.ComponentType<any>>(
+export const createPreloadableLazy = <T extends React.ComponentType<unknown>>(
   importFn: () => Promise<{ default: T }>,
   preload = false
 ) => {
@@ -20,9 +20,7 @@ export const createPreloadableLazy = <T extends React.ComponentType<any>>(
 
 // Image optimization utilities
 export const getOptimizedImageSrc = (
-  src: string, 
-  width?: number, 
-  quality = 75
+  src: string
 ): string => {
   // In a real app, this would generate URLs for a CDN like Cloudinary or imgix
   // For now, just return the original src
@@ -39,7 +37,7 @@ export const createImageSrcSet = (
 };
 
 // Debounce utility for performance-critical operations
-export const debounce = <T extends (...args: any[]) => any>(
+export const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T, 
   delay: number
 ): ((...args: Parameters<T>) => void) => {
@@ -52,7 +50,7 @@ export const debounce = <T extends (...args: any[]) => any>(
 };
 
 // Throttle utility for scroll/resize handlers
-export const throttle = <T extends (...args: any[]) => any>(
+export const throttle = <T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): ((...args: Parameters<T>) => void) => {
@@ -88,7 +86,7 @@ export const calculateVisibleRange = (
 export const measureMemoryUsage = (): Promise<number> => {
   return new Promise((resolve) => {
     if ('memory' in performance) {
-      // @ts-ignore - performance.memory is not in all browsers
+      // @ts-expect-error - performance.memory is not in all browsers
       resolve(performance.memory.usedJSHeapSize / 1048576); // MB
     } else {
       resolve(0);
@@ -97,17 +95,7 @@ export const measureMemoryUsage = (): Promise<number> => {
 };
 
 // Bundle analysis utilities
-export const logBundleSize = (componentName: string) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.group(`📦 ${componentName} Bundle Analysis`);
-    console.log(`Component: ${componentName}`);
-    console.log(`Loaded at: ${new Date().toISOString()}`);
-    
-    measureMemoryUsage().then(memory => {
-      console.log(`Memory usage: ${memory.toFixed(2)} MB`);
-      console.groupEnd();
-    });
-  }
+export const logBundleSize = () => {
 };
 
 // Preload critical resources

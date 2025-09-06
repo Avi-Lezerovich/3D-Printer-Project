@@ -78,7 +78,7 @@ export const useAnimations = () => {
     }
   };
 
-  const statusIndicator = (_status: 'good' | 'warn' | 'bad' | 'pending' = 'good') => ({
+  const statusIndicator = () => ({
     initial: { scale: 0 },
     animate: { 
       scale: 1,

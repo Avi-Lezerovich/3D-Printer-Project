@@ -1,4 +1,4 @@
-import { tokens } from '../design-system';
+
 import './loading-fallback.css';
 
 interface LoadingFallbackProps {

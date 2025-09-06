@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAppStore } from '../shared/store';
+
 import { 
   Settings as SettingsIcon, Save, RotateCcw, AlertCircle, CheckCircle
 } from 'lucide-react';
@@ -23,7 +23,7 @@ const SettingsPage: React.FC = () => {
       setSaveStatus('saved');
       setHasUnsavedChanges(false);
       setTimeout(() => setSaveStatus('idle'), 2000);
-    } catch (error) {
+    } catch {
       setSaveStatus('error');
       setTimeout(() => setSaveStatus('idle'), 3000);
     }
