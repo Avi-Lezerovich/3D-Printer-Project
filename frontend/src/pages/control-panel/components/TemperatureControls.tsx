@@ -6,22 +6,26 @@ interface TemperatureControlsProps {
   hotend: { current: number; target: number };
   bed: { current: number; target: number };
   onTemperatureChange: (type: 'hotend' | 'bed', target: number) => void;
+  isDemo?: boolean;
 }
 
 export default function TemperatureControls({ 
   hotend, 
   bed, 
-  onTemperatureChange 
+  onTemperatureChange,
+  isDemo = false
 }: TemperatureControlsProps) {
   const [hotendTarget, setHotendTarget] = useState(hotend.target);
   const [bedTarget, setBedTarget] = useState(bed.target);
 
   const handleHotendChange = (target: number) => {
+    if (isDemo) return; // Disable in demo mode
     setHotendTarget(target);
     onTemperatureChange('hotend', target);
   };
 
   const handleBedChange = (target: number) => {
+    if (isDemo) return; // Disable in demo mode
     setBedTarget(target);
     onTemperatureChange('bed', target);
   };
@@ -100,14 +104,17 @@ export default function TemperatureControls({
             {presetTemperatures.hotend.map((temp) => (
               <motion.button
                 key={temp}
-                onClick={() => handleHotendChange(temp)}
+                onClick={isDemo ? undefined : () => handleHotendChange(temp)}
+                disabled={isDemo}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  hotendTarget === temp
+                  isDemo
+                    ? 'bg-gray-500/20 text-gray-400 border border-gray-500/30 cursor-not-allowed'
+                    : hotendTarget === temp
                     ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30'
                     : 'bg-slate-700/50 text-slate-300 border border-slate-600/30 hover:bg-slate-600/50'
-                }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                } disabled:opacity-50`}
+                whileHover={!isDemo ? { scale: 1.05 } : {}}
+                whileTap={!isDemo ? { scale: 0.95 } : {}}
               >
                 {temp}°
               </motion.button>
@@ -176,14 +183,17 @@ export default function TemperatureControls({
             {presetTemperatures.bed.map((temp) => (
               <motion.button
                 key={temp}
-                onClick={() => handleBedChange(temp)}
+                onClick={isDemo ? undefined : () => handleBedChange(temp)}
+                disabled={isDemo}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  bedTarget === temp
+                  isDemo
+                    ? 'bg-gray-500/20 text-gray-400 border border-gray-500/30 cursor-not-allowed'
+                    : bedTarget === temp
                     ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                     : 'bg-slate-700/50 text-slate-300 border border-slate-600/30 hover:bg-slate-600/50'
-                }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                } disabled:opacity-50`}
+                whileHover={!isDemo ? { scale: 1.05 } : {}}
+                whileTap={!isDemo ? { scale: 0.95 } : {}}
               >
                 {temp}°
               </motion.button>

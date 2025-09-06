@@ -13,7 +13,7 @@ export const createPreloadableLazy = <T extends React.ComponentType<unknown>>(
   }
   
   // Attach preload function to component
-  (LazyComponent as any).preload = importFn;
+  (LazyComponent as React.ComponentType & { preload: () => Promise<unknown> }).preload = importFn;
   
   return LazyComponent;
 };

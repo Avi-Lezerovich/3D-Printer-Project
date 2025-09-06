@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface UseIntersectionObserverOptions extends IntersectionObserverInit {
   freezeOnceVisible?: boolean;
@@ -15,7 +15,7 @@ export function useIntersectionObserver({
   const elementRef = useRef<HTMLDivElement>(null);
   const frozen = useRef(false);
 
-  const updateEntry = ([entry]: IntersectionObserverEntry[]) => {
+  const updateEntry = useCallback(([entry]: IntersectionObserverEntry[]) => {
     if (frozen.current) return;
     
     setEntry(entry);
@@ -24,7 +24,7 @@ export function useIntersectionObserver({
     if (freezeOnceVisible && entry.isIntersecting) {
       frozen.current = true;
     }
-  };
+  }, [freezeOnceVisible]);
 
   useEffect(() => {
     const element = elementRef.current;

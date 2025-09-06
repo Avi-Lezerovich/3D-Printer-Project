@@ -46,6 +46,10 @@ const itemVariants = {
   }
 };
 
+interface ControlPanelContainerProps {
+  isDemo?: boolean;
+}
+
 /**
  * Enhanced Professional Control Panel Container Component
  * 
@@ -56,8 +60,9 @@ const itemVariants = {
  * - Better error handling and loading states
  * - Responsive design optimizations
  * - Performance optimizations with proper memoization
+ * - Demo mode support for view-only access
  */
-export const ControlPanelContainer: React.FC = () => {
+export const ControlPanelContainer: React.FC<ControlPanelContainerProps> = ({ isDemo = false }) => {
   const { sidebarCollapsed, connected, status, hotend, bed } = useAppStore();
   const [activeTab, setActiveTab] = useState('controls');
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
@@ -201,7 +206,7 @@ export const ControlPanelContainer: React.FC = () => {
               />
             </div>
             <div className="p-6">
-              <ControlsSection />
+              <ControlsSection isDemo={isDemo} />
             </div>
           </motion.div>
         );

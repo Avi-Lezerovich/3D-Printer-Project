@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { 
   Home, Monitor, Settings, HelpCircle, FileText, 
-  User, ChevronLeft, ChevronRight, Printer
+  User, ChevronLeft, ChevronRight, Printer, Eye
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -36,6 +36,14 @@ const Sidebar = () => {
       path: '/control',
       description: '3D printer monitoring',
       color: 'green'
+    },
+    { 
+      key: 'demo', 
+      label: 'Demo Mode', 
+      icon: Eye, 
+      path: '/demo',
+      description: 'View-only demonstration',
+      color: 'purple'
     },
     { 
       key: 'settings', 
