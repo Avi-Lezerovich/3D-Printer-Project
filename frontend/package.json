@@ -1,29 +1,39 @@
 {
-  "name": "frontend",
+  "name": "lezerprint-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint"
   },
   "dependencies": {
-    "lucide-react": "^0.542.0",
-    "next": "15.5.2",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "zustand": "^5.0.8"
+    "@radix-ui/react-*": "^1.0.1",
+    "@tanstack/react-query": "^5.50.1",
+    "axios": "^1.7.2",
+    "framer-motion": "^11.2.12",
+    "lucide-react": "^0.400.0",
+    "next": "14.2.4",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-hook-form": "^7.52.1",
+    "recharts": "^2.12.7",
+    "socket.io-client": "^4.7.5",
+    "three": "^0.166.1",
+    "zustand": "^4.5.4",
+    "@react-three/fiber": "^8.16.8",
+    "@react-three/drei": "^9.108.1",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "15.5.2",
-    "tailwindcss": "^4",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.4",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
 }

@@ -1,325 +1,44 @@
-// Prisma schema for 3D Printer Project
-// Using SQLite for dev; switch provider & DATABASE_URL env for Postgres later.
-
+// prisma/schema.prisma - Start with essential models
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite" // Change to "postgresql" and update DATABASE_URL in production
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  email        String   @id
+  id           String   @id @default(uuid())
+  email        String   @unique
+  username     String   @unique
   passwordHash String
-  role         String
+  role         String   @default("VIEWER")
   createdAt    DateTime @default(now())
-  refreshTokens RefreshToken[]
+  
+  files     File[]
+  printJobs PrintJob[]
 }
 
-model Project {
-  id        String   @id @default(cuid())
-  name      String
-  status    String
-  createdAt DateTime @default(now())
+model File {
+  id           String   @id @default(uuid())
+  userId       String
+  originalName String
+  filePath     String
+  fileType     String
+  fileSize     BigInt
+  createdAt    DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id])
 }
 
-model RefreshToken {
-  id        String   @id @default(cuid())
-  userEmail String
-  tokenHash String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userEmail], references: [email], onDelete: Cascade)
-  revoked   Boolean  @default(false)
-  replacedById String? // for rotation chains
-}
-
-// Printer Configuration and Management
-model Printer {
-  id                String              @id @default(cuid())
-  name              String
-  type              PrinterType
-  connectionType    ConnectionType
-  status            PrinterStatus       @default(OFFLINE)
-  
-  // Connection details
-  hostname          String?
-  port              Int?
-  baudRate          Int?
-  serialPort        String?
-  apiKey            String?
-  
-  // Physical specifications
-  buildVolumeX      Float?
-  buildVolumeY      Float?
-  buildVolumeZ      Float?
-  maxTempHotend     Float?
-  maxTempBed        Float?
-  
-  // Current state
-  currentX          Float               @default(0)
-  currentY          Float               @default(0)
-  currentZ          Float               @default(0)
-  currentHotend     Float               @default(0)
-  currentBed        Float               @default(0)
-  targetHotend      Float               @default(0)
-  targetBed         Float               @default(0)
-  progress          Float               @default(0)
-  
-  // Configuration
-  enabled           Boolean             @default(true)
-  healthCheckInterval Int               @default(30000)
-  maxRetries        Int                 @default(5)
-  
-  // Timestamps
-  lastConnected     DateTime?
-  lastHeartbeat     DateTime?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  
-  // Relations
-  printJobs         PrintJob[]
-  statusHistory     PrinterStatusHistory[]
-  temperatureReadings TemperatureReading[]
-  errorLogs         PrinterError[]
-  
-  @@map("printers")
-}
-
-// Print Job Management
 model PrintJob {
-  id                String              @id @default(cuid())
-  printerId         String
-  printer           Printer             @relation(fields: [printerId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())
+  userId    String
+  fileId    String
+  status    String   @default("QUEUED")
+  progress  Float    @default(0)
+  startedAt DateTime?
   
-  // File information
-  fileName          String
-  filePath          String
-  fileSize          BigInt?
-  gcode             String?             // For small G-code content
-  gcodeStoragePath  String?             // For large G-code files
-  
-  // Job configuration
-  status            JobStatus           @default(QUEUED)
-  priority          Int                 @default(5)
-  
-  // Print settings
-  temperatureHotend Int?
-  temperatureBed    Int?
-  printSpeed        Int?
-  layerHeight       Float?
-  infillPercentage  Int?
-  supports          Boolean?
-  
-  // Progress tracking
-  progress          Float               @default(0)
-  currentLayer      Int?
-  totalLayers       Int?
-  estimatedTime     Int?                // in seconds
-  remainingTime     Int?                // in seconds
-  
-  // Timing
-  queuedAt          DateTime            @default(now())
-  startedAt         DateTime?
-  pausedAt          DateTime?
-  completedAt       DateTime?
-  cancelledAt       DateTime?
-  
-  // Quality metrics
-  estimatedFilament Float?              // in grams
-  actualFilament    Float?              // in grams
-  powerConsumption  Float?              // in kWh
-  
-  // Relations
-  statusHistory     JobStatusHistory[]
-  progressHistory   JobProgressHistory[]
-  errorLogs         JobError[]
-  
-  @@map("print_jobs")
+  user User @relation(fields: [userId], references: [id])
 }
-
-// Status tracking for printers
-model PrinterStatusHistory {
-  id          String              @id @default(cuid())
-  printerId   String
-  printer     Printer             @relation(fields: [printerId], references: [id], onDelete: Cascade)
-  
-  status      PrinterStatus
-  timestamp   DateTime            @default(now())
-  metadata    Json?               // Additional context data
-  
-  @@map("printer_status_history")
-}
-
-// Temperature monitoring
-model TemperatureReading {
-  id            String              @id @default(cuid())
-  printerId     String
-  printer       Printer             @relation(fields: [printerId], references: [id], onDelete: Cascade)
-  
-  hotendTemp    Float
-  bedTemp       Float
-  targetHotend  Float
-  targetBed     Float
-  timestamp     DateTime            @default(now())
-  
-  @@index([printerId, timestamp])
-  @@map("temperature_readings")
-}
-
-// Job status tracking
-model JobStatusHistory {
-  id          String              @id @default(cuid())
-  jobId       String
-  job         PrintJob            @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
-  status      JobStatus
-  timestamp   DateTime            @default(now())
-  reason      String?             // Reason for status change
-  metadata    Json?               // Additional context data
-  
-  @@map("job_status_history")
-}
-
-// Job progress tracking
-model JobProgressHistory {
-  id            String              @id @default(cuid())
-  jobId         String
-  job           PrintJob            @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
-  progress      Float
-  currentLayer  Int?
-  timestamp     DateTime            @default(now())
-  
-  @@index([jobId, timestamp])
-  @@map("job_progress_history")
-}
-
-// Error logging for printers
-model PrinterError {
-  id          String              @id @default(cuid())
-  printerId   String
-  printer     Printer             @relation(fields: [printerId], references: [id], onDelete: Cascade)
-  
-  code        String
-  message     String
-  severity    ErrorSeverity
-  context     Json?               // Error context and debugging info
-  resolved    Boolean             @default(false)
-  resolvedAt  DateTime?
-  timestamp   DateTime            @default(now())
-  
-  @@map("printer_errors")
-}
-
-// Error logging for jobs
-model JobError {
-  id          String              @id @default(cuid())
-  jobId       String
-  job         PrintJob            @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
-  code        String
-  message     String
-  severity    ErrorSeverity
-  context     Json?               // Error context and debugging info
-  timestamp   DateTime            @default(now())
-  
-  @@map("job_errors")
-}
-
-// File management for G-code and STL files
-model PrintFile {
-  id            String              @id @default(cuid())
-  fileName      String
-  originalName  String
-  filePath      String
-  fileSize      BigInt
-  fileType      FileType
-  mimeType      String?
-  
-  // Metadata for 3D files
-  layerHeight   Float?
-  printTime     Int?                // estimated in seconds
-  filamentUsed  Float?              // in grams
-  
-  // File processing status
-  processed     Boolean             @default(false)
-  processedAt   DateTime?
-  thumbnailPath String?
-  
-  // User and timestamps
-  uploadedBy    String?             // User email
-  uploadedAt    DateTime            @default(now())
-  
-  @@unique([filePath])
-  @@map("print_files")
-}
-
-// System metrics and analytics
-model SystemMetrics {
-  id              String              @id @default(cuid())
-  metricType      String
-  value           Float
-  unit            String?
-  metadata        Json?
-  timestamp       DateTime            @default(now())
-  
-  @@index([metricType, timestamp])
-  @@map("system_metrics")
-}
-
-// Enums
-enum PrinterType {
-  FDM
-  SLA
-  MULTICOLOR
-  CUSTOM
-}
-
-enum ConnectionType {
-  NETWORK
-  USB
-  WIFI
-  BLUETOOTH
-}
-
-enum PrinterStatus {
-  IDLE
-  PRINTING
-  PAUSED
-  STOPPED
-  HEATING
-  COOLING
-  ERROR
-  OFFLINE
-  CONNECTING
-  MAINTENANCE
-}
-
-enum JobStatus {
-  QUEUED
-  PREPARING
-  PRINTING
-  PAUSED
-  COMPLETED
-  FAILED
-  CANCELLED
-}
-
-enum ErrorSeverity {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-}
-
-enum FileType {
-  GCODE
-  STL
-  OBJ
-  3MF
-  AMF
-}
-
