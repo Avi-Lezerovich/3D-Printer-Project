@@ -5,7 +5,11 @@ import MovementControls from './components/MovementControls';
 import TemperatureControls from './components/TemperatureControls';
 import PrintControls from './components/PrintControls';
 
-const ControlsSection = () => {
+interface ControlsSectionProps {
+  isDemo?: boolean;
+}
+
+const ControlsSection: React.FC<ControlsSectionProps> = ({ isDemo = false }) => {
   const {
     hotend,
     bed,
@@ -41,15 +45,17 @@ const ControlsSection = () => {
         status={status}
         connected={connected}
         onStatusChange={setStatus}
+        isDemo={isDemo}
       />
       
       <TemperatureControls
         hotend={hotend}
         bed={bed}
         onTemperatureChange={handleTemperatureChange}
+        isDemo={isDemo}
       />
       
-      <MovementControls />
+      <MovementControls isDemo={isDemo} />
     </motion.div>
   );
 };

@@ -11,6 +11,7 @@ import Layout from './shared/Layout'
 // Restore original rich page implementations pending micro-frontend parity
 const Portfolio = lazy(()=> import('./pages/Portfolio'))
 const ControlPanel = lazy(()=> import('./pages/ControlPanel'))
+const DemoMode = lazy(()=> import('./pages/DemoMode'))
 const Settings = lazy(()=> import('./pages/Settings'))
 const Help = lazy(()=> import('./pages/Help'))
 const Login = lazy(()=> import('./pages/Login'))
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
       { 
         path: 'control', 
         element: createSuspenseWrapper(ControlPanel, 'Loading control panel...') 
+      },
+      { 
+        path: 'demo', 
+        element: createSuspenseWrapper(DemoMode, 'Loading demo mode...') 
       },
       { 
         path: 'settings', 

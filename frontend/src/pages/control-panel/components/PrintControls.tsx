@@ -7,9 +7,10 @@ interface PrintControlsProps {
   status: string;
   connected: boolean;
   onStatusChange: (status: string) => void;
+  isDemo?: boolean;
 }
 
-export default function PrintControls({ status, connected, onStatusChange }: PrintControlsProps) {
+export default function PrintControls({ status, connected, onStatusChange, isDemo = false }: PrintControlsProps) {
   const [showStopConfirm, setShowStopConfirm] = useState(false);
   const progress = 42; // Mock progress
 
@@ -116,54 +117,56 @@ export default function PrintControls({ status, connected, onStatusChange }: Pri
           {/* Control Buttons */}
           <div className="grid grid-cols-3 gap-3">
             <motion.button
-              onClick={handleStart}
-              disabled={!connected || status === 'printing'}
+              onClick={isDemo ? undefined : handleStart}
+              disabled={isDemo || !connected || status === 'printing'}
               className={`
                 p-4 rounded-xl font-semibold text-sm transition-all border
-                ${status === 'printing' 
+                ${isDemo 
+                  ? 'bg-gray-500/20 text-gray-400 border-gray-500/30 cursor-not-allowed'
+                  : status === 'printing' 
                   ? 'bg-gray-500/20 text-gray-400 border-gray-500/30 cursor-not-allowed'
                   : 'bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30 hover:border-green-500/50'
                 }
                 disabled:opacity-50 disabled:cursor-not-allowed
               `}
-              whileHover={status !== 'printing' && connected ? { scale: 1.02 } : {}}
-              whileTap={status !== 'printing' && connected ? { scale: 0.98 } : {}}
+              whileHover={!isDemo && status !== 'printing' && connected ? { scale: 1.02 } : {}}
+              whileTap={!isDemo && status !== 'printing' && connected ? { scale: 0.98 } : {}}
             >
               <Play className="w-5 h-5 mx-auto mb-1" />
               Start
             </motion.button>
             
             <motion.button
-              onClick={handlePause}
-              disabled={!connected || status === 'idle'}
+              onClick={isDemo ? undefined : handlePause}
+              disabled={isDemo || !connected || status === 'idle'}
               className={`
                 p-4 rounded-xl font-semibold text-sm transition-all border
-                ${status === 'idle'
+                ${isDemo || status === 'idle'
                   ? 'bg-gray-500/20 text-gray-400 border-gray-500/30 cursor-not-allowed'
                   : 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30 hover:bg-yellow-500/30 hover:border-yellow-500/50'
                 }
                 disabled:opacity-50 disabled:cursor-not-allowed
               `}
-              whileHover={status !== 'idle' && connected ? { scale: 1.02 } : {}}
-              whileTap={status !== 'idle' && connected ? { scale: 0.98 } : {}}
+              whileHover={!isDemo && status !== 'idle' && connected ? { scale: 1.02 } : {}}
+              whileTap={!isDemo && status !== 'idle' && connected ? { scale: 0.98 } : {}}
             >
               <Pause className="w-5 h-5 mx-auto mb-1" />
               {status === 'printing' ? 'Pause' : 'Resume'}
             </motion.button>
             
             <motion.button
-              onClick={handleStop}
-              disabled={!connected || status === 'idle'}
+              onClick={isDemo ? undefined : handleStop}
+              disabled={isDemo || !connected || status === 'idle'}
               className={`
                 p-4 rounded-xl font-semibold text-sm transition-all border
-                ${status === 'idle'
+                ${isDemo || status === 'idle'
                   ? 'bg-gray-500/20 text-gray-400 border-gray-500/30 cursor-not-allowed'
                   : 'bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30 hover:border-red-500/50'
                 }
                 disabled:opacity-50 disabled:cursor-not-allowed
               `}
-              whileHover={status !== 'idle' && connected ? { scale: 1.02 } : {}}
-              whileTap={status !== 'idle' && connected ? { scale: 0.98 } : {}}
+              whileHover={!isDemo && status !== 'idle' && connected ? { scale: 1.02 } : {}}
+              whileTap={!isDemo && status !== 'idle' && connected ? { scale: 0.98 } : {}}
             >
               <Square className="w-5 h-5 mx-auto mb-1" />
               Stop

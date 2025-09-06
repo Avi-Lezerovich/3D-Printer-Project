@@ -2,16 +2,22 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Home, Move3D, Minus, Plus } from 'lucide-react';
 
-export default function MovementControls() {
+interface MovementControlsProps {
+  isDemo?: boolean;
+}
+
+export default function MovementControls({ isDemo = false }: MovementControlsProps) {
   const [distance, setDistance] = useState(10);
   const [isHoming, setIsHoming] = useState(false);
 
   const moveAxis = async (axis: string, direction: number) => {
+    if (isDemo) return; // Disable in demo mode
     // TODO: Implement actual movement logic here
     console.info(`Moving ${axis} axis by ${direction * distance}mm`);
   };
 
   const homeAll = async () => {
+    if (isDemo) return; // Disable in demo mode
     setIsHoming(true);
     
     // Simulate homing process
@@ -68,10 +74,15 @@ export default function MovementControls() {
       <div className="grid grid-cols-3 gap-3 mb-6">
         <div></div>
         <motion.button
-          onClick={() => moveAxis('Y', 1)}
-          className="p-4 bg-gradient-to-br from-blue-600/80 to-blue-700/80 hover:from-blue-500/80 hover:to-blue-600/80 text-white rounded-xl flex items-center justify-center transition-all shadow-lg border border-blue-500/20"
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
+          onClick={isDemo ? undefined : () => moveAxis('Y', 1)}
+          disabled={isDemo}
+          className={`p-4 rounded-xl flex items-center justify-center transition-all shadow-lg border ${
+            isDemo 
+              ? 'bg-gray-500/20 text-gray-400 border-gray-500/30 cursor-not-allowed'
+              : 'bg-gradient-to-br from-blue-600/80 to-blue-700/80 hover:from-blue-500/80 hover:to-blue-600/80 text-white border-blue-500/20'
+          } disabled:opacity-50`}
+          whileHover={!isDemo ? { scale: 1.05, y: -2 } : {}}
+          whileTap={!isDemo ? { scale: 0.95 } : {}}
           title={`Move Y +${distance}mm`}
         >
           <ArrowUp className="w-6 h-6" />
@@ -79,21 +90,30 @@ export default function MovementControls() {
         <div></div>
         
         <motion.button
-          onClick={() => moveAxis('X', -1)}
-          className="p-4 bg-gradient-to-br from-blue-600/80 to-blue-700/80 hover:from-blue-500/80 hover:to-blue-600/80 text-white rounded-xl flex items-center justify-center transition-all shadow-lg border border-blue-500/20"
-          whileHover={{ scale: 1.05, x: -2 }}
-          whileTap={{ scale: 0.95 }}
+          onClick={isDemo ? undefined : () => moveAxis('X', -1)}
+          disabled={isDemo}
+          className={`p-4 rounded-xl flex items-center justify-center transition-all shadow-lg border ${
+            isDemo 
+              ? 'bg-gray-500/20 text-gray-400 border-gray-500/30 cursor-not-allowed'
+              : 'bg-gradient-to-br from-blue-600/80 to-blue-700/80 hover:from-blue-500/80 hover:to-blue-600/80 text-white border-blue-500/20'
+          } disabled:opacity-50`}
+          whileHover={!isDemo ? { scale: 1.05, x: -2 } : {}}
+          whileTap={!isDemo ? { scale: 0.95 } : {}}
           title={`Move X -${distance}mm`}
         >
           <ArrowLeft className="w-6 h-6" />
         </motion.button>
         
         <motion.button
-          onClick={homeAll}
-          disabled={isHoming}
-          className="p-4 bg-gradient-to-br from-purple-600/80 to-purple-700/80 hover:from-purple-500/80 hover:to-purple-600/80 text-white rounded-xl flex items-center justify-center transition-all shadow-lg border border-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-          whileHover={isHoming ? {} : { scale: 1.05 }}
-          whileTap={isHoming ? {} : { scale: 0.95 }}
+          onClick={isDemo ? undefined : homeAll}
+          disabled={isDemo || isHoming}
+          className={`p-4 rounded-xl flex items-center justify-center transition-all shadow-lg border disabled:opacity-50 disabled:cursor-not-allowed ${
+            isDemo 
+              ? 'bg-gray-500/20 text-gray-400 border-gray-500/30 cursor-not-allowed'
+              : 'bg-gradient-to-br from-purple-600/80 to-purple-700/80 hover:from-purple-500/80 hover:to-purple-600/80 text-white border-purple-500/20'
+          }`}
+          whileHover={!isDemo && !isHoming ? { scale: 1.05 } : {}}
+          whileTap={!isDemo && !isHoming ? { scale: 0.95 } : {}}
           title="Home All Axes"
         >
           {isHoming ? (
@@ -104,10 +124,15 @@ export default function MovementControls() {
         </motion.button>
         
         <motion.button
-          onClick={() => moveAxis('X', 1)}
-          className="p-4 bg-gradient-to-br from-blue-600/80 to-blue-700/80 hover:from-blue-500/80 hover:to-blue-600/80 text-white rounded-xl flex items-center justify-center transition-all shadow-lg border border-blue-500/20"
-          whileHover={{ scale: 1.05, x: 2 }}
-          whileTap={{ scale: 0.95 }}
+          onClick={isDemo ? undefined : () => moveAxis('X', 1)}
+          disabled={isDemo}
+          className={`p-4 rounded-xl flex items-center justify-center transition-all shadow-lg border ${
+            isDemo 
+              ? 'bg-gray-500/20 text-gray-400 border-gray-500/30 cursor-not-allowed'
+              : 'bg-gradient-to-br from-blue-600/80 to-blue-700/80 hover:from-blue-500/80 hover:to-blue-600/80 text-white border-blue-500/20'
+          } disabled:opacity-50`}
+          whileHover={!isDemo ? { scale: 1.05, x: 2 } : {}}
+          whileTap={!isDemo ? { scale: 0.95 } : {}}
           title={`Move X +${distance}mm`}
         >
           <ArrowRight className="w-6 h-6" />
@@ -115,10 +140,15 @@ export default function MovementControls() {
         
         <div></div>
         <motion.button
-          onClick={() => moveAxis('Y', -1)}
-          className="p-4 bg-gradient-to-br from-blue-600/80 to-blue-700/80 hover:from-blue-500/80 hover:to-blue-600/80 text-white rounded-xl flex items-center justify-center transition-all shadow-lg border border-blue-500/20"
-          whileHover={{ scale: 1.05, y: 2 }}
-          whileTap={{ scale: 0.95 }}
+          onClick={isDemo ? undefined : () => moveAxis('Y', -1)}
+          disabled={isDemo}
+          className={`p-4 rounded-xl flex items-center justify-center transition-all shadow-lg border ${
+            isDemo 
+              ? 'bg-gray-500/20 text-gray-400 border-gray-500/30 cursor-not-allowed'
+              : 'bg-gradient-to-br from-blue-600/80 to-blue-700/80 hover:from-blue-500/80 hover:to-blue-600/80 text-white border-blue-500/20'
+          } disabled:opacity-50`}
+          whileHover={!isDemo ? { scale: 1.05, y: 2 } : {}}
+          whileTap={!isDemo ? { scale: 0.95 } : {}}
           title={`Move Y -${distance}mm`}
         >
           <ArrowDown className="w-6 h-6" />
@@ -133,10 +163,15 @@ export default function MovementControls() {
         </h4>
         <div className="flex items-center justify-center space-x-4">
           <motion.button
-            onClick={() => moveAxis('Z', -1)}
-            className="p-3 bg-gradient-to-br from-green-600/80 to-green-700/80 hover:from-green-500/80 hover:to-green-600/80 text-white rounded-lg flex items-center justify-center transition-all shadow-lg border border-green-500/20"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            onClick={isDemo ? undefined : () => moveAxis('Z', -1)}
+            disabled={isDemo}
+            className={`p-3 rounded-lg flex items-center justify-center transition-all shadow-lg border ${
+              isDemo 
+                ? 'bg-gray-500/20 text-gray-400 border-gray-500/30 cursor-not-allowed'
+                : 'bg-gradient-to-br from-green-600/80 to-green-700/80 hover:from-green-500/80 hover:to-green-600/80 text-white border-green-500/20'
+            } disabled:opacity-50`}
+            whileHover={!isDemo ? { scale: 1.05 } : {}}
+            whileTap={!isDemo ? { scale: 0.95 } : {}}
             title={`Move Z -${distance}mm (Down)`}
           >
             <Minus className="w-5 h-5" />
@@ -147,10 +182,15 @@ export default function MovementControls() {
           </span>
           
           <motion.button
-            onClick={() => moveAxis('Z', 1)}
-            className="p-3 bg-gradient-to-br from-green-600/80 to-green-700/80 hover:from-green-500/80 hover:to-green-600/80 text-white rounded-lg flex items-center justify-center transition-all shadow-lg border border-green-500/20"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            onClick={isDemo ? undefined : () => moveAxis('Z', 1)}
+            disabled={isDemo}
+            className={`p-3 rounded-lg flex items-center justify-center transition-all shadow-lg border ${
+              isDemo 
+                ? 'bg-gray-500/20 text-gray-400 border-gray-500/30 cursor-not-allowed'
+                : 'bg-gradient-to-br from-green-600/80 to-green-700/80 hover:from-green-500/80 hover:to-green-600/80 text-white border-green-500/20'
+            } disabled:opacity-50`}
+            whileHover={!isDemo ? { scale: 1.05 } : {}}
+            whileTap={!isDemo ? { scale: 0.95 } : {}}
             title={`Move Z +${distance}mm (Up)`}
           >
             <Plus className="w-5 h-5" />
